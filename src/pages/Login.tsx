@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
@@ -45,11 +45,6 @@ export default function Login() {
       setIsLoading(false);
       setError('Something went wrong. Please try again.');
     }
-  };
-
-  const fillAdmin = () => {
-    setEmail('admin@annatravelagency.com');
-    setPassword('admin123');
   };
 
   return (
@@ -146,22 +141,6 @@ export default function Login() {
                 Sign up
               </Link>
             </p>
-          </div>
-
-          {/* Quick-fill admin credentials */}
-          <div className="mt-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
-            <p className="text-blue-400 text-xs font-medium mb-2">Demo Admin Credentials:</p>
-            <p className="text-gray-400 text-xs mb-3">
-              Email: <code className="text-blue-300">admin@annatravelagency.com</code><br/>
-              Password: <code className="text-blue-300">admin123</code>
-            </p>
-            <button
-              type="button"
-              onClick={fillAdmin}
-              className="w-full py-2 rounded-lg bg-blue-500/20 text-blue-300 text-sm font-medium hover:bg-blue-500/30 transition-all border border-blue-500/30"
-            >
-              ⚡ Auto-fill Admin Credentials
-            </button>
           </div>
         </div>
       </motion.div>

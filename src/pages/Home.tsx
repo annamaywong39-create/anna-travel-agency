@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
 import {
   ArrowRight, Shield, Star, MapPin, Calendar, CreditCard,
   ChevronRight, Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2
@@ -216,7 +216,7 @@ export default function Home() {
                 shadow: 'shadow-blue-500/20',
                 description: 'Premium hotels near stadiums with full amenities, room service, and concierge.',
                 features: ['24/7 Front Desk', 'Room Service', 'Gym & Pool', 'Airport Shuttle'],
-                count: listings.filter(l => l.type === 'hotel').length,
+                count: listings.filter((l: any) => l.type === 'hotel').length,
               },
               {
                 icon: HomeIcon,
@@ -225,7 +225,7 @@ export default function Home() {
                 shadow: 'shadow-emerald-500/20',
                 description: 'Fully furnished apartments perfect for extended stays with kitchen and living space.',
                 features: ['Full Kitchen', 'Living Room', 'Washer/Dryer', 'Local Experience'],
-                count: listings.filter(l => l.type === 'apartment').length,
+                count: listings.filter((l: any) => l.type === 'apartment').length,
               },
               {
                 icon: Key,
@@ -234,9 +234,9 @@ export default function Home() {
                 shadow: 'shadow-purple-500/20',
                 description: 'Short-term rentals available for the entire World Cup period. Perfect for groups.',
                 features: ['Multi-Bedroom', 'Group Friendly', 'Cost Effective', 'Flexible Dates'],
-                count: listings.filter(l => l.type === 'shortlet').length,
+                count: listings.filter((l: any) => l.type === 'shortlet').length,
               },
-            ].map((type, i) => (
+            ].map((type: any, i: number) => (
               <motion.div
                 key={type.title}
                 initial={{ opacity: 0, y: 40 }}
