@@ -41,7 +41,7 @@ const STADIUM_DETAILS: Record<string, { capacity: string; built: string; surface
   vancouver: { capacity: '54,500', built: '1983', surface: 'Artificial turf', image: 'https://images.pexels.com/photos/38104077/pexels-photo-38104077.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=500' },
 };
 
-type TabKey = 'groups' | 'group-stage' | 'knockout';
+type TabKey = 'groups' | 'group-stage' | 'knockout' | 'live';  // Added 'live'
 
 const stageColors: Record<string, string> = { R32: 'from-blue-500 to-cyan-400', R16: 'from-emerald-500 to-green-400', QF: 'from-orange-500 to-amber-400', SF: 'from-red-500 to-rose-400', '3RD': 'from-teal-500 to-cyan-400', FINAL: 'from-amber-400 via-yellow-300 to-amber-500' };
 const stageLabels: Record<string, string> = { R32: 'Round of 32', R16: 'Round of 16', QF: 'Quarter-final', SF: 'Semi-final', '3RD': 'Third-Place Match', FINAL: '🏆 THE FINAL' };
@@ -92,7 +92,7 @@ function MatchScore({ match }: { match: GroupMatch }) {
 }
 
 export default function Schedule() {
-  const [activeTab, setActiveTab] = useState<TabKey>('groups');
+  const [activeTab, setActiveTab] = useState<TabKey>('live');  // 🔥 CHANGED from 'groups' to 'live'
   const [groupFilter, setGroupFilter] = useState('all');
   const [expandedVenue, setExpandedVenue] = useState<string | null>(null);
 
@@ -141,6 +141,7 @@ export default function Schedule() {
             { id: 'groups' as TabKey, label: '🏟️ Groups', count: '12' },
             { id: 'group-stage' as TabKey, label: '⚽ Matches', count: '72' },
             { id: 'knockout' as TabKey, label: '🏆 Knockout', count: '32' },
+            { id: 'live' as TabKey, label: '📊 Live', count: `${liveMatches.length}` },
           ].map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`px-5 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300' : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'}`}>
@@ -282,7 +283,7 @@ export default function Schedule() {
           </motion.div>
         )}
 
-        {/* ═══ LIVE MATCH SCHEDULE FROM SUPABASE ═══ */}
+        {/* ═══ LIVE MATCH TAB ═══ */}
         {activeTab === 'live' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h2 className="text-xl font-bold text-white mb-4">📊 Live Match Data from Supabase</h2>
