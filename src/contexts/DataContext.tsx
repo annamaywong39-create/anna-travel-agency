@@ -41,6 +41,7 @@ interface DataContextType {
   cancelBooking: (id: string) => Promise<void>;
   getUserBookings: (userId: string) => Booking[];
   addReview: (review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
+  deleteReview: (reviewId: string) => Promise<void>;
   getListingReviews: (listingId: string) => Review[];
   getListingAverageRating: (listingId: string) => number;
   saveContactMessage: (msg: { name: string; email: string; subject: string; message: string; type: string }) => Promise<void>;
@@ -148,7 +149,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ── Load data on mount ──
   useEffect(() => {
     if (isDemo) {
-      // Demo: use localStorage
       const sl = localStorage.getItem('ath_listings');
       const sb = localStorage.getItem('ath_bookings');
       const sr = localStorage.getItem('ath_reviews');
@@ -157,7 +157,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setReviews(sr ? JSON.parse(sr) : []);
       setIsLoading(false);
     } else {
-      // Production: fetch from Supabase
       loadFromSupabase();
     }
   }, [isDemo]);
@@ -188,7 +187,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     if (listRes.data) setListings(listRes.data.map(rowToListing));
     if (bookRes.data) setBookings(bookRes.data.map(rowToBooking));
-    if (revRes.data)  setReviews(revRes.data.map(rowToReview));
+    if (revRes.data) setReviews(revRes.data.map(rowToReview));
     setIsLoading(false);
   }
 
@@ -242,13 +241,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ━━━ BOOKINGS ━━━
 
   const addBooking = async (booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> => {
-    // ✅ Generate a real booking ID (FIXES "Supabased" issue)
     const generatedId = generateBookingId();
     
     if (isDemo) {
       const newBooking: Booking = {
         ...booking,
-        id: generatedId,  // ✅ Use generated ID instead of 'Supabased'
+        id: generatedId,
         createdAt: new Date().toISOString(),
       };
       setBookings(prev => [...prev, newBooking]);
@@ -270,7 +268,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }).select().single();
 
       if (error || !data) {
-        // ✅ Fallback: use generated ID
         const fallbackBooking: Booking = {
           ...booking,
           id: generatedId,
@@ -284,7 +281,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setBookings(prev => [...prev, newBooking]);
       return newBooking;
     } catch (error) {
-      // ✅ If any error occurs, use generated ID
       const fallbackBooking: Booking = {
         ...booking,
         id: generatedId,
@@ -320,7 +316,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addReview = async (review: Omit<Review, 'id' | 'createdAt'>) => {
     if (isDemo) {
-      const newReview: Review = { ...review, id: `review-${Date.now()}`, createdAt: new Date().toISOString() };
+      const newReview: Review = {
+        ...review,
+        id: `review-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+      };
       setReviews(prev => [...prev, newReview]);
       return;
     }
@@ -335,6 +335,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     if (!error && data) {
       setReviews(prev => [...prev, rowToReview(data)]);
+    }
+  };
+
+  const deleteReview = async (reviewId: string) => {
+    if (isDemo) {
+      setReviews(prev => prev.filter(r => r.id !== reviewId));
+      return;
+    }
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', reviewId);
+    if (!error) {
+      setReviews(prev => prev.filter(r => r.id !== reviewId));
     }
   };
 
@@ -354,7 +368,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const saveContactMessage = async (msg: { name: string; email: string; subject: string; message: string; type: string }) => {
     if (isDemo) {
-      // Just store locally
       const msgs = JSON.parse(localStorage.getItem('ath_contacts') || '[]');
       msgs.push({ ...msg, id: `msg-${Date.now()}`, createdAt: new Date().toISOString() });
       localStorage.setItem('ath_contacts', JSON.stringify(msgs));
@@ -365,10 +378,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   return (
     <DataContext.Provider value={{
-      listings, bookings, reviews, isLoading, isDemo,
-      addListing, updateListing, deleteListing,
-      addBooking, updateBooking, cancelBooking, getUserBookings,
-      addReview, getListingReviews, getListingAverageRating,
+      listings,
+      bookings,
+      reviews,
+      isLoading,
+      isDemo,
+      addListing,
+      updateListing,
+      deleteListing,
+      addBooking,
+      updateBooking,
+      cancelBooking,
+      getUserBookings,
+      addReview,
+      deleteReview,
+      getListingReviews,
+      getListingAverageRating,
       saveContactMessage,
     }}>
       {children}

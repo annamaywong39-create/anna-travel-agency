@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, ThumbsUp, Flag } from 'lucide-react';
+import { Star, ThumbsUp, Flag, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import Card3D from './Card3D';
@@ -11,7 +11,7 @@ interface ReviewSectionProps {
 
 export default function ReviewSection({ listingId }: ReviewSectionProps) {
   const { user } = useAuth();
-  const { addReview, getListingReviews, getListingAverageRating } = useData();
+  const { addReview, getListingReviews, getListingAverageRating, deleteReview } = useData();
   const reviews = getListingReviews(listingId);
   const averageRating = getListingAverageRating(listingId);
 
@@ -20,11 +20,13 @@ export default function ReviewSection({ listingId }: ReviewSectionProps) {
   const [comment, setComment] = useState('');
   const [hoveredStar, setHoveredStar] = useState(0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isAdmin = user?.role === 'admin';
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    addReview({
+    await addReview({
       listingId,
       userId: user.id,
       userName: `${user.firstName} ${user.lastName}`,
@@ -35,6 +37,12 @@ export default function ReviewSection({ listingId }: ReviewSectionProps) {
     setShowForm(false);
     setComment('');
     setRating(5);
+  };
+
+  const handleDelete = async (reviewId: string) => {
+    if (window.confirm('Are you sure you want to delete this review?')) {
+      await deleteReview(reviewId);
+    }
   };
 
   const getRatingDistribution = () => {
@@ -180,13 +188,24 @@ export default function ReviewSection({ listingId }: ReviewSectionProps) {
                       </p>
                     </div>
                   </div>
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`w-4 h-4 ${star <= review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-600'}`}
-                      />
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${star <= review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-600'}`}
+                        />
+                      ))}
+                    </div>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(review.id)}
+                        className="ml-2 p-1 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
+                        title="Delete review"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed">{review.comment}</p>

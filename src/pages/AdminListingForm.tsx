@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Plus, X } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { HOST_CITIES, type Listing } from '../data/constants';
@@ -10,7 +10,12 @@ import Card3D from '../components/Card3D';
 const AMENITY_OPTIONS = [
   'WiFi', 'Pool', 'Gym', 'Parking', 'Kitchen', 'AC', 'TV', 'Washer',
   'Room Service', 'Restaurant', 'Bar', 'Spa', 'Balcony', 'Garden',
-  'Beach', 'Mountain View', 'Lake View', 'Security', 'Concierge', 'BBQ'
+  'Beach', 'Mountain View', 'Lake View', 'Security', 'Concierge', 'BBQ',
+  'Water Park', 'Business Center', 'Shuttle', 'Breakfast', 'Casino',
+  'Music Theme', 'Art Gallery', 'Workspace', 'Terrace', 'Rooftop',
+  'Stadium Views', 'Beach Access', 'Waterfront', 'Mountain Views',
+  'Exposed Brick', 'Elevator', 'Central Heating', 'Bike Storage',
+  'Laundry', 'Kitchen', 'Lake View'
 ];
 
 export default function AdminListingForm() {
@@ -41,6 +46,7 @@ export default function AdminListingForm() {
   });
 
   const [newAmenity, setNewAmenity] = useState('');
+  const [newImage, setNewImage] = useState('');
 
   useEffect(() => {
     if (existingListing) {
@@ -81,13 +87,47 @@ export default function AdminListingForm() {
     }));
   };
 
+  // ✅ NEW: Handle image management
+  const handleAddImage = () => {
+    if (newImage && newImage.trim()) {
+      // Remove empty first image if it's the only one
+      const filteredImages = formData.images.filter(img => img.trim() !== '');
+      setFormData(prev => ({
+        ...prev,
+        images: [...filteredImages, newImage.trim()],
+      }));
+      setNewImage('');
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleImageKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddImage();
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Filter out empty images before saving
+    const cleanImages = formData.images.filter(img => img.trim() !== '');
+    const cleanData = {
+      ...formData,
+      images: cleanImages.length > 0 ? cleanImages : [''],
+    };
+    
     if (isEditing && id) {
-      updateListing(id, formData);
+      updateListing(id, cleanData);
     } else {
-      addListing(formData);
+      addListing(cleanData);
     }
     
     navigate('/admin');
@@ -202,24 +242,61 @@ export default function AdminListingForm() {
                 </div>
               </div>
 
-              {/* Images */}
+              {/* ✅ Multiple Images */}
               <div>
-                <label className="text-sm text-gray-400 mb-1 block">Primary Image URL *</label>
-                <div className="flex gap-3">
-                  <input
-                    type="url"
-                    required
-                    value={formData.images[0]}
-                    onChange={(e) => setFormData(prev => ({ ...prev, images: [e.target.value] }))}
-                    placeholder="https://..."
-                    className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
-                  />
-                  {formData.images[0] && (
-                    <div className="w-16 h-12 rounded-lg overflow-hidden border border-white/10">
-                      <img src={formData.images[0]} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
+                <label className="text-sm text-gray-400 mb-2 block">Images *</label>
+                
+                {/* Image list */}
+                {formData.images.filter(img => img.trim() !== '').length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+                    {formData.images.filter(img => img.trim() !== '').map((img, index) => (
+                      <div key={index} className="relative group rounded-xl overflow-hidden border border-white/10">
+                        <img
+                          src={img}
+                          alt={`Property image ${index + 1}`}
+                          className="w-full h-24 object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200x150/1a1a2e/666?text=No+Image';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px]">
+                          #{index + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add image input */}
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                      type="url"
+                      value={newImage}
+                      onChange={(e) => setNewImage(e.target.value)}
+                      onKeyDown={handleImageKeyDown}
+                      placeholder="https://images.pexels.com/..."
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddImage}
+                    disabled={!newImage.trim()}
+                    className="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-amber-500/30"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
                 </div>
+                <p className="text-gray-500 text-xs mt-1">Add multiple image URLs. Press Enter or click + to add.</p>
               </div>
 
               {/* Description */}
