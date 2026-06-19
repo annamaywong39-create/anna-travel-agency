@@ -45,7 +45,7 @@ const stageLabels: Record<string, string> = {
 };
 
 // Match score display component
-function MatchScore({ home, homeFlag, away, awayFlag, homeScore, awayScore, status, fullDate }: {
+function MatchScore({ home, homeFlag, away, awayFlag, homeScore, awayScore, status, fullDate, venue, city }: {
   home: string;
   homeFlag: string;
   away: string;
@@ -54,47 +54,41 @@ function MatchScore({ home, homeFlag, away, awayFlag, homeScore, awayScore, stat
   awayScore?: number;
   status?: string;
   fullDate?: string;
+  venue?: string;
+  city?: string;
 }) {
   const matchStatus = fullDate ? getMatchStatus(fullDate) : 'upcoming';
   const hasScore = homeScore !== undefined && awayScore !== undefined;
 
-  if (matchStatus === 'played' && hasScore) {
-    return (
-      <div className="flex items-center justify-center gap-2 md:gap-3 min-w-0">
-        <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{home}</span>
-        <span className="text-lg md:text-xl">{homeFlag}</span>
-        <div className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center gap-1">
-          <span className="text-white font-bold text-base md:text-lg">{homeScore}</span>
-          <span className="text-gray-500 text-xs">-</span>
-          <span className="text-white font-bold text-base md:text-lg">{awayScore}</span>
-        </div>
-        <span className="text-lg md:text-xl">{awayFlag}</span>
-        <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{away}</span>
-      </div>
-    );
-  }
-
-  if (matchStatus === 'live') {
-    return (
-      <div className="flex items-center justify-center gap-2 md:gap-3 min-w-0">
-        <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{home}</span>
-        <span className="text-lg md:text-xl">{homeFlag}</span>
-        <div className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30 animate-pulse">
-          <span className="text-red-400 font-bold text-xs">LIVE</span>
-        </div>
-        <span className="text-lg md:text-xl">{awayFlag}</span>
-        <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{away}</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex items-center justify-center gap-2 md:gap-3 min-w-0">
-      <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{home}</span>
-      <span className="text-lg md:text-xl">{homeFlag}</span>
-      <span className="text-gray-500 text-xs font-bold px-2">vs</span>
-      <span className="text-lg md:text-xl">{awayFlag}</span>
-      <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{away}</span>
+    <div>
+      <div className="flex items-center justify-start gap-2 md:gap-3 min-w-0">
+        <span className="text-sm md:text-base text-white font-medium text-right">{home}</span>
+        <span className="text-lg md:text-xl">{homeFlag}</span>
+        {matchStatus === 'played' && hasScore ? (
+          <div className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center gap-1">
+            <span className="text-white font-bold text-base md:text-lg">{homeScore}</span>
+            <span className="text-gray-500 text-xs">-</span>
+            <span className="text-white font-bold text-base md:text-lg">{awayScore}</span>
+          </div>
+        ) : matchStatus === 'live' ? (
+          <div className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30 animate-pulse">
+            <span className="text-red-400 font-bold text-xs">LIVE</span>
+          </div>
+        ) : (
+          <span className="text-gray-500 text-xs font-bold px-2">vs</span>
+        )}
+        <span className="text-lg md:text-xl">{awayFlag}</span>
+        <span className="text-sm md:text-base text-white font-medium text-left">{away}</span>
+      </div>
+      {/* Location display */}
+      {venue && (
+        <div className="flex items-center gap-1 text-gray-400 text-xs mt-1 ml-1">
+          <MapPin className="w-3 h-3" />
+          <span>{venue}</span>
+          {city && venue !== city && <span>, {city}</span>}
+        </div>
+      )}
     </div>
   );
 }
@@ -109,11 +103,6 @@ export default function Schedule() {
 
   // Get only live matches (status === 'live' or 'in_progress')
   const liveOnlyMatches = liveMatches.filter(m => m.status === 'live' || m.status === 'in_progress');
-
-  // Filter matches by city
-  const cityMatches = selectedCity
-    ? liveMatches.filter(m => m.city?.toLowerCase().includes(selectedCity.toLowerCase()))
-    : [];
 
   return (
     <main className="pt-24 pb-20 min-h-screen">
@@ -227,11 +216,9 @@ export default function Schedule() {
                               awayScore={match.away_score}
                               status={match.status}
                               fullDate={match.match_date}
+                              venue={match.venue}
+                              city={match.city}
                             />
-                          </div>
-                          <div className="hidden md:flex items-center gap-1 text-gray-500 text-xs shrink-0 w-28">
-                            <MapPin className="w-3 h-3" />
-                            <span className="truncate">{match.city}</span>
                           </div>
                         </div>
                       </Card3D>
@@ -285,9 +272,13 @@ export default function Schedule() {
                             <span className="text-amber-400 font-bold">{match.away_score}</span>
                             <span>{match.away_team}</span>
                           </p>
-                          <p className="text-gray-500 text-xs flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> {match.venue}, {match.city}
-                          </p>
+                          <div className="flex items-center gap-1 text-gray-400 text-xs mt-1">
+                            <MapPin className="w-3 h-3" />
+                            <span>{match.venue || match.city || 'TBD'}</span>
+                            {match.venue && match.city && match.venue !== match.city && (
+                              <span>, {match.city}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </Card3D>
