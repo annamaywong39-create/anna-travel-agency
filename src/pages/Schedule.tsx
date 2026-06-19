@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Trophy, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Trophy, CheckCircle2, ChevronRight, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
@@ -44,58 +44,87 @@ const stageLabels: Record<string, string> = {
   FINAL: '🏆 THE FINAL'
 };
 
-// Match score display component
-function MatchScore({ home, homeFlag, away, awayFlag, homeScore, awayScore, status, fullDate, venue, city }: {
-  home: string;
-  homeFlag: string;
-  away: string;
-  awayFlag: string;
-  homeScore?: number;
-  awayScore?: number;
-  status?: string;
-  fullDate?: string;
-  venue?: string;
-  city?: string;
-}) {
-  const matchStatus = fullDate ? getMatchStatus(fullDate) : 'upcoming';
-  const hasScore = homeScore !== undefined && awayScore !== undefined;
+// Get city ID from city name
+function getCityId(cityName: string): string {
+  const cityMap: Record<string, string> = {
+    'Mexico City': 'mexico',
+    'Guadalajara': 'guadalajara',
+    'Monterrey': 'monterrey',
+    'Toronto': 'toronto',
+    'Vancouver': 'vancouver',
+    'New York': 'nyc',
+    'Los Angeles': 'la',
+    'Miami': 'miami',
+    'Houston': 'houston',
+    'Dallas': 'dallas',
+    'Atlanta': 'atlanta',
+    'Seattle': 'seattle',
+    'San Francisco': 'sf',
+    'Boston': 'boston',
+    'Kansas City': 'kansas',
+    'Philadelphia': 'philly',
+    'New York / NJ': 'nyc',
+  };
+  return cityMap[cityName] || cityName.toLowerCase().replace(/\s+/g, '-');
+}
 
+// Match score display component with Book link
+function MatchCard({ match, showBookButton = true }: { match: any; showBookButton?: boolean }) {
+  const status = getMatchStatus(match.match_date);
+  const cityId = getCityId(match.city);
+  
   return (
-    <div>
-      <div className="flex items-center justify-start gap-2 md:gap-3 min-w-0">
-        <span className="text-sm md:text-base text-white font-medium text-right">{home}</span>
-        <span className="text-lg md:text-xl">{homeFlag}</span>
-        {matchStatus === 'played' && hasScore ? (
-          <div className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center gap-1">
-            <span className="text-white font-bold text-base md:text-lg">{homeScore}</span>
-            <span className="text-gray-500 text-xs">-</span>
-            <span className="text-white font-bold text-base md:text-lg">{awayScore}</span>
-          </div>
-        ) : matchStatus === 'live' ? (
-          <div className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30 animate-pulse">
-            <span className="text-red-400 font-bold text-xs">LIVE</span>
-          </div>
-        ) : (
-          <span className="text-gray-500 text-xs font-bold px-2">vs</span>
-        )}
-        <span className="text-lg md:text-xl">{awayFlag}</span>
-        <span className="text-sm md:text-base text-white font-medium text-left">{away}</span>
+    <div className={`flex items-center gap-2 md:gap-4 p-3 md:p-4 ${status === 'played' ? 'opacity-80' : ''} ${status === 'live' ? 'ring-1 ring-red-500/50' : ''}`}>
+      <div className="text-center shrink-0 w-14 md:w-20">
+        <span className="text-xs text-amber-400 font-medium block">{match.match_date}</span>
+        {status === 'played' && match.home_score !== undefined && <span className="block text-[9px] text-green-400 mt-0.5">FT</span>}
+        {status === 'live' && <span className="block text-[9px] text-red-400 mt-0.5 animate-pulse">● LIVE</span>}
       </div>
-      {/* Location display */}
-      {venue && (
-        <div className="flex items-center gap-1 text-gray-400 text-xs mt-1 ml-1">
-          <MapPin className="w-3 h-3" />
-          <span>{venue}</span>
-          {city && venue !== city && <span>, {city}</span>}
+      <div className="w-px h-10 bg-gradient-to-b from-amber-500/50 to-red-500/50 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-start gap-2 md:gap-3">
+          <span className="text-sm md:text-base text-white font-medium text-right">{match.home_team}</span>
+          <span className="text-lg md:text-xl">{getFlag(match.home_team)}</span>
+          {status === 'played' && match.home_score !== undefined ? (
+            <div className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center gap-1">
+              <span className="text-white font-bold text-base md:text-lg">{match.home_score}</span>
+              <span className="text-gray-500 text-xs">-</span>
+              <span className="text-white font-bold text-base md:text-lg">{match.away_score}</span>
+            </div>
+          ) : status === 'live' ? (
+            <div className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30 animate-pulse">
+              <span className="text-red-400 font-bold text-xs">LIVE</span>
+            </div>
+          ) : (
+            <span className="text-gray-500 text-xs font-bold px-2">vs</span>
+          )}
+          <span className="text-lg md:text-xl">{getFlag(match.away_team)}</span>
+          <span className="text-sm md:text-base text-white font-medium text-left">{match.away_team}</span>
         </div>
-      )}
+        {/* Location and Book link */}
+        <div className="flex items-center gap-3 mt-1 flex-wrap">
+          <div className="flex items-center gap-1 text-gray-400 text-xs">
+            <MapPin className="w-3 h-3" />
+            <span>{match.venue || 'TBD'}</span>
+            {match.city && match.venue !== match.city && <span>, {match.city}</span>}
+          </div>
+          {showBookButton && match.city && (
+            <Link
+              to={`/listings?city=${encodeURIComponent(match.city)}`}
+              className="flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs hover:bg-amber-500/30 transition-all border border-amber-500/30"
+            >
+              <Home className="w-3 h-3" />
+              <span>Book in {match.city}</span>
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function Schedule() {
   const [activeTab, setActiveTab] = useState<TabKey>('played');
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [expandedVenue, setExpandedVenue] = useState<string | null>(null);
 
   // 🔥 LIVE DATA FROM SUPABASE
@@ -119,11 +148,11 @@ export default function Schedule() {
             <span className="bg-gradient-to-r from-amber-300 to-red-400 bg-clip-text text-transparent">Match Schedule</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            48 teams · 16 venues · 3 countries — Live scores auto-update.
+            48 teams · 16 venues · 3 countries — Book accommodation directly from any match!
           </p>
         </motion.div>
 
-        {/* Tabs — Only 3 */}
+        {/* Tabs */}
         <div className="flex gap-2 mb-8 justify-center flex-wrap">
           {[
             { id: 'played' as TabKey, label: '⚽ Played Matches', icon: '📋' },
@@ -194,37 +223,13 @@ export default function Schedule() {
               <div className="py-12 text-center text-gray-400">📭 No matches found in the database.</div>
             ) : (
               <div className="space-y-2">
-                {liveMatches.map((match, i) => {
-                  const status = getMatchStatus(match.match_date);
-                  return (
-                    <motion.div key={match.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
-                      <Card3D>
-                        <div className={`flex items-center gap-2 md:gap-4 p-3 md:p-4 ${status === 'played' ? 'opacity-80' : ''} ${status === 'live' ? 'ring-1 ring-red-500/50' : ''}`}>
-                          <div className="text-center shrink-0 w-14 md:w-20">
-                            <span className="text-xs text-amber-400 font-medium block">{match.match_date}</span>
-                            {status === 'played' && match.home_score !== undefined && <span className="block text-[9px] text-green-400 mt-0.5">FT</span>}
-                            {status === 'live' && <span className="block text-[9px] text-red-400 mt-0.5 animate-pulse">● LIVE</span>}
-                          </div>
-                          <div className="w-px h-10 bg-gradient-to-b from-amber-500/50 to-red-500/50 shrink-0" />
-                          <div className="flex-1">
-                            <MatchScore
-                              home={match.home_team}
-                              homeFlag={getFlag(match.home_team)}
-                              away={match.away_team}
-                              awayFlag={getFlag(match.away_team)}
-                              homeScore={match.home_score}
-                              awayScore={match.away_score}
-                              status={match.status}
-                              fullDate={match.match_date}
-                              venue={match.venue}
-                              city={match.city}
-                            />
-                          </div>
-                        </div>
-                      </Card3D>
-                    </motion.div>
-                  );
-                })}
+                {liveMatches.map((match, i) => (
+                  <motion.div key={match.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
+                    <Card3D>
+                      <MatchCard match={match} showBookButton={true} />
+                    </Card3D>
+                  </motion.div>
+                ))}
               </div>
             )}
           </motion.div>
@@ -272,11 +277,20 @@ export default function Schedule() {
                             <span className="text-amber-400 font-bold">{match.away_score}</span>
                             <span>{match.away_team}</span>
                           </p>
-                          <div className="flex items-center gap-1 text-gray-400 text-xs mt-1">
-                            <MapPin className="w-3 h-3" />
-                            <span>{match.venue || match.city || 'TBD'}</span>
-                            {match.venue && match.city && match.venue !== match.city && (
-                              <span>, {match.city}</span>
+                          <div className="flex items-center gap-3 mt-1 flex-wrap">
+                            <div className="flex items-center gap-1 text-gray-400 text-xs">
+                              <MapPin className="w-3 h-3" />
+                              <span>{match.venue || 'TBD'}</span>
+                              {match.city && match.venue !== match.city && <span>, {match.city}</span>}
+                            </div>
+                            {match.city && (
+                              <Link
+                                to={`/listings?city=${encodeURIComponent(match.city)}`}
+                                className="flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs hover:bg-amber-500/30 transition-all border border-amber-500/30"
+                              >
+                                <Home className="w-3 h-3" />
+                                <span>Book in {match.city}</span>
+                              </Link>
                             )}
                           </div>
                         </div>
@@ -327,9 +341,20 @@ export default function Schedule() {
                                 ) : (
                                   <p className="text-white font-medium text-sm md:text-base">{match.home} <span className="text-gray-500">vs</span> {match.away}</p>
                                 )}
-                                <p className="text-gray-500 text-xs flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" /> {match.venue}, {match.city}
-                                </p>
+                                <div className="flex items-center gap-3 mt-1 flex-wrap">
+                                  <p className="text-gray-500 text-xs flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" /> {match.venue}, {match.city}
+                                  </p>
+                                  {match.city && (
+                                    <Link
+                                      to={`/listings?city=${encodeURIComponent(match.city)}`}
+                                      className="flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs hover:bg-amber-500/30 transition-all border border-amber-500/30"
+                                    >
+                                      <Home className="w-3 h-3" />
+                                      <span>Book in {match.city}</span>
+                                    </Link>
+                                  )}
+                                </div>
                               </div>
                               {stage === 'FINAL' && <Trophy className="w-5 h-5 text-amber-400 shrink-0" />}
                             </div>
@@ -347,7 +372,7 @@ export default function Schedule() {
         {/* ═══ HOST VENUES WITH CITY CLICK ═══ */}
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mt-16">
           <h2 className="text-2xl font-bold text-white mb-6 text-center">🏟️ All 16 Host Venues</h2>
-          <p className="text-gray-500 text-sm text-center mb-6">Click any city to see matches held there — plan your accommodation!</p>
+          <p className="text-gray-500 text-sm text-center mb-6">Click any city to see matches and book accommodation there!</p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {HOST_CITIES.map((city) => {
@@ -389,17 +414,32 @@ export default function Schedule() {
                                     <span className="text-white">
                                       {match.home_team} vs {match.away_team}
                                     </span>
-                                    <span className="text-gray-400 text-xs">{match.match_date}</span>
+                                    <Link
+                                      to={`/listings?city=${encodeURIComponent(city.name)}`}
+                                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[10px] hover:bg-amber-500/30 transition-all"
+                                    >
+                                      <Home className="w-3 h-3" />
+                                      Book
+                                    </Link>
                                   </div>
                                 ))}
                             </div>
                           )}
-                          <Link
-                            to={`/city/${city.id}`}
-                            className="mt-3 w-full py-2 rounded-lg bg-amber-500/10 text-amber-400 text-sm hover:bg-amber-500/20 transition-all flex items-center justify-center gap-1"
-                          >
-                            View all in {city.name} <ChevronRight className="w-4 h-4" />
-                          </Link>
+                          <div className="mt-3 flex gap-2">
+                            <Link
+                              to={`/city/${city.id}`}
+                              className="flex-1 py-2 rounded-lg bg-amber-500/10 text-amber-400 text-sm hover:bg-amber-500/20 transition-all flex items-center justify-center gap-1"
+                            >
+                              View all <ChevronRight className="w-4 h-4" />
+                            </Link>
+                            <Link
+                              to={`/listings?city=${encodeURIComponent(city.name)}`}
+                              className="flex-1 py-2 rounded-lg bg-amber-500/20 text-amber-300 text-sm hover:bg-amber-500/30 transition-all flex items-center justify-center gap-1 border border-amber-500/30"
+                            >
+                              <Home className="w-4 h-4" />
+                              Book Accommodation
+                            </Link>
+                          </div>
                         </div>
                       </Card3D>
                     </motion.div>
