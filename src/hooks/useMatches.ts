@@ -25,15 +25,21 @@ export function useMatches() {
 
   async function fetchMatches() {
     try {
+      console.log("🔄 Fetching matches from Supabase...");
       setLoading(true);
+      
       const { data, error } = await supabase
         .from('matches')
         .select('*')
         .order('match_date', { ascending: true });
 
+      console.log("📦 Data received:", data);
+      console.log("❌ Error:", error);
+
       if (error) throw error;
       setMatches(data || []);
     } catch (err: any) {
+      console.error("💥 Catch error:", err);
       setError(err.message);
     } finally {
       setLoading(false);

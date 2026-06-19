@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Trophy, CheckCircle2 } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -98,6 +98,12 @@ export default function Schedule() {
 
   // 🔥 LIVE DATA FROM SUPABASE
   const { matches: liveMatches, loading, error } = useMatches();
+
+  // Log for debugging
+  console.log("🔍 LIVE MATCHES FROM SUPABASE:", liveMatches);
+  console.log("📊 COUNT:", liveMatches.length);
+  console.log("🔄 LOADING:", loading);
+  console.log("❌ ERROR:", error);
 
   const filteredGroupMatches = groupFilter === 'all'
     ? GROUP_MATCHES
@@ -273,6 +279,54 @@ export default function Schedule() {
                 </div>
               );
             })}
+          </motion.div>
+        )}
+
+        {/* ═══ LIVE MATCH SCHEDULE FROM SUPABASE ═══ */}
+        {activeTab === 'live' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <h2 className="text-xl font-bold text-white mb-4">📊 Live Match Data from Supabase</h2>
+            
+            {loading ? (
+              <div className="py-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent"></div>
+                <p className="text-gray-400 mt-4">Loading matches...</p>
+              </div>
+            ) : error ? (
+              <div className="py-12 text-center text-red-400">
+                ❌ Error loading matches: {error}
+              </div>
+            ) : liveMatches.length === 0 ? (
+              <div className="py-12 text-center text-gray-400">
+                📭 No matches found in the database.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {liveMatches.map((match, i) => (
+                  <motion.div key={match.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}>
+                    <Card3D>
+                      <div className="flex items-center gap-2 md:gap-4 p-3 md:p-4">
+                        <div className="text-center shrink-0 w-14 md:w-20">
+                          <span className="text-xs text-amber-400 font-medium block">{match.match_date}</span>
+                        </div>
+                        <div className="w-px h-10 bg-gradient-to-b from-amber-500/50 to-red-500/50 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-white font-medium text-sm md:text-base">
+                            {match.home_team} <span className="text-amber-400 font-bold">{match.home_score}</span> - <span className="text-amber-400 font-bold">{match.away_score}</span> {match.away_team}
+                          </p>
+                          <p className="text-gray-500 text-xs flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {match.venue}, {match.city}
+                          </p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs ${match.status === 'finished' ? 'bg-green-500/20 text-green-400' : match.status === 'live' ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                          {match.status}
+                        </span>
+                      </div>
+                    </Card3D>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 
