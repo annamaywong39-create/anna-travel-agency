@@ -87,10 +87,9 @@ export default function AdminListingForm() {
     }));
   };
 
-  // ✅ NEW: Handle image management
+  // ✅ Image management
   const handleAddImage = () => {
     if (newImage && newImage.trim()) {
-      // Remove empty first image if it's the only one
       const filteredImages = formData.images.filter(img => img.trim() !== '');
       setFormData(prev => ({
         ...prev,
@@ -117,7 +116,6 @@ export default function AdminListingForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Filter out empty images before saving
     const cleanImages = formData.images.filter(img => img.trim() !== '');
     const cleanData = {
       ...formData,
