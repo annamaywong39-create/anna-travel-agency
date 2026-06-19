@@ -4,6 +4,7 @@ import { Calendar, MapPin, Trophy, CheckCircle2 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
 import { HOST_CITIES } from '../data/constants';
+import { useMatches } from '../hooks/useMatches';
 import { GROUP_MATCHES, KNOCKOUT_MATCHES, getMatchStatus, type GroupMatch } from '../data/matches';
 
 const GROUPS = [
@@ -94,6 +95,9 @@ export default function Schedule() {
   const [activeTab, setActiveTab] = useState<TabKey>('groups');
   const [groupFilter, setGroupFilter] = useState('all');
   const [expandedVenue, setExpandedVenue] = useState<string | null>(null);
+
+  // 🔥 LIVE DATA FROM SUPABASE
+  const { matches: liveMatches, loading, error } = useMatches();
 
   const filteredGroupMatches = groupFilter === 'all'
     ? GROUP_MATCHES
