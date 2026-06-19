@@ -119,30 +119,25 @@ export default function Booking() {
     if (validateDetails()) setStep('payment');
   };
 
+  // ✅ CORRECTED handlePayment function (no duplicate code)
   const handlePayment = async () => {
-  if (!validatePayment()) return;
-  setIsProcessing(true);
-  await new Promise(r => setTimeout(r, 2500));
+    if (!validatePayment()) return;
+    setIsProcessing(true);
+    await new Promise(r => setTimeout(r, 2500));
 
-  const booking = await addBooking({
-    listingId: listing.id,
-    userId: user?.id || 'guest',
-    userEmail: formData.email,
-    userName: `${formData.firstName} ${formData.lastName}`,
-    checkIn: formData.checkIn,
-    checkOut: formData.checkOut,
-    guests: parseInt(formData.guests),
-    totalPrice: total,
-    status: paymentMethod === 'card' ? 'confirmed' : 'pending',
-    specialRequests: formData.specialRequests,
-  });
+    const booking = await addBooking({
+      listingId: listing.id,
+      userId: user?.id || 'guest',
+      userEmail: formData.email,
+      userName: `${formData.firstName} ${formData.lastName}`,
+      checkIn: formData.checkIn,
+      checkOut: formData.checkOut,
+      guests: parseInt(formData.guests),
+      totalPrice: total,
+      status: paymentMethod === 'card' ? 'confirmed' : 'pending',
+      specialRequests: formData.specialRequests,
+    });
 
-  // ✅ Use the ID from the booking (which is now a real ID)
-  // ✅ The DataContext now generates a proper ID like 'ANA-123456-ABCD'
-  setBookingId(booking.id);
-  setIsProcessing(false);
-  setStep('confirmation');
-};
     setBookingId(booking.id);
     setIsProcessing(false);
     setStep('confirmation');
@@ -186,7 +181,7 @@ export default function Booking() {
           <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
 
-              {/* ═══ STEP 1: DETAILS ═══ */}
+              {/* STEP 1: DETAILS */}
               {step === 'details' && (
                 <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                   <Card3D>
@@ -245,7 +240,7 @@ export default function Booking() {
                 </motion.div>
               )}
 
-              {/* ═══ STEP 2: PAYMENT ═══ */}
+              {/* STEP 2: PAYMENT */}
               {step === 'payment' && (
                 <motion.div key="payment" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                   <Card3D>
@@ -257,7 +252,6 @@ export default function Booking() {
                         <Lock className="w-3 h-3" /> All payments are encrypted and secure
                       </p>
 
-                      {/* ── Payment method selector ── */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
                         {PAYMENT_METHODS.map((m) => (
                           <button
@@ -276,7 +270,6 @@ export default function Booking() {
                         ))}
                       </div>
 
-                      {/* ── Confirmation time warning ── */}
                       <motion.div
                         key={paymentMethod}
                         initial={{ opacity: 0, y: -5 }}
@@ -297,7 +290,7 @@ export default function Booking() {
                         </div>
                       </motion.div>
 
-                      {/* ── CARD FORM ── */}
+                      {/* CARD FORM */}
                       {paymentMethod === 'card' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div>
@@ -326,7 +319,7 @@ export default function Booking() {
                         </motion.div>
                       )}
 
-                      {/* ── CRYPTO FORM ── */}
+                      {/* CRYPTO FORM */}
                       {paymentMethod === 'crypto' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div>
@@ -367,7 +360,7 @@ export default function Booking() {
                         </motion.div>
                       )}
 
-                      {/* ── BANK TRANSFER FORM ── */}
+                      {/* BANK TRANSFER FORM */}
                       {paymentMethod === 'bank' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
@@ -399,7 +392,7 @@ export default function Booking() {
                         </motion.div>
                       )}
 
-                      {/* ── STEAM CARD FORM ── */}
+                      {/* STEAM CARD FORM */}
                       {paymentMethod === 'steam' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
@@ -425,7 +418,6 @@ export default function Booking() {
                         </motion.div>
                       )}
 
-                      {/* ── Action buttons ── */}
                       <div className="flex gap-3 mt-6">
                         <button onClick={() => setStep('details')}
                           className="px-6 py-4 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition-all">
@@ -446,7 +438,7 @@ export default function Booking() {
                 </motion.div>
               )}
 
-              {/* ═══ STEP 3: CONFIRMATION ═══ */}
+              {/* STEP 3: CONFIRMATION */}
               {step === 'confirmation' && (
                 <motion.div key="confirmation" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
                   <Card3D glowColor="rgba(34, 197, 94, 0.2)">
@@ -462,7 +454,6 @@ export default function Booking() {
                         </h2>
                         <p className="text-gray-400 mb-4">Your World Cup accommodation is secured.</p>
 
-                        {/* Payment confirmation time warning */}
                         <div className={`mx-auto max-w-md mb-6 p-4 rounded-xl border flex items-start gap-3 text-left ${
                           paymentMethod === 'crypto' ? 'bg-green-500/10 border-green-500/20' :
                           paymentMethod === 'bank' ? 'bg-orange-500/10 border-orange-500/20' :
@@ -516,7 +507,7 @@ export default function Booking() {
             </AnimatePresence>
           </div>
 
-          {/* ═══ SIDEBAR ═══ */}
+          {/* SIDEBAR */}
           <div className="lg:col-span-1">
             <div className="sticky top-28">
               <Card3D>
@@ -542,7 +533,6 @@ export default function Booking() {
                     </div>
                   </div>
 
-                  {/* Payment method indicator */}
                   {step === 'payment' && (
                     <div className={`mt-4 p-3 rounded-lg border ${
                       paymentMethod === 'crypto' ? 'bg-green-500/10 border-green-500/20' :
