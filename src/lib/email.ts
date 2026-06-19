@@ -104,7 +104,7 @@ export const EMAIL_TEMPLATES = {
     const { to, subject, html } = await req.json();
 
     const { data, error } = await resend.emails.send({
-      from: 'Anna Travel Agency <bookings@annatravelagency.com>',
+      from: 'Anna Travel Agency <hello@annatravelagency.com>',
       to: [to],
       subject,
       html,

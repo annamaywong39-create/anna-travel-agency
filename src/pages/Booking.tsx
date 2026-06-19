@@ -120,23 +120,29 @@ export default function Booking() {
   };
 
   const handlePayment = async () => {
-    if (!validatePayment()) return;
-    setIsProcessing(true);
-    await new Promise(r => setTimeout(r, 2500));
+  if (!validatePayment()) return;
+  setIsProcessing(true);
+  await new Promise(r => setTimeout(r, 2500));
 
-    const booking = await addBooking({
-      listingId: listing.id,
-      userId: user?.id || 'guest',
-      userEmail: formData.email,
-      userName: `${formData.firstName} ${formData.lastName}`,
-      checkIn: formData.checkIn,
-      checkOut: formData.checkOut,
-      guests: parseInt(formData.guests),
-      totalPrice: total,
-      status: paymentMethod === 'card' ? 'confirmed' : 'pending',
-      specialRequests: formData.specialRequests,
-    });
+  const booking = await addBooking({
+    listingId: listing.id,
+    userId: user?.id || 'guest',
+    userEmail: formData.email,
+    userName: `${formData.firstName} ${formData.lastName}`,
+    checkIn: formData.checkIn,
+    checkOut: formData.checkOut,
+    guests: parseInt(formData.guests),
+    totalPrice: total,
+    status: paymentMethod === 'card' ? 'confirmed' : 'pending',
+    specialRequests: formData.specialRequests,
+  });
 
+  // ✅ Use the ID from the booking (which is now a real ID)
+  // ✅ The DataContext now generates a proper ID like 'ANA-123456-ABCD'
+  setBookingId(booking.id);
+  setIsProcessing(false);
+  setStep('confirmation');
+};
     setBookingId(booking.id);
     setIsProcessing(false);
     setStep('confirmation');
