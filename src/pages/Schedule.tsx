@@ -1,13 +1,30 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Trophy, CheckCircle2 } from 'lucide-react';
+import { Calendar, MapPin, Trophy, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
 import { HOST_CITIES } from '../data/constants';
 import { useMatches } from '../hooks/useMatches';
 import { KNOCKOUT_MATCHES, getMatchStatus, type GroupMatch } from '../data/matches';
 
-type TabKey = 'group-stage' | 'live' | 'knockout';
+type TabKey = 'played' | 'live' | 'knockout';
+
+// Team groups (hardcoded for display)
+const GROUPS = [
+  { name: 'Group A', teams: [{ flag: '🇲🇽', name: 'Mexico' }, { flag: '🇿🇦', name: 'South Africa' }, { flag: '🇰🇷', name: 'South Korea' }, { flag: '🇨🇿', name: 'Czechia' }] },
+  { name: 'Group B', teams: [{ flag: '🇨🇦', name: 'Canada' }, { flag: '🇧🇦', name: 'Bosnia & Herz.' }, { flag: '🇶🇦', name: 'Qatar' }, { flag: '🇨🇭', name: 'Switzerland' }] },
+  { name: 'Group C', teams: [{ flag: '🇧🇷', name: 'Brazil' }, { flag: '🇲🇦', name: 'Morocco' }, { flag: '🇭🇹', name: 'Haiti' }, { flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', name: 'Scotland' }] },
+  { name: 'Group D', teams: [{ flag: '🇺🇸', name: 'United States' }, { flag: '🇵🇾', name: 'Paraguay' }, { flag: '🇦🇺', name: 'Australia' }, { flag: '🇹🇷', name: 'Türkiye' }] },
+  { name: 'Group E', teams: [{ flag: '🇩🇪', name: 'Germany' }, { flag: '🇪🇨', name: 'Ecuador' }, { flag: '🇨🇮', name: "Côte d'Ivoire" }, { flag: '🇨🇼', name: 'Curaçao' }] },
+  { name: 'Group F', teams: [{ flag: '🇳🇱', name: 'Netherlands' }, { flag: '🇯🇵', name: 'Japan' }, { flag: '🇸🇪', name: 'Sweden' }, { flag: '🇹🇳', name: 'Tunisia' }] },
+  { name: 'Group G', teams: [{ flag: '🇧🇪', name: 'Belgium' }, { flag: '🇮🇷', name: 'Iran' }, { flag: '🇪🇬', name: 'Egypt' }, { flag: '🇳🇿', name: 'New Zealand' }] },
+  { name: 'Group H', teams: [{ flag: '🇪🇸', name: 'Spain' }, { flag: '🇺🇾', name: 'Uruguay' }, { flag: '🇸🇦', name: 'Saudi Arabia' }, { flag: '🇨🇻', name: 'Cape Verde' }] },
+  { name: 'Group I', teams: [{ flag: '🇫🇷', name: 'France' }, { flag: '🇸🇳', name: 'Senegal' }, { flag: '🇮🇶', name: 'Iraq' }, { flag: '🇳🇴', name: 'Norway' }] },
+  { name: 'Group J', teams: [{ flag: '🇦🇷', name: 'Argentina' }, { flag: '🇦🇹', name: 'Austria' }, { flag: '🇩🇿', name: 'Algeria' }, { flag: '🇯🇴', name: 'Jordan' }] },
+  { name: 'Group K', teams: [{ flag: '🇵🇹', name: 'Portugal' }, { flag: '🇨🇴', name: 'Colombia' }, { flag: '🇺🇿', name: 'Uzbekistan' }, { flag: '🇨🇩', name: 'DR Congo' }] },
+  { name: 'Group L', teams: [{ flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'England' }, { flag: '🇭🇷', name: 'Croatia' }, { flag: '🇬🇭', name: 'Ghana' }, { flag: '🇵🇦', name: 'Panama' }] },
+];
 
 const stageColors: Record<string, string> = {
   R32: 'from-blue-500 to-cyan-400',
@@ -27,105 +44,80 @@ const stageLabels: Record<string, string> = {
   FINAL: '🏆 THE FINAL'
 };
 
-// Group stage matches with flags and labels
-const GROUP_STAGE_MATCHES: GroupMatch[] = [
-  // Matchday 1
-  { num: 1, fullDate: '2026-06-11', date: 'Jun 11', time: '2:00 PM', group: 'A', home: 'Mexico', homeFlag: '🇲🇽', away: 'South Africa', awayFlag: '🇿🇦', venue: 'Estadio Azteca', city: 'Mexico City', homeScore: 2, awayScore: 0 },
-  { num: 2, fullDate: '2026-06-11', date: 'Jun 11', time: '9:00 PM', group: 'A', home: 'South Korea', homeFlag: '🇰🇷', away: 'Czechia', awayFlag: '🇨🇿', venue: 'Estadio Akron', city: 'Guadalajara', homeScore: 2, awayScore: 1 },
-  { num: 3, fullDate: '2026-06-12', date: 'Jun 12', time: '2:00 PM', group: 'B', home: 'Canada', homeFlag: '🇨🇦', away: 'Bosnia & Herzegovina', awayFlag: '🇧🇦', venue: 'BMO Field', city: 'Toronto', homeScore: 1, awayScore: 1 },
-  { num: 4, fullDate: '2026-06-12', date: 'Jun 12', time: '8:00 PM', group: 'D', home: 'United States', homeFlag: '🇺🇸', away: 'Paraguay', awayFlag: '🇵🇾', venue: 'SoFi Stadium', city: 'Los Angeles', homeScore: 4, awayScore: 1 },
-  { num: 5, fullDate: '2026-06-13', date: 'Jun 13', time: '2:00 PM', group: 'B', home: 'Qatar', homeFlag: '🇶🇦', away: 'Switzerland', awayFlag: '🇨🇭', venue: "Levi's Stadium", city: 'San Francisco', homeScore: 1, awayScore: 1 },
-  { num: 6, fullDate: '2026-06-13', date: 'Jun 13', time: '5:00 PM', group: 'C', home: 'Brazil', homeFlag: '🇧🇷', away: 'Morocco', awayFlag: '🇲🇦', venue: 'MetLife Stadium', city: 'New York / NJ', homeScore: 1, awayScore: 1 },
-  { num: 7, fullDate: '2026-06-13', date: 'Jun 13', time: '8:00 PM', group: 'C', home: 'Haiti', homeFlag: '🇭🇹', away: 'Scotland', awayFlag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', venue: 'Gillette Stadium', city: 'Boston', homeScore: 0, awayScore: 1 },
-  { num: 8, fullDate: '2026-06-13', date: 'Jun 13', time: '11:00 PM', group: 'D', home: 'Australia', homeFlag: '🇦🇺', away: 'Türkiye', awayFlag: '🇹🇷', venue: 'BC Place', city: 'Vancouver', homeScore: 2, awayScore: 0 },
-  { num: 9, fullDate: '2026-06-14', date: 'Jun 14', time: '12:00 PM', group: 'E', home: 'Germany', homeFlag: '🇩🇪', away: 'Curaçao', awayFlag: '🇨🇼', venue: 'NRG Stadium', city: 'Houston', homeScore: 7, awayScore: 1 },
-  { num: 10, fullDate: '2026-06-14', date: 'Jun 14', time: '3:00 PM', group: 'F', home: 'Netherlands', homeFlag: '🇳🇱', away: 'Japan', awayFlag: '🇯🇵', venue: 'AT&T Stadium', city: 'Dallas', homeScore: 2, awayScore: 2 },
-  { num: 11, fullDate: '2026-06-14', date: 'Jun 14', time: '6:00 PM', group: 'E', home: "Côte d'Ivoire", homeFlag: '🇨🇮', away: 'Ecuador', awayFlag: '🇪🇨', venue: 'Lincoln Financial Field', city: 'Philadelphia', homeScore: 1, awayScore: 0 },
-  { num: 12, fullDate: '2026-06-14', date: 'Jun 14', time: '9:00 PM', group: 'F', home: 'Sweden', homeFlag: '🇸🇪', away: 'Tunisia', awayFlag: '🇹🇳', venue: 'Estadio BBVA', city: 'Monterrey', homeScore: 5, awayScore: 1 },
-  // Matchday 2
-  { num: 25, fullDate: '2026-06-18', date: 'Jun 18', time: '12:00 PM', group: 'A', home: 'Czechia', homeFlag: '🇨🇿', away: 'South Africa', awayFlag: '🇿🇦', venue: 'Mercedes-Benz Stadium', city: 'Atlanta' },
-  { num: 26, fullDate: '2026-06-18', date: 'Jun 18', time: '3:00 PM', group: 'B', home: 'Switzerland', homeFlag: '🇨🇭', away: 'Bosnia & Herzegovina', awayFlag: '🇧🇦', venue: 'SoFi Stadium', city: 'Los Angeles' },
-  { num: 27, fullDate: '2026-06-18', date: 'Jun 18', time: '6:00 PM', group: 'B', home: 'Canada', homeFlag: '🇨🇦', away: 'Qatar', awayFlag: '🇶🇦', venue: 'BC Place', city: 'Vancouver' },
-  { num: 28, fullDate: '2026-06-18', date: 'Jun 18', time: '9:00 PM', group: 'A', home: 'Mexico', homeFlag: '🇲🇽', away: 'South Korea', awayFlag: '🇰🇷', venue: 'Estadio Akron', city: 'Guadalajara' },
-  { num: 29, fullDate: '2026-06-19', date: 'Jun 19', time: '2:00 PM', group: 'C', home: 'Brazil', homeFlag: '🇧🇷', away: 'Haiti', awayFlag: '🇭🇹', venue: 'Lincoln Financial Field', city: 'Philadelphia' },
-  { num: 30, fullDate: '2026-06-19', date: 'Jun 19', time: '6:00 PM', group: 'C', home: 'Scotland', homeFlag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', away: 'Morocco', awayFlag: '🇲🇦', venue: 'Gillette Stadium', city: 'Boston' },
-  { num: 31, fullDate: '2026-06-19', date: 'Jun 19', time: '9:00 PM', group: 'D', home: 'Türkiye', homeFlag: '🇹🇷', away: 'Paraguay', awayFlag: '🇵🇾', venue: "Levi's Stadium", city: 'San Francisco' },
-  { num: 32, fullDate: '2026-06-19', date: 'Jun 19', time: '3:00 PM', group: 'D', home: 'United States', homeFlag: '🇺🇸', away: 'Australia', awayFlag: '🇦🇺', venue: 'Lumen Field', city: 'Seattle' },
-  { num: 33, fullDate: '2026-06-20', date: 'Jun 20', time: '4:00 PM', group: 'E', home: 'Germany', homeFlag: '🇩🇪', away: "Côte d'Ivoire", awayFlag: '🇨🇮', venue: 'BMO Field', city: 'Toronto' },
-  { num: 34, fullDate: '2026-06-20', date: 'Jun 20', time: '7:00 PM', group: 'E', home: 'Ecuador', homeFlag: '🇪🇨', away: 'Curaçao', awayFlag: '🇨🇼', venue: 'Arrowhead Stadium', city: 'Kansas City' },
-  { num: 35, fullDate: '2026-06-20', date: 'Jun 20', time: '12:00 PM', group: 'F', home: 'Netherlands', homeFlag: '🇳🇱', away: 'Sweden', awayFlag: '🇸🇪', venue: 'NRG Stadium', city: 'Houston' },
-  { num: 36, fullDate: '2026-06-20', date: 'Jun 20', time: '10:00 PM', group: 'F', home: 'Tunisia', homeFlag: '🇹🇳', away: 'Japan', awayFlag: '🇯🇵', venue: 'Estadio BBVA', city: 'Monterrey' },
-  // Add remaining group matches as needed...
-];
-
-// Helper to get match status
-function getMatchStatus(fullDate: string): 'played' | 'live' | 'upcoming' {
-  const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
-  if (fullDate === todayStr) return 'live';
-  if (fullDate < todayStr) return 'played';
-  return 'upcoming';
-}
-
 // Match score display component
-function MatchScore({ match }: { match: GroupMatch }) {
-  const status = getMatchStatus(match.fullDate);
-  const hasScore = match.homeScore !== undefined && match.awayScore !== undefined;
+function MatchScore({ home, homeFlag, away, awayFlag, homeScore, awayScore, status, fullDate }: {
+  home: string;
+  homeFlag: string;
+  away: string;
+  awayFlag: string;
+  homeScore?: number;
+  awayScore?: number;
+  status?: string;
+  fullDate?: string;
+}) {
+  const matchStatus = fullDate ? getMatchStatus(fullDate) : 'upcoming';
+  const hasScore = homeScore !== undefined && awayScore !== undefined;
 
-  if (status === 'played' && hasScore) {
+  if (matchStatus === 'played' && hasScore) {
     return (
       <div className="flex items-center justify-center gap-2 md:gap-3 min-w-0">
-        <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{match.home}</span>
-        <span className="text-lg md:text-xl">{match.homeFlag}</span>
+        <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{home}</span>
+        <span className="text-lg md:text-xl">{homeFlag}</span>
         <div className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center gap-1">
-          <span className="text-white font-bold text-base md:text-lg">{match.homeScore}</span>
+          <span className="text-white font-bold text-base md:text-lg">{homeScore}</span>
           <span className="text-gray-500 text-xs">-</span>
-          <span className="text-white font-bold text-base md:text-lg">{match.awayScore}</span>
+          <span className="text-white font-bold text-base md:text-lg">{awayScore}</span>
         </div>
-        <span className="text-lg md:text-xl">{match.awayFlag}</span>
-        <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{match.away}</span>
+        <span className="text-lg md:text-xl">{awayFlag}</span>
+        <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{away}</span>
       </div>
     );
   }
 
-  if (status === 'live') {
+  if (matchStatus === 'live') {
     return (
       <div className="flex items-center justify-center gap-2 md:gap-3 min-w-0">
-        <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{match.home}</span>
-        <span className="text-lg md:text-xl">{match.homeFlag}</span>
+        <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{home}</span>
+        <span className="text-lg md:text-xl">{homeFlag}</span>
         <div className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30 animate-pulse">
           <span className="text-red-400 font-bold text-xs">LIVE</span>
         </div>
-        <span className="text-lg md:text-xl">{match.awayFlag}</span>
-        <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{match.away}</span>
+        <span className="text-lg md:text-xl">{awayFlag}</span>
+        <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{away}</span>
       </div>
     );
   }
 
   return (
     <div className="flex items-center justify-center gap-2 md:gap-3 min-w-0">
-      <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{match.home}</span>
-      <span className="text-lg md:text-xl">{match.homeFlag}</span>
+      <span className="text-sm md:text-base text-white font-medium text-right flex-1 truncate">{home}</span>
+      <span className="text-lg md:text-xl">{homeFlag}</span>
       <span className="text-gray-500 text-xs font-bold px-2">vs</span>
-      <span className="text-lg md:text-xl">{match.awayFlag}</span>
-      <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{match.away}</span>
+      <span className="text-lg md:text-xl">{awayFlag}</span>
+      <span className="text-sm md:text-base text-white font-medium text-left flex-1 truncate">{away}</span>
     </div>
   );
 }
 
 export default function Schedule() {
-  const [activeTab, setActiveTab] = useState<TabKey>('group-stage');
+  const [activeTab, setActiveTab] = useState<TabKey>('played');
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [expandedVenue, setExpandedVenue] = useState<string | null>(null);
+
+  // 🔥 LIVE DATA FROM SUPABASE
   const { matches: liveMatches, loading, error } = useMatches();
 
-  // Get only live matches (status === 'live')
+  // Get only live matches (status === 'live' or 'in_progress')
   const liveOnlyMatches = liveMatches.filter(m => m.status === 'live' || m.status === 'in_progress');
 
-  // Count played matches
-  const playedCount = GROUP_STAGE_MATCHES.filter(m => getMatchStatus(m.fullDate) === 'played' && m.homeScore !== undefined).length;
+  // Filter matches by city
+  const cityMatches = selectedCity
+    ? liveMatches.filter(m => m.city?.toLowerCase().includes(selectedCity.toLowerCase()))
+    : [];
 
   return (
     <main className="pt-24 pb-20 min-h-screen">
-      <SEO title="Match Schedule" description="Full FIFA World Cup 2026 match schedule — group stage, live matches, and knockout rounds." path="/schedule" />
+      <SEO title="Match Schedule" description="FIFA World Cup 2026 match schedule — live scores, group stage, and knockout rounds." path="/schedule" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
@@ -145,7 +137,7 @@ export default function Schedule() {
         {/* Tabs — Only 3 */}
         <div className="flex gap-2 mb-8 justify-center flex-wrap">
           {[
-            { id: 'group-stage' as TabKey, label: '⚽ Group Stage', icon: '🏟️' },
+            { id: 'played' as TabKey, label: '⚽ Played Matches', icon: '📋' },
             { id: 'live' as TabKey, label: `🔴 Live`, icon: '📺', count: liveOnlyMatches.length },
             { id: 'knockout' as TabKey, label: '🏆 Knockout', icon: '🏆' },
           ].map((tab) => (
@@ -169,41 +161,85 @@ export default function Schedule() {
           ))}
         </div>
 
-        {/* ═══ GROUP STAGE TAB ═══ */}
-        {activeTab === 'group-stage' && (
+        {/* ═══ PLAYED MATCHES TAB ═══ */}
+        {activeTab === 'played' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">Group Stage</h2>
-              <span className="text-sm text-gray-500">{playedCount} matches played</span>
-            </div>
-            <div className="space-y-2">
-              {GROUP_STAGE_MATCHES.map((match, i) => {
-                const status = getMatchStatus(match.fullDate);
-                return (
-                  <motion.div key={match.num} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
+            {/* Group Arrangement */}
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-white mb-4">🏟️ Group Arrangement</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {GROUPS.map((group, i) => (
+                  <motion.div key={group.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                     <Card3D>
-                      <div className={`flex items-center gap-2 md:gap-4 p-3 md:p-4 ${status === 'played' ? 'opacity-80' : ''} ${status === 'live' ? 'ring-1 ring-red-500/50' : ''}`}>
-                        <div className="text-center shrink-0 w-14 md:w-20">
-                          <span className="text-xs text-amber-400 font-medium block">{match.date}</span>
-                          <span className="text-[10px] text-gray-500">{match.time}</span>
-                          {status === 'played' && <span className="block text-[9px] text-green-400 mt-0.5">FT</span>}
-                          {status === 'live' && <span className="block text-[9px] text-red-400 mt-0.5 animate-pulse">● LIVE</span>}
-                        </div>
-                        <div className="w-px h-10 bg-gradient-to-b from-amber-500/50 to-red-500/50 shrink-0" />
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/10 text-gray-400 shrink-0">{match.group}</span>
-                        <div className="flex-1">
-                          <MatchScore match={match} />
-                        </div>
-                        <div className="hidden md:flex items-center gap-1 text-gray-500 text-xs shrink-0 w-28">
-                          <MapPin className="w-3 h-3" />
-                          <span className="truncate">{match.city}</span>
+                      <div className="p-4">
+                        <h3 className="text-amber-400 font-bold text-lg mb-3">{group.name}</h3>
+                        <div className="space-y-2">
+                          {group.teams.map((team, j) => (
+                            <div key={j} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5">
+                              <span className="text-xl">{team.flag}</span>
+                              <span className="text-white font-medium text-sm">{team.name}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </Card3D>
                   </motion.div>
-                );
-              })}
+                ))}
+              </div>
             </div>
+
+            {/* All Matches */}
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span>📋 All Matches</span>
+              <span className="text-sm text-gray-500">({liveMatches.length} matches)</span>
+            </h2>
+
+            {loading ? (
+              <div className="py-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent"></div>
+                <p className="text-gray-400 mt-4">Loading matches...</p>
+              </div>
+            ) : error ? (
+              <div className="py-12 text-center text-red-400">❌ Error loading matches: {error}</div>
+            ) : liveMatches.length === 0 ? (
+              <div className="py-12 text-center text-gray-400">📭 No matches found in the database.</div>
+            ) : (
+              <div className="space-y-2">
+                {liveMatches.map((match, i) => {
+                  const status = getMatchStatus(match.match_date);
+                  return (
+                    <motion.div key={match.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.02, 0.5) }}>
+                      <Card3D>
+                        <div className={`flex items-center gap-2 md:gap-4 p-3 md:p-4 ${status === 'played' ? 'opacity-80' : ''} ${status === 'live' ? 'ring-1 ring-red-500/50' : ''}`}>
+                          <div className="text-center shrink-0 w-14 md:w-20">
+                            <span className="text-xs text-amber-400 font-medium block">{match.match_date}</span>
+                            {status === 'played' && match.home_score !== undefined && <span className="block text-[9px] text-green-400 mt-0.5">FT</span>}
+                            {status === 'live' && <span className="block text-[9px] text-red-400 mt-0.5 animate-pulse">● LIVE</span>}
+                          </div>
+                          <div className="w-px h-10 bg-gradient-to-b from-amber-500/50 to-red-500/50 shrink-0" />
+                          <div className="flex-1">
+                            <MatchScore
+                              home={match.home_team}
+                              homeFlag={getFlag(match.home_team)}
+                              away={match.away_team}
+                              awayFlag={getFlag(match.away_team)}
+                              homeScore={match.home_score}
+                              awayScore={match.away_score}
+                              status={match.status}
+                              fullDate={match.match_date}
+                            />
+                          </div>
+                          <div className="hidden md:flex items-center gap-1 text-gray-500 text-xs shrink-0 w-28">
+                            <MapPin className="w-3 h-3" />
+                            <span className="truncate">{match.city}</span>
+                          </div>
+                        </div>
+                      </Card3D>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         )}
 
@@ -316,7 +352,128 @@ export default function Schedule() {
             })}
           </motion.div>
         )}
+
+        {/* ═══ HOST VENUES WITH CITY CLICK ═══ */}
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mt-16">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">🏟️ All 16 Host Venues</h2>
+          <p className="text-gray-500 text-sm text-center mb-6">Click any city to see matches held there — plan your accommodation!</p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {HOST_CITIES.map((city) => {
+              const isExpanded = expandedVenue === city.id;
+              const cityMatchCount = liveMatches.filter(m => m.city?.toLowerCase().includes(city.name.toLowerCase())).length;
+
+              return (
+                <div key={city.id}>
+                  <button
+                    onClick={() => setExpandedVenue(isExpanded ? null : city.id)}
+                    className={`w-full p-3 rounded-xl text-center transition-all ${isExpanded ? 'bg-amber-500/10 border-2 border-amber-500/40 ring-1 ring-amber-500/20' : 'bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20'}`}
+                  >
+                    <span className="text-2xl">{city.countryFlag}</span>
+                    <p className="text-white text-sm font-medium mt-1">{city.name}</p>
+                    <p className={`text-xs mt-0.5 ${isExpanded ? 'text-amber-400' : 'text-gray-500'}`}>{city.stadium}</p>
+                    {cityMatchCount > 0 && (
+                      <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px]">
+                        {cityMatchCount} matches
+                      </span>
+                    )}
+                  </button>
+
+                  {isExpanded && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2">
+                      <Card3D>
+                        <div className="p-4">
+                          <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-amber-400" />
+                            Matches in {city.name}
+                          </h4>
+                          {cityMatchCount === 0 ? (
+                            <p className="text-gray-500 text-sm">No matches scheduled here yet.</p>
+                          ) : (
+                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                              {liveMatches
+                                .filter(m => m.city?.toLowerCase().includes(city.name.toLowerCase()))
+                                .map((match) => (
+                                  <div key={match.id} className="flex items-center justify-between p-2 rounded-lg bg-white/5 text-sm">
+                                    <span className="text-white">
+                                      {match.home_team} vs {match.away_team}
+                                    </span>
+                                    <span className="text-gray-400 text-xs">{match.match_date}</span>
+                                  </div>
+                                ))}
+                            </div>
+                          )}
+                          <Link
+                            to={`/city/${city.id}`}
+                            className="mt-3 w-full py-2 rounded-lg bg-amber-500/10 text-amber-400 text-sm hover:bg-amber-500/20 transition-all flex items-center justify-center gap-1"
+                          >
+                            View all in {city.name} <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </Card3D>
+                    </motion.div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </main>
   );
+}
+
+// Helper to get flag emoji by team name
+function getFlag(teamName: string): string {
+  const flagMap: Record<string, string> = {
+    'Mexico': '🇲🇽',
+    'South Africa': '🇿🇦',
+    'South Korea': '🇰🇷',
+    'Czechia': '🇨🇿',
+    'Canada': '🇨🇦',
+    'Bosnia & Herzegovina': '🇧🇦',
+    'Qatar': '🇶🇦',
+    'Switzerland': '🇨🇭',
+    'Brazil': '🇧🇷',
+    'Morocco': '🇲🇦',
+    'Haiti': '🇭🇹',
+    'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    'United States': '🇺🇸',
+    'Paraguay': '🇵🇾',
+    'Australia': '🇦🇺',
+    'Türkiye': '🇹🇷',
+    'Germany': '🇩🇪',
+    'Curaçao': '🇨🇼',
+    "Côte d'Ivoire": '🇨🇮',
+    'Ecuador': '🇪🇨',
+    'Netherlands': '🇳🇱',
+    'Japan': '🇯🇵',
+    'Sweden': '🇸🇪',
+    'Tunisia': '🇹🇳',
+    'Spain': '🇪🇸',
+    'Saudi Arabia': '🇸🇦',
+    'Uruguay': '🇺🇾',
+    'Cape Verde': '🇨🇻',
+    'Belgium': '🇧🇪',
+    'Iran': '🇮🇷',
+    'Egypt': '🇪🇬',
+    'New Zealand': '🇳🇿',
+    'France': '🇫🇷',
+    'Senegal': '🇸🇳',
+    'Iraq': '🇮🇶',
+    'Norway': '🇳🇴',
+    'Argentina': '🇦🇷',
+    'Austria': '🇦🇹',
+    'Algeria': '🇩🇿',
+    'Jordan': '🇯🇴',
+    'Portugal': '🇵🇹',
+    'Colombia': '🇨🇴',
+    'Uzbekistan': '🇺🇿',
+    'DR Congo': '🇨🇩',
+    'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'Croatia': '🇭🇷',
+    'Ghana': '🇬🇭',
+    'Panama': '🇵🇦',
+  };
+  return flagMap[teamName] || '🏳️';
 }
