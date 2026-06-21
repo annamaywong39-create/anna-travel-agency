@@ -291,6 +291,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // ✅ UPDATE BOOKING — This is the function the Admin uses
   const updateBooking = async (id: string, data: Partial<Booking>) => {
     if (isDemo) {
       setBookings(prev => prev.map(b => b.id === id ? { ...b, ...data } : b));
@@ -298,8 +299,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
     const row: Record<string, unknown> = {};
     if (data.status !== undefined) row.status = data.status;
-    await supabase.from('bookings').update(row).eq('id', id);
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, ...data } : b));
+    // Add other fields if needed (e.g., specialRequests)
+    if (data.specialRequests !== undefined) row.special_requests = data.specialRequests;
+    
+    const { error } = await supabase
+      .from('bookings')
+      .update(row)
+      .eq('id', id);
+    
+    if (!error) {
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, ...data } : b));
+    }
   };
 
   const cancelBooking = async (id: string) => {

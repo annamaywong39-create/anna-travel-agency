@@ -3,7 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Building2, Calendar, Users, Plus, Edit2, Trash2,
-  Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter
+  Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter, CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData, type Booking } from '../contexts/DataContext';
@@ -18,6 +18,7 @@ export default function Admin() {
   const { format } = useCurrency();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [searchQuery, setSearchQuery] = useState('');
+  const [emailStatus, setEmailStatus] = useState<{ id: string; status: 'sending' | 'sent' | 'error' } | null>(null);
 
   if (!user || user.role !== 'admin') {
     return <Navigate to="/login" replace />;
@@ -39,8 +40,57 @@ export default function Admin() {
     l.city.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleStatusChange = (bookingId: string, status: Booking['status']) => {
-    updateBooking(bookingId, { status });
+  // ✅ Send confirmation email when booking is confirmed
+  const sendConfirmationEmail = async (booking: Booking, listing: any) => {
+    try {
+      setEmailStatus({ id: booking.id, status: 'sending' });
+      
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: booking.userEmail,
+          template: 'bookingConfirmation',
+          data: {
+            guestName: booking.userName,
+            propertyName: listing.title,
+            city: listing.city,
+            checkIn: booking.checkIn,
+            checkOut: booking.checkOut,
+            guests: booking.guests,
+            totalPrice: `$${booking.totalPrice}`,
+            bookingId: booking.id, // ← Unique code like ANA-123456-ABCD
+          }
+        })
+      });
+
+      if (response.ok) {
+        setEmailStatus({ id: booking.id, status: 'sent' });
+        setTimeout(() => setEmailStatus(null), 3000);
+      } else {
+        setEmailStatus({ id: booking.id, status: 'error' });
+        setTimeout(() => setEmailStatus(null), 3000);
+      }
+    } catch (error) {
+      setEmailStatus({ id: booking.id, status: 'error' });
+      setTimeout(() => setEmailStatus(null), 3000);
+    }
+  };
+
+  const handleStatusChange = async (bookingId: string, newStatus: Booking['status']) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    const oldStatus = booking?.status;
+    
+    // Update booking status
+    await updateBooking(bookingId, { status: newStatus });
+
+    // ✅ If status changed to 'confirmed', send confirmation email
+    if (newStatus === 'confirmed' && oldStatus !== 'confirmed' && booking) {
+      const listing = listings.find(l => l.id === booking.listingId);
+      if (listing) {
+        await sendConfirmationEmail(booking, listing);
+      }
+    }
   };
 
   return (
@@ -240,7 +290,9 @@ export default function Admin() {
                   <tbody>
                     {bookings.map((booking) => (
                       <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
-                        <td className="p-4 text-white text-sm font-mono">{booking.id.slice(-8)}</td>
+                        <td className="p-4 text-white text-sm font-mono">
+                          <span className="text-amber-400 font-bold">{booking.id.slice(-8).toUpperCase()}</span>
+                        </td>
                         <td className="p-4 text-white text-sm">{booking.userName}</td>
                         <td className="p-4 text-gray-400 text-sm">{booking.userEmail}</td>
                         <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
@@ -250,13 +302,29 @@ export default function Admin() {
                           <select
                             value={booking.status}
                             onChange={(e) => handleStatusChange(booking.id, e.target.value as Booking['status'])}
-                            className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white text-xs focus:outline-none"
+                            className={`px-2 py-1 rounded text-xs focus:outline-none ${
+                              booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                              booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                              booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                              'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                            } border bg-white/5`}
                           >
                             <option value="pending">Pending</option>
-                            <option value="confirmed">Confirmed</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="completed">Completed</option>
+                            <option value="confirmed">✅ Confirm</option>
+                            <option value="cancelled">Cancel</option>
+                            <option value="completed">Complete</option>
                           </select>
+                          {emailStatus && emailStatus.id === booking.id && (
+                            <span className={`ml-2 text-xs ${
+                              emailStatus.status === 'sending' ? 'text-yellow-400' :
+                              emailStatus.status === 'sent' ? 'text-green-400' :
+                              'text-red-400'
+                            }`}>
+                              {emailStatus.status === 'sending' ? '📧 Sending...' :
+                               emailStatus.status === 'sent' ? '✅ Email sent!' :
+                               '❌ Failed'}
+                            </span>
+                          )}
                         </td>
                         <td className="p-4">
                           <button className="text-gray-400 hover:text-white">
