@@ -3,13 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, CreditCard, Shield, CheckCircle2, Calendar, Users, MapPin,
-  Lock, AlertCircle, Sparkles, Clock, Info, Plus, X
+  Lock, AlertCircle, Sparkles, Clock, Info, Plus, X, Copy, Check
 } from 'lucide-react';
 import Card3D from '../components/Card3D';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useCurrency } from '../contexts/CurrencyContext';
-import QRCode from 'qrcode.react'; // ✅ QR Code library
 
 type Step = 'details' | 'payment' | 'confirmation';
 type PaymentMethod = 'bitcoin' | 'paypal' | 'steam';
@@ -41,7 +40,7 @@ const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; time: s
   },
 ];
 
-// ✅ Bitcoin wallet address
+// ✅ Your Bitcoin wallet address
 const BITCOIN_WALLET = 'bc1q246ztlqc0gltax4dt77p50gxdzzqy67zg8aez4';
 
 export default function Booking() {
@@ -54,6 +53,7 @@ export default function Booking() {
   const [step, setStep] = useState<Step>('details');
   const [bookingId, setBookingId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bitcoin');
+  const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '', lastName: user?.lastName || '',
     email: user?.email || '', phone: user?.phone || '',
@@ -61,7 +61,6 @@ export default function Booking() {
     checkOut: '2026-06-18', guests: '2', specialRequests: '',
   });
   
-  // ✅ Steam Card state (multiple codes)
   const [steamCodes, setSteamCodes] = useState<string[]>(['']);
   
   const [isProcessing, setIsProcessing] = useState(false);
@@ -132,7 +131,19 @@ export default function Booking() {
     setStep('confirmation');
   };
 
-  // ✅ Steam Card functions
+  // ✅ Copy to clipboard function
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(BITCOIN_WALLET);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (err) {
+      // Fallback: prompt user to copy manually
+      alert('Please copy the address manually: ' + BITCOIN_WALLET);
+    }
+  };
+
+  // Steam Card functions
   const addSteamCode = () => {
     setSteamCodes([...steamCodes, '']);
   };
@@ -292,29 +303,45 @@ export default function Booking() {
                         </div>
                       </motion.div>
 
-                      {/* ── BITCOIN FORM WITH QR CODE ── */}
+                      {/* ── BITCOIN FORM WITH COPY & QR ── */}
                       {paymentMethod === 'bitcoin' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20">
-                            <p className="text-gray-400 text-xs mb-2">Send <strong className="text-white">{format(total)}</strong> in Bitcoin (BTC) to:</p>
-                            
-                            {/* ✅ QR CODE */}
-                            <div className="flex justify-center my-4">
-                              <QRCode 
-                                value={BITCOIN_WALLET} 
-                                size={180} 
-                                bgColor="#1a1a2e" 
-                                fgColor="#f59e0b" 
-                                level="H"
-                                includeMargin={true}
+                            <p className="text-gray-400 text-xs mb-2 text-center">
+                              Send <strong className="text-white">{format(total)}</strong> in Bitcoin (BTC) to:
+                            </p>
+
+                            {/* QR CODE - Using CDN (no library needed) */}
+                            <div className="flex justify-center my-3">
+                              <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${BITCOIN_WALLET}&bgcolor=1a1a2e&color=f59e0b&margin=10`}
+                                alt="Bitcoin QR Code"
+                                className="rounded-lg border border-orange-500/20"
                               />
                             </div>
-                            <p className="text-center text-gray-400 text-xs mb-2">Scan with Trust Wallet or any Bitcoin wallet</p>
-                            
-                            <div className="bg-black/30 rounded-lg p-3 font-mono text-sm text-orange-400 break-all select-all text-center">
-                              {BITCOIN_WALLET}
+                            <p className="text-center text-gray-400 text-xs mb-3">Scan with Trust Wallet or any Bitcoin wallet</p>
+
+                            {/* Wallet Address with Copy Button */}
+                            <div className="flex items-center gap-2 bg-black/30 rounded-lg p-3 border border-orange-500/20">
+                              <code className="text-sm text-orange-400 break-all flex-1 font-mono">
+                                {BITCOIN_WALLET}
+                              </code>
+                              <button
+                                type="button"
+                                onClick={copyToClipboard}
+                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 transition-all text-orange-400 text-sm whitespace-nowrap"
+                              >
+                                {copied ? (
+                                  <><Check className="w-4 h-4" /> Copied!</>
+                                ) : (
+                                  <><Copy className="w-4 h-4" /> Copy</>
+                                )}
+                              </button>
                             </div>
-                            <p className="text-gray-500 text-[10px] mt-2">⚠️ Send the exact amount. Your booking will be confirmed once the transaction has 3+ confirmations.</p>
+                            
+                            <p className="text-gray-500 text-[10px] mt-2 text-center">
+                              ⚠️ Send the exact amount. Your booking will be confirmed once the transaction has 3+ confirmations.
+                            </p>
                           </div>
                           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
                             <p className="text-yellow-400 text-xs flex items-center gap-2">
@@ -352,7 +379,6 @@ export default function Booking() {
                             </p>
                           </div>
 
-                          {/* ── Steam Card Codes with Add/Remove ── */}
                           <div className="space-y-2">
                             <label className="text-sm text-gray-400 block">Steam Card Codes</label>
                             {steamCodes.map((code, index) => (
@@ -378,7 +404,6 @@ export default function Booking() {
                             {errors.steam && <p className="text-red-400 text-xs">{errors.steam}</p>}
                           </div>
 
-                          {/* ── Add Code Button ── */}
                           <button
                             type="button"
                             onClick={addSteamCode}
@@ -427,7 +452,6 @@ export default function Booking() {
                         </h2>
                         <p className="text-gray-400 mb-4">Your World Cup accommodation is secured.</p>
 
-                        {/* Payment confirmation time warning */}
                         <div className={`mx-auto max-w-md mb-6 p-4 rounded-xl border flex items-start gap-3 text-left ${
                           paymentMethod === 'bitcoin' ? 'bg-orange-500/10 border-orange-500/20' :
                           paymentMethod === 'paypal' ? 'bg-blue-500/10 border-blue-500/20' :
@@ -505,7 +529,6 @@ export default function Booking() {
                     </div>
                   </div>
 
-                  {/* Payment method indicator */}
                   {step === 'payment' && (
                     <div className={`mt-4 p-3 rounded-lg border ${
                       paymentMethod === 'bitcoin' ? 'bg-orange-500/10 border-orange-500/20' :
