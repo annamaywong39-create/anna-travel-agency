@@ -3,40 +3,33 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, CreditCard, Shield, CheckCircle2, Calendar, Users, MapPin,
-  Lock, AlertCircle, Sparkles, Clock, Info
+  Lock, AlertCircle, Sparkles, Clock, Info, Plus, X
 } from 'lucide-react';
 import Card3D from '../components/Card3D';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useCurrency } from '../contexts/CurrencyContext';
+import QRCode from 'qrcode.react'; // ✅ QR Code library
 
 type Step = 'details' | 'payment' | 'confirmation';
-type PaymentMethod = 'card' | 'crypto' | 'bank' | 'steam';
+type PaymentMethod = 'bitcoin' | 'paypal' | 'steam';
 
 const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; time: string; timeColor: string; warning: string }[] = [
   {
-    id: 'card',
-    label: 'Debit / Credit Card',
-    icon: '💳',
-    time: '1hr – 24hrs',
-    timeColor: 'text-blue-400',
-    warning: '⏱️ Card payments typically take 1 hour to 24 hours to confirm. You will receive a confirmation email once payment is verified. Your booking is held during this period.',
-  },
-  {
-    id: 'crypto',
-    label: 'Cryptocurrency',
+    id: 'bitcoin',
+    label: 'Bitcoin (BTC)',
     icon: '₿',
-    time: '~5 minutes',
-    timeColor: 'text-green-400',
-    warning: '⚡ Crypto payments are the fastest! Confirmation usually takes about 5 minutes after the transaction is broadcast on the blockchain. We accept BTC, ETH, USDT, and USDC.',
+    time: '~10-30 minutes',
+    timeColor: 'text-orange-400',
+    warning: '⚡ Bitcoin payments require blockchain confirmations. Your booking will be confirmed once the transaction is verified on the network (typically 10-30 minutes).',
   },
   {
-    id: 'bank',
-    label: 'Bank Transfer',
-    icon: '🏦',
-    time: '24hrs – 72hrs',
-    timeColor: 'text-orange-400',
-    warning: '🕐 Bank transfers take 24 to 72 hours to confirm depending on your bank and country. International transfers may take up to 5 business days. Your booking is reserved during this period.',
+    id: 'paypal',
+    label: 'PayPal',
+    icon: '🅿️',
+    time: 'Instant',
+    timeColor: 'text-blue-400',
+    warning: '💳 PayPal payments are processed instantly. You will be redirected to PayPal to complete your payment, then returned to confirm your booking.',
   },
   {
     id: 'steam',
@@ -48,6 +41,9 @@ const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; time: s
   },
 ];
 
+// ✅ Bitcoin wallet address
+const BITCOIN_WALLET = 'bc1q246ztlqc0gltax4dt77p50gxdzzqy67zg8aez4';
+
 export default function Booking() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -57,17 +53,17 @@ export default function Booking() {
   const listing = listings.find((l) => l.id === id);
   const [step, setStep] = useState<Step>('details');
   const [bookingId, setBookingId] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bitcoin');
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '', lastName: user?.lastName || '',
     email: user?.email || '', phone: user?.phone || '',
     country: user?.country || '', checkIn: '2026-06-11',
     checkOut: '2026-06-18', guests: '2', specialRequests: '',
   });
-  const [cardData, setCardData] = useState({ number: '', name: '', expiry: '', cvv: '' });
-  const [cryptoData, setCryptoData] = useState({ wallet: '', coin: 'BTC' });
-  const [bankData, setBankData] = useState({ accountName: '', bankName: '', reference: '' });
-  const [steamData, setSteamData] = useState({ code1: '', code2: '' });
+  
+  // ✅ Steam Card state (multiple codes)
+  const [steamCodes, setSteamCodes] = useState<string[]>(['']);
+  
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -99,17 +95,11 @@ export default function Booking() {
 
   const validatePayment = () => {
     const e: Record<string, string> = {};
-    if (paymentMethod === 'card') {
-      if (!cardData.number.trim() || cardData.number.replace(/\s/g, '').length < 16) e.number = 'Valid card number required';
-      if (!cardData.name.trim()) e.name = 'Required';
-      if (!cardData.expiry.trim()) e.expiry = 'Required';
-      if (!cardData.cvv.trim() || cardData.cvv.length < 3) e.cvv = 'Required';
-    } else if (paymentMethod === 'crypto') {
-      if (!cryptoData.wallet.trim()) e.wallet = 'Wallet address required';
-    } else if (paymentMethod === 'bank') {
-      if (!bankData.accountName.trim()) e.accountName = 'Required';
-    } else if (paymentMethod === 'steam') {
-      if (!steamData.code1.trim()) e.code1 = 'At least one code required';
+    if (paymentMethod === 'steam') {
+      const validCodes = steamCodes.filter(c => c.trim().length > 0);
+      if (validCodes.length === 0) {
+        e.steam = 'At least one Steam card code is required';
+      }
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -119,7 +109,6 @@ export default function Booking() {
     if (validateDetails()) setStep('payment');
   };
 
-  // ✅ CORRECTED handlePayment function (no duplicate code)
   const handlePayment = async () => {
     if (!validatePayment()) return;
     setIsProcessing(true);
@@ -134,7 +123,7 @@ export default function Booking() {
       checkOut: formData.checkOut,
       guests: parseInt(formData.guests),
       totalPrice: total,
-      status: paymentMethod === 'card' ? 'confirmed' : 'pending',
+      status: paymentMethod === 'paypal' ? 'confirmed' : 'pending',
       specialRequests: formData.specialRequests,
     });
 
@@ -143,9 +132,21 @@ export default function Booking() {
     setStep('confirmation');
   };
 
-  const fmtCard = (v: string) => {
-    const d = v.replace(/\D/g, '').slice(0, 16);
-    return d.replace(/(.{4})/g, '$1 ').trim();
+  // ✅ Steam Card functions
+  const addSteamCode = () => {
+    setSteamCodes([...steamCodes, '']);
+  };
+
+  const removeSteamCode = (index: number) => {
+    if (steamCodes.length > 1) {
+      setSteamCodes(steamCodes.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateSteamCode = (index: number, value: string) => {
+    const newCodes = [...steamCodes];
+    newCodes[index] = value.toUpperCase();
+    setSteamCodes(newCodes);
   };
 
   const inputCls = (field: string) =>
@@ -181,7 +182,7 @@ export default function Booking() {
           <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
 
-              {/* STEP 1: DETAILS */}
+              {/* ═══ STEP 1: DETAILS ═══ */}
               {step === 'details' && (
                 <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                   <Card3D>
@@ -240,7 +241,7 @@ export default function Booking() {
                 </motion.div>
               )}
 
-              {/* STEP 2: PAYMENT */}
+              {/* ═══ STEP 2: PAYMENT ═══ */}
               {step === 'payment' && (
                 <motion.div key="payment" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                   <Card3D>
@@ -252,7 +253,8 @@ export default function Booking() {
                         <Lock className="w-3 h-3" /> All payments are encrypted and secure
                       </p>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
+                      {/* ── Payment method selector ── */}
+                      <div className="grid grid-cols-3 gap-2 mb-6">
                         {PAYMENT_METHODS.map((m) => (
                           <button
                             key={m.id}
@@ -270,15 +272,15 @@ export default function Booking() {
                         ))}
                       </div>
 
+                      {/* ── Confirmation time warning ── */}
                       <motion.div
                         key={paymentMethod}
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         className={`mb-6 p-4 rounded-xl border flex items-start gap-3 ${
-                          paymentMethod === 'crypto' ? 'bg-green-500/10 border-green-500/20' :
-                          paymentMethod === 'bank' ? 'bg-orange-500/10 border-orange-500/20' :
-                          paymentMethod === 'steam' ? 'bg-purple-500/10 border-purple-500/20' :
-                          'bg-blue-500/10 border-blue-500/20'
+                          paymentMethod === 'bitcoin' ? 'bg-orange-500/10 border-orange-500/20' :
+                          paymentMethod === 'paypal' ? 'bg-blue-500/10 border-blue-500/20' :
+                          'bg-purple-500/10 border-purple-500/20'
                         }`}
                       >
                         <Clock className={`w-5 h-5 shrink-0 mt-0.5 ${selectedMethod.timeColor}`} />
@@ -290,134 +292,105 @@ export default function Booking() {
                         </div>
                       </motion.div>
 
-                      {/* CARD FORM */}
-                      {paymentMethod === 'card' && (
+                      {/* ── BITCOIN FORM WITH QR CODE ── */}
+                      {paymentMethod === 'bitcoin' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Card Number</label>
-                            <div className="relative">
-                              <input type="text" placeholder="4242 4242 4242 4242" value={cardData.number} maxLength={19}
-                                onChange={(e) => setCardData(p => ({ ...p, number: fmtCard(e.target.value) }))} className={inputCls('number')} />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-lg">💳</span>
+                          <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20">
+                            <p className="text-gray-400 text-xs mb-2">Send <strong className="text-white">{format(total)}</strong> in Bitcoin (BTC) to:</p>
+                            
+                            {/* ✅ QR CODE */}
+                            <div className="flex justify-center my-4">
+                              <QRCode 
+                                value={BITCOIN_WALLET} 
+                                size={180} 
+                                bgColor="#1a1a2e" 
+                                fgColor="#f59e0b" 
+                                level="H"
+                                includeMargin={true}
+                              />
                             </div>
-                            {errors.number && <p className="text-red-400 text-xs mt-1">{errors.number}</p>}
+                            <p className="text-center text-gray-400 text-xs mb-2">Scan with Trust Wallet or any Bitcoin wallet</p>
+                            
+                            <div className="bg-black/30 rounded-lg p-3 font-mono text-sm text-orange-400 break-all select-all text-center">
+                              {BITCOIN_WALLET}
+                            </div>
+                            <p className="text-gray-500 text-[10px] mt-2">⚠️ Send the exact amount. Your booking will be confirmed once the transaction has 3+ confirmations.</p>
                           </div>
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Cardholder Name</label>
-                            <input type="text" placeholder="John Doe" value={cardData.name}
-                              onChange={(e) => setCardData(p => ({ ...p, name: e.target.value }))} className={inputCls('name')} />
-                            {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div><label className="text-sm text-gray-400 mb-1 block">Expiry</label>
-                              <input type="text" placeholder="MM/YY" value={cardData.expiry} maxLength={5}
-                                onChange={(e) => setCardData(p => ({ ...p, expiry: e.target.value }))} className={inputCls('expiry')} /></div>
-                            <div><label className="text-sm text-gray-400 mb-1 block">CVV</label>
-                              <input type="text" placeholder="123" value={cardData.cvv} maxLength={4}
-                                onChange={(e) => setCardData(p => ({ ...p, cvv: e.target.value }))} className={inputCls('cvv')} /></div>
+                          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
+                            <p className="text-yellow-400 text-xs flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4" />
+                              Bitcoin network fees apply. Please check current network fees before sending.
+                            </p>
                           </div>
                         </motion.div>
                       )}
 
-                      {/* CRYPTO FORM */}
-                      {paymentMethod === 'crypto' && (
+                      {/* ── PAYPAL FORM ── */}
+                      {paymentMethod === 'paypal' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Select Cryptocurrency</label>
-                            <div className="grid grid-cols-4 gap-2">
-                              {[
-                                { id: 'BTC', label: 'Bitcoin', icon: '₿' },
-                                { id: 'ETH', label: 'Ethereum', icon: 'Ξ' },
-                                { id: 'USDT', label: 'Tether', icon: '₮' },
-                                { id: 'USDC', label: 'USD Coin', icon: '$' },
-                              ].map(c => (
-                                <button key={c.id} onClick={() => setCryptoData(p => ({ ...p, coin: c.id }))}
-                                  className={`p-3 rounded-xl text-center border transition-all ${
-                                    cryptoData.coin === c.id ? 'bg-green-500/15 border-green-500/40 text-green-300' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
-                                  }`}>
-                                  <span className="text-xl block">{c.icon}</span>
-                                  <span className="text-[10px] block mt-1">{c.label}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                            <p className="text-gray-400 text-xs mb-2">Send {format(total)} equivalent in {cryptoData.coin} to:</p>
-                            <div className="bg-black/30 rounded-lg p-3 font-mono text-sm text-green-400 break-all select-all">
-                              {cryptoData.coin === 'BTC' ? 'bc1qanna2026worldcup...f8k9x' :
-                               cryptoData.coin === 'ETH' ? '0xAnnA2026...WorldCup...e4F8' :
-                               cryptoData.coin === 'USDT' ? 'TAnna2026WorldCup...J8kL' :
-                               '0xAnnA2026USDC...Cup...d9E2'}
-                            </div>
-                            <p className="text-gray-500 text-[10px] mt-2">Click address to copy · Network: {cryptoData.coin === 'BTC' ? 'Bitcoin' : cryptoData.coin === 'USDT' ? 'TRC-20' : 'ERC-20'}</p>
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Your Wallet Address (for refunds)</label>
-                            <input type="text" placeholder="Paste your wallet address..." value={cryptoData.wallet}
-                              onChange={(e) => setCryptoData(p => ({ ...p, wallet: e.target.value }))} className={inputCls('wallet')} />
-                            {errors.wallet && <p className="text-red-400 text-xs mt-1">{errors.wallet}</p>}
+                          <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-center">
+                            <div className="text-6xl mb-4">🅿️</div>
+                            <p className="text-white font-bold text-lg">PayPal Checkout</p>
+                            <p className="text-gray-400 text-sm mt-2">
+                              You will be redirected to PayPal to complete your payment securely.
+                            </p>
+                            <p className="text-gray-500 text-xs mt-4">
+                              After payment, you'll be returned to confirm your booking.
+                            </p>
                           </div>
                         </motion.div>
                       )}
 
-                      {/* BANK TRANSFER FORM */}
-                      {paymentMethod === 'bank' && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                          <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                            <p className="text-white font-medium text-sm mb-2">Transfer {format(total)} to:</p>
-                            {[
-                              { label: 'Bank', value: 'First National Bank' },
-                              { label: 'Account Name', value: 'Anna Travel Agency LLC' },
-                              { label: 'Account Number', value: '2026-FIFA-WC-8834' },
-                              { label: 'Routing / SWIFT', value: 'ANTRVL2026' },
-                              { label: 'Reference', value: `WC26-${formData.lastName.toUpperCase().slice(0,4) || 'XXXX'}-${Date.now().toString().slice(-6)}` },
-                            ].map(r => (
-                              <div key={r.label} className="flex justify-between text-sm">
-                                <span className="text-gray-500">{r.label}</span>
-                                <span className="text-white font-mono text-xs">{r.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Your Name (on bank account)</label>
-                            <input type="text" placeholder="John Doe" value={bankData.accountName}
-                              onChange={(e) => setBankData(p => ({ ...p, accountName: e.target.value }))} className={inputCls('accountName')} />
-                            {errors.accountName && <p className="text-red-400 text-xs mt-1">{errors.accountName}</p>}
-                          </div>
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Your Bank Name</label>
-                            <input type="text" placeholder="Chase, Barclays, etc." value={bankData.bankName}
-                              onChange={(e) => setBankData(p => ({ ...p, bankName: e.target.value }))} className={inputCls('bankName')} />
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {/* STEAM CARD FORM */}
+                      {/* ── STEAM CARD FORM ── */}
                       {paymentMethod === 'steam' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                            <p className="text-purple-300 text-sm font-medium mb-1">Steam Card Payment</p>
+                            <p className="text-purple-300 text-sm font-medium mb-1">🎮 Steam Card Payment</p>
                             <p className="text-gray-400 text-xs">
-                              Purchase Steam wallet cards totalling {format(total)} and enter the codes below. 
+                              Purchase Steam wallet cards totaling <strong className="text-white">{format(total)}</strong> and enter the codes below.
                               You may use multiple cards. Our team will verify the codes within ~2 hours.
                             </p>
                           </div>
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Steam Card Code #1 *</label>
-                            <input type="text" placeholder="XXXXX-XXXXX-XXXXX" value={steamData.code1}
-                              onChange={(e) => setSteamData(p => ({ ...p, code1: e.target.value.toUpperCase() }))}
-                              className={`${inputCls('code1')} font-mono tracking-wider`} />
-                            {errors.code1 && <p className="text-red-400 text-xs mt-1">{errors.code1}</p>}
+
+                          {/* ── Steam Card Codes with Add/Remove ── */}
+                          <div className="space-y-2">
+                            <label className="text-sm text-gray-400 block">Steam Card Codes</label>
+                            {steamCodes.map((code, index) => (
+                              <div key={index} className="flex gap-2">
+                                <input
+                                  type="text"
+                                  placeholder={`Code #${index + 1}`}
+                                  value={code}
+                                  onChange={(e) => updateSteamCode(index, e.target.value)}
+                                  className={`${inputCls('steam')} font-mono tracking-wider flex-1`}
+                                />
+                                {steamCodes.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeSteamCode(index)}
+                                    className="px-3 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all"
+                                  >
+                                    <X className="w-5 h-5" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            {errors.steam && <p className="text-red-400 text-xs">{errors.steam}</p>}
                           </div>
-                          <div>
-                            <label className="text-sm text-gray-400 mb-1 block">Steam Card Code #2 (optional)</label>
-                            <input type="text" placeholder="XXXXX-XXXXX-XXXXX" value={steamData.code2}
-                              onChange={(e) => setSteamData(p => ({ ...p, code2: e.target.value.toUpperCase() }))}
-                              className={`${inputCls('code2')} font-mono tracking-wider`} />
-                          </div>
+
+                          {/* ── Add Code Button ── */}
+                          <button
+                            type="button"
+                            onClick={addSteamCode}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition-all border border-purple-500/30"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Add Another Code
+                          </button>
                         </motion.div>
                       )}
 
+                      {/* ── Action buttons ── */}
                       <div className="flex gap-3 mt-6">
                         <button onClick={() => setStep('details')}
                           className="px-6 py-4 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition-all">
@@ -438,7 +411,7 @@ export default function Booking() {
                 </motion.div>
               )}
 
-              {/* STEP 3: CONFIRMATION */}
+              {/* ═══ STEP 3: CONFIRMATION ═══ */}
               {step === 'confirmation' && (
                 <motion.div key="confirmation" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
                   <Card3D glowColor="rgba(34, 197, 94, 0.2)">
@@ -450,15 +423,15 @@ export default function Booking() {
 
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                         <h2 className="text-3xl font-black text-white mb-2">
-                          {paymentMethod === 'card' ? 'Booking Confirmed! 🎉' : 'Booking Submitted! ⏳'}
+                          {paymentMethod === 'paypal' ? 'Booking Confirmed! 🎉' : 'Booking Submitted! ⏳'}
                         </h2>
                         <p className="text-gray-400 mb-4">Your World Cup accommodation is secured.</p>
 
+                        {/* Payment confirmation time warning */}
                         <div className={`mx-auto max-w-md mb-6 p-4 rounded-xl border flex items-start gap-3 text-left ${
-                          paymentMethod === 'crypto' ? 'bg-green-500/10 border-green-500/20' :
-                          paymentMethod === 'bank' ? 'bg-orange-500/10 border-orange-500/20' :
-                          paymentMethod === 'steam' ? 'bg-purple-500/10 border-purple-500/20' :
-                          'bg-blue-500/10 border-blue-500/20'
+                          paymentMethod === 'bitcoin' ? 'bg-orange-500/10 border-orange-500/20' :
+                          paymentMethod === 'paypal' ? 'bg-blue-500/10 border-blue-500/20' :
+                          'bg-purple-500/10 border-purple-500/20'
                         }`}>
                           <Info className={`w-5 h-5 shrink-0 mt-0.5 ${selectedMethod.timeColor}`} />
                           <div>
@@ -466,9 +439,8 @@ export default function Booking() {
                               {selectedMethod.icon} {selectedMethod.label} — {selectedMethod.time}
                             </p>
                             <p className="text-gray-400 text-xs mt-1">
-                              {paymentMethod === 'card' && 'Your payment is being processed. You will receive a confirmation email within 1–24 hours.'}
-                              {paymentMethod === 'crypto' && 'Awaiting blockchain confirmation. Your booking will be confirmed in approximately 5 minutes.'}
-                              {paymentMethod === 'bank' && 'Your booking is reserved. Please complete the bank transfer within 48 hours. Confirmation takes 24–72 hours after transfer.'}
+                              {paymentMethod === 'bitcoin' && 'Awaiting blockchain confirmation. Your booking will be confirmed once the transaction has 3+ confirmations.'}
+                              {paymentMethod === 'paypal' && 'Your payment was processed instantly. Your booking is confirmed!'}
                               {paymentMethod === 'steam' && 'Our team is verifying your Steam card codes. Confirmation email will arrive within approximately 2 hours.'}
                             </p>
                           </div>
@@ -507,7 +479,7 @@ export default function Booking() {
             </AnimatePresence>
           </div>
 
-          {/* SIDEBAR */}
+          {/* ═══ SIDEBAR ═══ */}
           <div className="lg:col-span-1">
             <div className="sticky top-28">
               <Card3D>
@@ -533,12 +505,12 @@ export default function Booking() {
                     </div>
                   </div>
 
+                  {/* Payment method indicator */}
                   {step === 'payment' && (
                     <div className={`mt-4 p-3 rounded-lg border ${
-                      paymentMethod === 'crypto' ? 'bg-green-500/10 border-green-500/20' :
-                      paymentMethod === 'bank' ? 'bg-orange-500/10 border-orange-500/20' :
-                      paymentMethod === 'steam' ? 'bg-purple-500/10 border-purple-500/20' :
-                      'bg-blue-500/10 border-blue-500/20'
+                      paymentMethod === 'bitcoin' ? 'bg-orange-500/10 border-orange-500/20' :
+                      paymentMethod === 'paypal' ? 'bg-blue-500/10 border-blue-500/20' :
+                      'bg-purple-500/10 border-purple-500/20'
                     }`}>
                       <p className={`text-xs flex items-center justify-center gap-1 ${selectedMethod.timeColor}`}>
                         <Clock className="w-3 h-3" /> {selectedMethod.icon} {selectedMethod.label} · {selectedMethod.time}

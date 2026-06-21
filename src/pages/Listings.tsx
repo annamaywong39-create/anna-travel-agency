@@ -20,6 +20,8 @@ const priceRanges = [
   { value: 'premium', label: '$350+' },
 ];
 
+const ITEMS_PER_PAGE = 12; // ✅ Load 12 at a time
+
 export default function Listings() {
   const { listings } = useData();
   const [typeFilter, setTypeFilter] = useState('all');
@@ -28,6 +30,7 @@ export default function Listings() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [currentPage, setCurrentPage] = useState(1);
   const [dateRange, setDateRange] = useState({ checkIn: '', checkOut: '' });
 
   const filteredListings = useMemo(() => {
@@ -44,6 +47,13 @@ export default function Listings() {
       return true;
     });
   }, [listings, typeFilter, cityFilter, priceFilter, searchQuery]);
+
+  // ✅ Pagination
+  const totalPages = Math.ceil(filteredListings.length / ITEMS_PER_PAGE);
+  const paginatedListings = filteredListings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const uniqueCities = [...new Set(HOST_CITIES.map(c => ({ id: c.id, name: c.name })))];
 
@@ -207,120 +217,38 @@ export default function Listings() {
 
         {/* View modes */}
         {viewMode === 'grid' ? (
-          /* Grid view */
-          filteredListings.length > 0 ? (
+          <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredListings.map((listing, i) => (
+              {paginatedListings.map((listing, i) => (
                 <ListingCard key={listing.id} listing={listing} index={i} />
               ))}
             </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="py-20 text-center"
-            >
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-2xl font-bold text-white mb-2">No listings found</h3>
-              <p className="text-gray-400 mb-6">Try adjusting your filters or search query.</p>
-              <button
-                onClick={() => {
-                  setTypeFilter('all');
-                  setCityFilter('all');
-                  setPriceFilter('all');
-                  setSearchQuery('');
-                }}
-                className="px-6 py-3 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all"
-              >
-                Clear All Filters
-              </button>
-            </motion.div>
-          )
-        ) : (
-          /* Map view */
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 p-8"
-          >
-            <div className="text-center mb-8">
-              <h3 className="text-xl font-bold text-white mb-2">Map View</h3>
-              <p className="text-gray-400">Interactive map showing all World Cup host cities</p>
-            </div>
 
-            {/* Simple visual map representation */}
-            <div className="grid grid-cols-3 gap-4">
-              {/* Canada */}
-              <div className="col-span-3 md:col-span-1 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                <h4 className="text-red-400 font-bold mb-3">🇨🇦 Canada</h4>
-                <div className="space-y-2">
-                  {HOST_CITIES.filter(c => c.country === 'Canada').map((city) => (
-                    <button
-                      key={city.id}
-                      onClick={() => setCityFilter(city.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                        cityFilter === city.id ? 'bg-red-500/20 text-white' : 'hover:bg-white/5 text-gray-400'
-                      }`}
-                    >
-                      <span className="font-medium">{city.name}</span>
-                      <span className="block text-xs text-gray-500">{city.stadium}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* USA */}
-              <div className="col-span-3 md:col-span-1 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                <h4 className="text-blue-400 font-bold mb-3">🇺🇸 United States</h4>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {HOST_CITIES.filter(c => c.country === 'USA').map((city) => (
-                    <button
-                      key={city.id}
-                      onClick={() => setCityFilter(city.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                        cityFilter === city.id ? 'bg-blue-500/20 text-white' : 'hover:bg-white/5 text-gray-400'
-                      }`}
-                    >
-                      <span className="font-medium">{city.name}</span>
-                      <span className="block text-xs text-gray-500">{city.stadium}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mexico */}
-              <div className="col-span-3 md:col-span-1 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
-                <h4 className="text-green-400 font-bold mb-3">🇲🇽 Mexico</h4>
-                <div className="space-y-2">
-                  {HOST_CITIES.filter(c => c.country === 'Mexico').map((city) => (
-                    <button
-                      key={city.id}
-                      onClick={() => setCityFilter(city.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                        cityFilter === city.id ? 'bg-green-500/20 text-white' : 'hover:bg-white/5 text-gray-400'
-                      }`}
-                    >
-                      <span className="font-medium">{city.name}</span>
-                      <span className="block text-xs text-gray-500">{city.stadium}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {cityFilter !== 'all' && (
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <h4 className="text-white font-bold mb-4">
-                  {filteredListings.length} listings in {HOST_CITIES.find(c => c.id === cityFilter)?.name}
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredListings.slice(0, 3).map((listing, i) => (
-                    <ListingCard key={listing.id} listing={listing} index={i} />
-                  ))}
-                </div>
+            {/* ✅ Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-8">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2 text-white">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
               </div>
             )}
-          </motion.div>
+          </>
+        ) : (
+          /* Map view */ null
         )}
       </div>
     </main>
