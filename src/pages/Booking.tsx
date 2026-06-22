@@ -303,7 +303,7 @@ export default function Booking() {
                         </div>
                       </motion.div>
 
-                      {/* ── BITCOIN FORM WITH COPY & QR ── */}
+                      {/* ── BITCOIN FORM WITH QR CODE (CDN) ── */}
                       {paymentMethod === 'bitcoin' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20">

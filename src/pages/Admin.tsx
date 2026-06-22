@@ -3,7 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Building2, Calendar, Users, Plus, Edit2, Trash2,
-  Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter, CheckCircle2
+  Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData, type Booking } from '../contexts/DataContext';
