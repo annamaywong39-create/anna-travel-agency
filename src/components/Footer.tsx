@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Plane, Trophy, Mail, Phone, MapPin } from 'lucide-react';
+import { Plane, Trophy, Mail, Phone, MapPin, Facebook, Instagram, MessageCircle } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -54,19 +55,58 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Social Media */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Contact Us</h4>
+            <h4 className="text-white font-semibold mb-4">Connect With Us</h4>
             <div className="flex flex-col gap-3 text-sm text-gray-400">
               <a href="mailto:hello@annatravelagency.com" className="flex items-center gap-2 hover:text-amber-300 transition-colors">
                 <Mail className="w-4 h-4" /> hello@annatravelagency.com
               </a>
-              <a href="tel:+18001234567" className="flex items-center gap-2 hover:text-amber-300 transition-colors">
-                <Phone className="w-4 h-4" /> +1 (800) 123-4567
+              <a href="tel:+15876810591" className="flex items-center gap-2 hover:text-amber-300 transition-colors">
+                <Phone className="w-4 h-4" /> +1 (587) 681-0591
               </a>
               <span className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" /> New York, NY, USA
               </span>
+            </div>
+            {/* Social Media Icons */}
+            <div className="flex gap-4 mt-4">
+              <a
+                href="https://www.tiktok.com/@annatravelhost"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-amber-300 transition-colors"
+                aria-label="TikTok"
+              >
+                <FaTiktok className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/annatravelhost"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-amber-300 transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://wa.me/15876810591"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-amber-300 transition-colors"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.facebook.com/share/1bsMeqRN77/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-amber-300 transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
             </div>
           </div>
         </div>
