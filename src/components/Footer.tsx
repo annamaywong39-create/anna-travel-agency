@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Plane, Trophy, Mail, Phone, MapPin, Facebook, Instagram, MessageCircle } from 'lucide-react';
+import { Plane, Trophy, Mail, Phone, MapPin, MessageCircle, AtSign } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -85,7 +85,7 @@ export default function Footer() {
                 className="text-gray-400 hover:text-amber-300 transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram className="w-5 h-5" />
+                <AtSign className="w-5 h-5" />
               </a>
               <a
                 href="https://wa.me/15876810591"
@@ -100,10 +100,10 @@ export default function Footer() {
                 href="https://www.facebook.com/share/1bsMeqRN77/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-300 transition-colors"
+                className="text-gray-400 hover:text-amber-300 transition-colors text-xl"
                 aria-label="Facebook"
               >
-                <Facebook className="w-5 h-5" />
+                📘
               </a>
             </div>
           </div>
