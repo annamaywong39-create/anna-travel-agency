@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Plane, Trophy, Mail, Phone, MapPin, Facebook, Instagram, MessageCircle } from 'lucide-react';
-import { FaTiktok } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -71,14 +70,15 @@ export default function Footer() {
             </div>
             {/* Social Media Icons */}
             <div className="flex gap-4 mt-4">
+              {/* TikTok - using emoji (no package needed) */}
               <a
                 href="https://www.tiktok.com/@annatravelhost"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-300 transition-colors"
+                className="text-gray-400 hover:text-amber-300 transition-colors text-xl"
                 aria-label="TikTok"
               >
-                <FaTiktok className="w-5 h-5" />
+                🎵
               </a>
               <a
                 href="https://www.instagram.com/annatravelhost"
