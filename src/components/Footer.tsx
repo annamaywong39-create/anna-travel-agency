@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Plane, Trophy, Mail, Phone, MapPin, MessageCircle, AtSign } from 'lucide-react';
+import { Plane, Trophy, Mail, Phone, MapPin } from 'lucide-react';
+import { FaTiktok, FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -67,43 +68,44 @@ export default function Footer() {
                 <MapPin className="w-4 h-4" /> New York, NY, USA
               </span>
             </div>
+
             {/* Social Media Icons */}
             <div className="flex gap-4 mt-4">
               <a
                 href="https://www.tiktok.com/@annatravelhost"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-300 transition-colors text-xl"
+                className="text-gray-400 hover:text-amber-300 transition-colors text-2xl"
                 aria-label="TikTok"
               >
-                🎵
+                <FaTiktok />
               </a>
               <a
                 href="https://www.instagram.com/annatravelhost"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-300 transition-colors"
+                className="text-gray-400 hover:text-amber-300 transition-colors text-2xl"
                 aria-label="Instagram"
               >
-                <AtSign className="w-5 h-5" />
+                <FaInstagram />
               </a>
               <a
                 href="https://wa.me/15876810591"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-300 transition-colors"
+                className="text-gray-400 hover:text-amber-300 transition-colors text-2xl"
                 aria-label="WhatsApp"
               >
-                <MessageCircle className="w-5 h-5" />
+                <FaWhatsapp />
               </a>
               <a
                 href="https://www.facebook.com/share/1bsMeqRN77/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-300 transition-colors text-xl"
+                className="text-gray-400 hover:text-amber-300 transition-colors text-2xl"
                 aria-label="Facebook"
               >
-                📘
+                <FaFacebook />
               </a>
             </div>
           </div>
