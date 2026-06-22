@@ -4,7 +4,6 @@ import { Plane, Trophy, Mail, Phone, MapPin, Facebook, Instagram, MessageCircle 
 export default function Footer() {
   return (
     <footer className="relative bg-[#050510] border-t border-white/5">
-      {/* Gradient top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -70,7 +69,6 @@ export default function Footer() {
             </div>
             {/* Social Media Icons */}
             <div className="flex gap-4 mt-4">
-              {/* TikTok - using emoji (no package needed) */}
               <a
                 href="https://www.tiktok.com/@annatravelhost"
                 target="_blank"
@@ -112,9 +110,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-gray-500 text-sm">
-            © 2026 Anna Travel Agency. All rights reserved.
-          </p>
+          <p className="text-gray-500 text-sm">© 2026 Anna Travel Agency. All rights reserved.</p>
           <div className="flex items-center gap-6 text-sm text-gray-500">
             <Link to="/privacy" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-gray-300 transition-colors">Terms of Service</Link>
