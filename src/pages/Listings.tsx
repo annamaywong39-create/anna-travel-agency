@@ -31,7 +31,6 @@ export default function Listings() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [currentPage, setCurrentPage] = useState(1);
-  const [dateRange, setDateRange] = useState({ checkIn: '', checkOut: '' });
 
   const filteredListings = useMemo(() => {
     return listings.filter((l) => {
@@ -74,7 +73,7 @@ export default function Listings() {
             </span>
           </h1>
           <p className="text-gray-400 text-lg">
-            {filteredListings.length} properties available across all host cities
+            {filteredListings.length} properties available
           </p>
         </motion.div>
 
@@ -272,76 +271,6 @@ export default function Listings() {
               </motion.div>
             )}
           </>
-        )}
-
-        {/* Map view */}
-        {viewMode === 'map' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 p-8"
-          >
-            <div className="text-center mb-8">
-              <h3 className="text-xl font-bold text-white mb-2">Map View</h3>
-              <p className="text-gray-400">Interactive map showing all World Cup host cities</p>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              {/* Canada */}
-              <div className="col-span-3 md:col-span-1 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                <h4 className="text-red-400 font-bold mb-3">🇨🇦 Canada</h4>
-                <div className="space-y-2">
-                  {HOST_CITIES.filter(c => c.country === 'Canada').map((city) => (
-                    <button
-                      key={city.id}
-                      onClick={() => setCityFilter(city.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                        cityFilter === city.id ? 'bg-red-500/20 text-white' : 'hover:bg-white/5 text-gray-400'
-                      }`}
-                    >
-                      <span className="font-medium">{city.name}</span>
-                      <span className="block text-xs text-gray-500">{city.stadium}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* USA */}
-              <div className="col-span-3 md:col-span-1 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                <h4 className="text-blue-400 font-bold mb-3">🇺🇸 United States</h4>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {HOST_CITIES.filter(c => c.country === 'USA').map((city) => (
-                    <button
-                      key={city.id}
-                      onClick={() => setCityFilter(city.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                        cityFilter === city.id ? 'bg-blue-500/20 text-white' : 'hover:bg-white/5 text-gray-400'
-                      }`}
-                    >
-                      <span className="font-medium">{city.name}</span>
-                      <span className="block text-xs text-gray-500">{city.stadium}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* Mexico */}
-              <div className="col-span-3 md:col-span-1 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
-                <h4 className="text-green-400 font-bold mb-3">🇲🇽 Mexico</h4>
-                <div className="space-y-2">
-                  {HOST_CITIES.filter(c => c.country === 'Mexico').map((city) => (
-                    <button
-                      key={city.id}
-                      onClick={() => setCityFilter(city.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                        cityFilter === city.id ? 'bg-green-500/20 text-white' : 'hover:bg-white/5 text-gray-400'
-                      }`}
-                    >
-                      <span className="font-medium">{city.name}</span>
-                      <span className="block text-xs text-gray-500">{city.stadium}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
         )}
       </div>
     </main>
