@@ -15,6 +15,7 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: string;
   specialRequests?: string;
+  paymentMethod?: 'bitcoin' | 'paypal' | 'steam'; // ✅ NEW
 }
 
 export interface Review {
@@ -36,7 +37,7 @@ interface DataContextType {
   addListing: (listing: Omit<Listing, 'id'>) => Promise<void>;
   updateListing: (id: string, data: Partial<Listing>) => Promise<void>;
   deleteListing: (id: string) => Promise<void>;
-  addBooking: (booking: Omit<Booking, 'id' | 'createdAt'>) => Promise<Booking>;
+  addBooking: (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'bitcoin' | 'paypal' | 'steam' }) => Promise<Booking>;
   updateBooking: (id: string, data: Partial<Booking>) => Promise<void>;
   cancelBooking: (id: string) => Promise<void>;
   getUserBookings: (userId: string) => Booking[];
@@ -120,6 +121,7 @@ function rowToBooking(r: Record<string, unknown>): Booking {
     totalPrice: r.total_price as number,
     status: r.status as Booking['status'],
     specialRequests: (r.special_requests as string) || undefined,
+    paymentMethod: r.payment_method as 'bitcoin' | 'paypal' | 'steam' || undefined,
     createdAt: r.created_at as string,
   };
 }
@@ -240,16 +242,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // ━━━ BOOKINGS ━━━
 
-  const addBooking = async (booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> => {
+  const addBooking = async (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'bitcoin' | 'paypal' | 'steam' }): Promise<Booking> => {
     const generatedId = generateBookingId();
     
     if (isDemo) {
       const newBooking: Booking = {
         ...booking,
         id: generatedId,
+        paymentMethod: booking.paymentMethod,
         createdAt: new Date().toISOString(),
       };
       setBookings(prev => [...prev, newBooking]);
+      // ✅ Send admin notification
+      await sendAdminNotification(newBooking);
       return newBooking;
     }
 
@@ -265,33 +270,76 @@ export function DataProvider({ children }: { children: ReactNode }) {
         total_price: booking.totalPrice,
         status: booking.status,
         special_requests: booking.specialRequests,
+        payment_method: booking.paymentMethod || null, // ✅ Store payment method
       }).select().single();
 
       if (error || !data) {
         const fallbackBooking: Booking = {
           ...booking,
           id: generatedId,
+          paymentMethod: booking.paymentMethod,
           createdAt: new Date().toISOString(),
         };
         setBookings(prev => [...prev, fallbackBooking]);
+        await sendAdminNotification(fallbackBooking);
         return fallbackBooking;
       }
 
       const newBooking = rowToBooking(data);
       setBookings(prev => [...prev, newBooking]);
+      
+      // ✅ Send admin notification
+      await sendAdminNotification(newBooking);
+      
       return newBooking;
     } catch (error) {
       const fallbackBooking: Booking = {
         ...booking,
         id: generatedId,
+        paymentMethod: booking.paymentMethod,
         createdAt: new Date().toISOString(),
       };
       setBookings(prev => [...prev, fallbackBooking]);
+      await sendAdminNotification(fallbackBooking);
       return fallbackBooking;
     }
   };
 
-  // ✅ UPDATE BOOKING — This is the function the Admin uses
+  // ✅ Admin Notification Function
+  const sendAdminNotification = async (booking: Booking) => {
+    try {
+      const listing = listings.find(l => l.id === booking.listingId);
+      const paymentMethodMap = {
+        bitcoin: '₿ Bitcoin',
+        paypal: '🅿️ PayPal',
+        steam: '🎮 Steam Card',
+      };
+      
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'hello@annatravelagency.com',
+          template: 'adminBookingNotification',
+          data: {
+            guestName: booking.userName,
+            guestEmail: booking.userEmail,
+            propertyName: listing?.title || 'Unknown Property',
+            city: listing?.city || 'Unknown City',
+            checkIn: booking.checkIn,
+            checkOut: booking.checkOut,
+            guests: booking.guests,
+            totalPrice: `$${booking.totalPrice}`,
+            bookingId: booking.id,
+            paymentMethod: booking.paymentMethod ? paymentMethodMap[booking.paymentMethod] : 'Pending',
+          }
+        })
+      });
+    } catch (error) {
+      console.error('Failed to send admin notification:', error);
+    }
+  };
+
   const updateBooking = async (id: string, data: Partial<Booking>) => {
     if (isDemo) {
       setBookings(prev => prev.map(b => b.id === id ? { ...b, ...data } : b));
@@ -299,7 +347,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
     const row: Record<string, unknown> = {};
     if (data.status !== undefined) row.status = data.status;
-    // Add other fields if needed (e.g., specialRequests)
     if (data.specialRequests !== undefined) row.special_requests = data.specialRequests;
     
     const { error } = await supabase

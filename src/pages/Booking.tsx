@@ -124,6 +124,7 @@ export default function Booking() {
       totalPrice: total,
       status: paymentMethod === 'paypal' ? 'confirmed' : 'pending',
       specialRequests: formData.specialRequests,
+      paymentMethod: paymentMethod, // ✅ Store payment method
     });
 
     setBookingId(booking.id);
@@ -138,7 +139,6 @@ export default function Booking() {
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     } catch (err) {
-      // Fallback: prompt user to copy manually
       alert('Please copy the address manually: ' + BITCOIN_WALLET);
     }
   };
@@ -303,7 +303,7 @@ export default function Booking() {
                         </div>
                       </motion.div>
 
-                      {/* ── BITCOIN FORM WITH QR CODE (CDN) ── */}
+                      {/* ── BITCOIN FORM WITH QR CODE ── */}
                       {paymentMethod === 'bitcoin' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20">
@@ -311,7 +311,6 @@ export default function Booking() {
                               Send <strong className="text-white">{format(total)}</strong> in Bitcoin (BTC) to:
                             </p>
 
-                            {/* QR CODE - Using CDN (no library needed) */}
                             <div className="flex justify-center my-3">
                               <img
                                 src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${BITCOIN_WALLET}&bgcolor=1a1a2e&color=f59e0b&margin=10`}
@@ -321,7 +320,6 @@ export default function Booking() {
                             </div>
                             <p className="text-center text-gray-400 text-xs mb-3">Scan with Trust Wallet or any Bitcoin wallet</p>
 
-                            {/* Wallet Address with Copy Button */}
                             <div className="flex items-center gap-2 bg-black/30 rounded-lg p-3 border border-orange-500/20">
                               <code className="text-sm text-orange-400 break-all flex-1 font-mono">
                                 {BITCOIN_WALLET}
@@ -352,18 +350,56 @@ export default function Booking() {
                         </motion.div>
                       )}
 
-                      {/* ── PAYPAL FORM ── */}
+                      {/* ── PAYPAL FORM WITH ERROR MESSAGE ── */}
                       {paymentMethod === 'paypal' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                          <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-center">
-                            <div className="text-6xl mb-4">🅿️</div>
-                            <p className="text-white font-bold text-lg">PayPal Checkout</p>
-                            <p className="text-gray-400 text-sm mt-2">
-                              You will be redirected to PayPal to complete your payment securely.
+                          <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                            <div className="flex items-center gap-3 mb-4">
+                              <span className="text-3xl">⚠️</span>
+                              <h3 className="text-amber-400 font-bold text-lg">PayPal Temporarily Unavailable</h3>
+                            </div>
+                            
+                            <p className="text-gray-300 text-sm mb-4">
+                              We're currently experiencing a temporary network issue with our PayPal payment gateway.
+                              Your booking is still secure — please choose an alternative payment method below.
                             </p>
-                            <p className="text-gray-500 text-xs mt-4">
-                              After payment, you'll be returned to confirm your booking.
+                            
+                            <div className="bg-white/5 rounded-lg p-4 mb-4">
+                              <p className="text-gray-400 text-sm">
+                                <strong className="text-white">Alternative Payment Options:</strong>
+                              </p>
+                              <ul className="text-gray-400 text-sm list-disc list-inside mt-2 space-y-1">
+                                <li>Pay with <strong className="text-orange-400">Bitcoin (BTC)</strong> — instant confirmation</li>
+                                <li>Pay with <strong className="text-purple-400">Steam Card</strong> — manual verification within 2 hours</li>
+                                <li><strong className="text-blue-400">PayPal invoice</strong> will be emailed to you within 24 hours if you prefer</li>
+                              </ul>
+                            </div>
+                            
+                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
+                              <p className="text-blue-300 text-xs flex items-center gap-2">
+                                <span>📧</span>
+                                <span>If you need PayPal, our team will send a secure invoice to your email within 24 hours.</span>
+                              </p>
+                            </div>
+                            
+                            <p className="text-gray-500 text-xs">
+                              Questions? Email us at <a href="mailto:hello@annatravelagency.com" className="text-amber-400 hover:underline">hello@annatravelagency.com</a>
                             </p>
+                            
+                            <div className="flex gap-3 mt-4">
+                              <button
+                                onClick={() => setPaymentMethod('bitcoin')}
+                                className="px-4 py-2 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-all text-sm border border-orange-500/30"
+                              >
+                                ₿ Use Bitcoin
+                              </button>
+                              <button
+                                onClick={() => setPaymentMethod('steam')}
+                                className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-all text-sm border border-purple-500/30"
+                              >
+                                🎮 Use Steam Card
+                              </button>
+                            </div>
                           </div>
                         </motion.div>
                       )}

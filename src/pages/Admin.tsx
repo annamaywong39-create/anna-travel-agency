@@ -3,7 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Building2, Calendar, Users, Plus, Edit2, Trash2,
-  Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter
+  Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter, CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData, type Booking } from '../contexts/DataContext';
@@ -59,7 +59,7 @@ export default function Admin() {
             checkOut: booking.checkOut,
             guests: booking.guests,
             totalPrice: `$${booking.totalPrice}`,
-            bookingId: booking.id, // ← Unique code like ANA-123456-ABCD
+            bookingId: booking.id,
           }
         })
       });
@@ -81,16 +81,25 @@ export default function Admin() {
     const booking = bookings.find(b => b.id === bookingId);
     const oldStatus = booking?.status;
     
-    // Update booking status
     await updateBooking(bookingId, { status: newStatus });
 
-    // ✅ If status changed to 'confirmed', send confirmation email
     if (newStatus === 'confirmed' && oldStatus !== 'confirmed' && booking) {
       const listing = listings.find(l => l.id === booking.listingId);
       if (listing) {
         await sendConfirmationEmail(booking, listing);
       }
     }
+  };
+
+  // ✅ Payment method display helper
+  const getPaymentMethodDisplay = (method?: 'bitcoin' | 'paypal' | 'steam') => {
+    if (!method) return '⏳ Pending';
+    const map = {
+      bitcoin: { label: '₿ Bitcoin', color: 'bg-orange-500/20 text-orange-400' },
+      paypal: { label: '🅿️ PayPal', color: 'bg-blue-500/20 text-blue-400' },
+      steam: { label: '🎮 Steam Card', color: 'bg-purple-500/20 text-purple-400' },
+    };
+    return map[method] || { label: '⏳ Pending', color: 'bg-gray-500/20 text-gray-400' };
   };
 
   return (
@@ -179,32 +188,39 @@ export default function Admin() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Booking ID</th>
+                      <th className="text-left p-4 text-gray-400 text-sm font-medium">ID</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Guest</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Dates</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Amount</th>
+                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Payment Method</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {bookings.slice(0, 5).map((booking) => (
-                      <tr key={booking.id} className="border-b border-white/5">
-                        <td className="p-4 text-white text-sm font-mono">{booking.id.slice(0, 12)}...</td>
-                        <td className="p-4 text-white text-sm">{booking.userName}</td>
-                        <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
-                        <td className="p-4 text-amber-400 text-sm font-medium">{format(booking.totalPrice)}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400' :
-                            booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                            booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400' :
-                            'bg-blue-500/20 text-blue-400'
-                          }`}>
-                            {booking.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {bookings.slice(0, 5).map((booking) => {
+                      const pm = getPaymentMethodDisplay(booking.paymentMethod);
+                      return (
+                        <tr key={booking.id} className="border-b border-white/5">
+                          <td className="p-4 text-white text-sm font-mono">{booking.id.slice(0, 12)}...</td>
+                          <td className="p-4 text-white text-sm">{booking.userName}</td>
+                          <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
+                          <td className="p-4 text-amber-400 text-sm font-medium">{format(booking.totalPrice)}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded text-xs ${pm.color}`}>{pm.label}</span>
+                          </td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded text-xs ${
+                              booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400' :
+                              booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                              booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400' :
+                              'bg-blue-500/20 text-blue-400'
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -269,7 +285,7 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* Bookings Tab */}
+        {/* ═══ BOOKINGS TAB WITH PAYMENT METHOD ═══ */}
         {activeTab === 'bookings' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <Card3D>
@@ -283,56 +299,65 @@ export default function Admin() {
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Check-in</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Check-out</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Amount</th>
+                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Payment Method</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Status</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {bookings.map((booking) => (
-                      <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
-                        <td className="p-4 text-white text-sm font-mono">
-                          <span className="text-amber-400 font-bold">{booking.id.slice(-8).toUpperCase()}</span>
-                        </td>
-                        <td className="p-4 text-white text-sm">{booking.userName}</td>
-                        <td className="p-4 text-gray-400 text-sm">{booking.userEmail}</td>
-                        <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
-                        <td className="p-4 text-gray-400 text-sm">{booking.checkOut}</td>
-                        <td className="p-4 text-amber-400 text-sm font-medium">{format(booking.totalPrice)}</td>
-                        <td className="p-4">
-                          <select
-                            value={booking.status}
-                            onChange={(e) => handleStatusChange(booking.id, e.target.value as Booking['status'])}
-                            className={`px-2 py-1 rounded text-xs focus:outline-none ${
-                              booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                              booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                              booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                              'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                            } border bg-white/5`}
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="confirmed">✅ Confirm</option>
-                            <option value="cancelled">Cancel</option>
-                            <option value="completed">Complete</option>
-                          </select>
-                          {emailStatus && emailStatus.id === booking.id && (
-                            <span className={`ml-2 text-xs ${
-                              emailStatus.status === 'sending' ? 'text-yellow-400' :
-                              emailStatus.status === 'sent' ? 'text-green-400' :
-                              'text-red-400'
-                            }`}>
-                              {emailStatus.status === 'sending' ? '📧 Sending...' :
-                               emailStatus.status === 'sent' ? '✅ Email sent!' :
-                               '❌ Failed'}
+                    {bookings.map((booking) => {
+                      const pm = getPaymentMethodDisplay(booking.paymentMethod);
+                      return (
+                        <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
+                          <td className="p-4 text-white text-sm font-mono">
+                            <span className="text-amber-400 font-bold">{booking.id.slice(-8).toUpperCase()}</span>
+                          </td>
+                          <td className="p-4 text-white text-sm">{booking.userName}</td>
+                          <td className="p-4 text-gray-400 text-sm">{booking.userEmail}</td>
+                          <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
+                          <td className="p-4 text-gray-400 text-sm">{booking.checkOut}</td>
+                          <td className="p-4 text-amber-400 text-sm font-medium">{format(booking.totalPrice)}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${pm.color}`}>
+                              {pm.label}
                             </span>
-                          )}
-                        </td>
-                        <td className="p-4">
-                          <button className="text-gray-400 hover:text-white">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="p-4">
+                            <select
+                              value={booking.status}
+                              onChange={(e) => handleStatusChange(booking.id, e.target.value as Booking['status'])}
+                              className={`px-2 py-1 rounded text-xs focus:outline-none ${
+                                booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                              } border bg-white/5`}
+                            >
+                              <option value="pending">⏳ Pending</option>
+                              <option value="confirmed">✅ Confirm</option>
+                              <option value="cancelled">❌ Cancel</option>
+                              <option value="completed">✅ Complete</option>
+                            </select>
+                            {emailStatus && emailStatus.id === booking.id && (
+                              <span className={`ml-2 text-xs ${
+                                emailStatus.status === 'sending' ? 'text-yellow-400' :
+                                emailStatus.status === 'sent' ? 'text-green-400' :
+                                'text-red-400'
+                              }`}>
+                                {emailStatus.status === 'sending' ? '📧 Sending...' :
+                                 emailStatus.status === 'sent' ? '✅ Email sent!' :
+                                 '❌ Failed'}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <button className="text-gray-400 hover:text-white">
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
                 {bookings.length === 0 && (
