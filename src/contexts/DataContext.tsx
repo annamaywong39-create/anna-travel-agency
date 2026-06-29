@@ -141,12 +141,18 @@ function rowToReview(r: Record<string, unknown>): Review {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  PROVIDER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-export function DataProvider({ children }: { children: ReactNode }) {
+eexport function DataProvider({ children }: { children: ReactNode }) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const isDemo = !isSupabaseConfigured;
+
+  // 🔍 Debug logs to verify connection
+  console.log('🔍 isDemo:', isDemo);
+  console.log('🔍 isSupabaseConfigured:', isSupabaseConfigured);
+  console.log('🔍 supabaseUrl:', supabaseUrl);
+  console.log('🔍 supabaseAnon:', supabaseAnon);
 
   // ── Load data on mount ──
   useEffect(() => {
