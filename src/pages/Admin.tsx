@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -14,15 +14,31 @@ type Tab = 'overview' | 'listings' | 'bookings' | 'users';
 
 export default function Admin() {
   const { user } = useAuth();
-  const { listings, bookings, deleteListing, updateBooking, isDemo } = useData();
+  const { listings, bookings, deleteListing, updateBooking, isDemo, fetchAllUsers } = useData();
   const { format } = useCurrency();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [emailStatus, setEmailStatus] = useState<{ id: string; status: 'sending' | 'sent' | 'error' } | null>(null);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   if (!user || user.role !== 'admin') {
     return <Navigate to="/login" replace />;
   }
+
+  // Load users when the "Users" tab is active
+  useEffect(() => {
+    if (activeTab === 'users') {
+      loadUsers();
+    }
+  }, [activeTab]);
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    const users = await fetchAllUsers();
+    setAllUsers(users);
+    setLoadingUsers(false);
+  };
 
   const totalRevenue = bookings
     .filter(b => b.status === 'confirmed' || b.status === 'completed')
@@ -40,7 +56,7 @@ export default function Admin() {
     l.city.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // ✅ Send confirmation email when booking is confirmed
+  // Send confirmation email when booking is confirmed
   const sendConfirmationEmail = async (booking: Booking, listing: any) => {
     try {
       setEmailStatus({ id: booking.id, status: 'sending' });
@@ -91,7 +107,7 @@ export default function Admin() {
     }
   };
 
-  // ✅ Payment method display helper
+  // Payment method display helper
   const getPaymentMethodDisplay = (method?: 'bitcoin' | 'paypal' | 'steam') => {
     if (!method) return '⏳ Pending';
     const map = {
@@ -157,7 +173,7 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* Overview Tab */}
+        {/* Overview Tab (unchanged) */}
         {activeTab === 'overview' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -181,7 +197,6 @@ export default function Admin() {
               ))}
             </div>
 
-            {/* Recent bookings */}
             <h3 className="text-xl font-bold text-white mb-4">Recent Bookings</h3>
             <Card3D>
               <div className="overflow-x-auto">
@@ -228,7 +243,7 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* Listings Tab */}
+        {/* Listings Tab (unchanged) */}
         {activeTab === 'listings' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex gap-3 mb-6">
@@ -285,7 +300,7 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* ═══ BOOKINGS TAB WITH PAYMENT METHOD ═══ */}
+        {/* ═══ BOOKINGS TAB (unchanged) ═══ */}
         {activeTab === 'bookings' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <Card3D>
@@ -368,16 +383,64 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* Users Tab */}
+        {/* ═══ USERS TAB — NOW REAL ═══ */}
         {activeTab === 'users' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <Card3D>
-              <div className="p-12 text-center">
-                <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">User Management</h3>
-                <p className="text-gray-400">
-                  User data is stored in localStorage. In production, this would connect to your database.
-                </p>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-white">User Management</h3>
+                  <button
+                    onClick={loadUsers}
+                    className="px-4 py-2 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-all text-sm flex items-center gap-2"
+                  >
+                    <span>🔄</span> Refresh
+                  </button>
+                </div>
+                {loadingUsers ? (
+                  <div className="py-12 text-center text-gray-400">Loading users...</div>
+                ) : allUsers.length === 0 ? (
+                  <div className="py-12 text-center text-gray-400">No users found.</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Name</th>
+                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Email</th>
+                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Role</th>
+                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Joined</th>
+                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allUsers.map((u) => (
+                          <tr key={u.id} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="p-4 text-white text-sm">
+                              {u.first_name} {u.last_name}
+                            </td>
+                            <td className="p-4 text-gray-400 text-sm">{u.email}</td>
+                            <td className="p-4">
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-gray-500/20 text-gray-400'
+                              }`}>
+                                {u.role || 'user'}
+                              </span>
+                            </td>
+                            <td className="p-4 text-gray-400 text-sm">
+                              {new Date(u.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="p-4">
+                              <button className="text-gray-400 hover:text-white">
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </Card3D>
           </motion.div>

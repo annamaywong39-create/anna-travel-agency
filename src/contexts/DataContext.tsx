@@ -15,7 +15,7 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: string;
   specialRequests?: string;
-  paymentMethod?: 'bitcoin' | 'paypal' | 'steam'; // ✅ NEW
+  paymentMethod?: 'bitcoin' | 'paypal' | 'steam';
 }
 
 export interface Review {
@@ -26,6 +26,17 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt: string;
+}
+
+export interface UserProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: 'user' | 'admin';
+  phone?: string;
+  country?: string;
+  created_at: string;
 }
 
 interface DataContextType {
@@ -46,6 +57,7 @@ interface DataContextType {
   getListingReviews: (listingId: string) => Review[];
   getListingAverageRating: (listingId: string) => number;
   saveContactMessage: (msg: { name: string; email: string; subject: string; message: string; type: string }) => Promise<void>;
+  fetchAllUsers: () => Promise<UserProfile[]>; // NEW
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -141,18 +153,14 @@ function rowToReview(r: Record<string, unknown>): Review {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  PROVIDER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-eexport function DataProvider({ children }: { children: ReactNode }) {
+export function DataProvider({ children }: { children: ReactNode }) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const isDemo = !isSupabaseConfigured;
 
-  // 🔍 Debug logs to verify connection
-  console.log('🔍 isDemo:', isDemo);
-  console.log('🔍 isSupabaseConfigured:', isSupabaseConfigured);
-  console.log('🔍 supabaseUrl:', supabaseUrl);
-  console.log('🔍 supabaseAnon:', supabaseAnon);
+  console.log('🔍 isDemo:', isDemo); // optional debug
 
   // ── Load data on mount ──
   useEffect(() => {
@@ -276,7 +284,7 @@ eexport function DataProvider({ children }: { children: ReactNode }) {
         total_price: booking.totalPrice,
         status: booking.status,
         special_requests: booking.specialRequests,
-        payment_method: booking.paymentMethod || null, // ✅ Store payment method
+        payment_method: booking.paymentMethod || null,
       }).select().single();
 
       if (error || !data) {
@@ -293,10 +301,7 @@ eexport function DataProvider({ children }: { children: ReactNode }) {
 
       const newBooking = rowToBooking(data);
       setBookings(prev => [...prev, newBooking]);
-      
-      // ✅ Send admin notification
       await sendAdminNotification(newBooking);
-      
       return newBooking;
     } catch (error) {
       const fallbackBooking: Booking = {
@@ -439,6 +444,64 @@ eexport function DataProvider({ children }: { children: ReactNode }) {
     await supabase.from('contact_messages').insert(msg);
   };
 
+  // ━━━ USERS (Admin) ━━━
+  const fetchAllUsers = async (): Promise<UserProfile[]> => {
+    if (isDemo) {
+      const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
+      return users.map((u: any) => ({
+        id: u.id,
+        first_name: u.firstName,
+        last_name: u.lastName,
+        email: u.email,
+        role: u.role || 'user',
+        created_at: u.createdAt || new Date().toISOString(),
+      }));
+    }
+
+    // Fetch profiles from Supabase
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (profilesError) {
+      console.error('Failed to fetch users:', profilesError);
+      return [];
+    }
+
+    // Also get auth users to have email addresses (profiles may not store email)
+    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+    if (authError) {
+      // Fallback: return profiles without email
+      return profiles.map((p: any) => ({
+        id: p.id,
+        first_name: p.first_name,
+        last_name: p.last_name,
+        email: 'N/A',
+        role: p.role,
+        phone: p.phone,
+        country: p.country,
+        created_at: p.created_at,
+      }));
+    }
+
+    const userMap = new Map();
+    authUsers.users.forEach((u: any) => {
+      userMap.set(u.id, u.email);
+    });
+
+    return profiles.map((p: any) => ({
+      id: p.id,
+      first_name: p.first_name,
+      last_name: p.last_name,
+      email: userMap.get(p.id) || 'N/A',
+      role: p.role,
+      phone: p.phone,
+      country: p.country,
+      created_at: p.created_at,
+    }));
+  };
+
   return (
     <DataContext.Provider value={{
       listings,
@@ -458,6 +521,7 @@ eexport function DataProvider({ children }: { children: ReactNode }) {
       getListingReviews,
       getListingAverageRating,
       saveContactMessage,
+      fetchAllUsers,
     }}>
       {children}
     </DataContext.Provider>
