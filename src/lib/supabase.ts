@@ -13,8 +13,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
  └──────────────────────────────────────────────────────┘
 */
 
-const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL  || '';
-const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON || '';
+const supabaseUrl  = 'https://wtktniphfzeltvajpbhb.supabase.co';
+const supabaseAnon = 'sb_publishable_4E748vUDiLSXThheSvniYA_ICB97paN';
 
 /**
  * Returns true when real Supabase keys have been provided.
