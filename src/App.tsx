@@ -24,6 +24,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Refund from './pages/Refund';
 import ScrollToTop from './components/ScrollToTop';
+import Checkout from './pages/Checkout';
 
 export default function App() {
   return (
@@ -53,6 +54,7 @@ export default function App() {
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/refund" element={<Refund />} />
+                  <Route path="/checkout" element={<Checkout />} />
                 </Routes>
               <Footer />
               <LiveChat />

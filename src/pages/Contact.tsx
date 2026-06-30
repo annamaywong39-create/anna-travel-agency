@@ -51,7 +51,7 @@ export default function Contact() {
           <div className="space-y-4">
             {[
               { icon: Mail, title: 'Email Us', value: 'hello@annatravelagency.com', sub: 'We reply within 2 hours', color: 'text-blue-400' },
-              { icon: Phone, title: 'Call Us', value: '+1 (800) 123-4567', sub: 'Mon-Sun, 24/7', color: 'text-green-400' },
+              { icon: Phone, title: 'Call Us', value: '+1 (587) 681-0591', sub: 'Mon-Sun, 24/7', color: 'text-green-400' },
               { icon: MapPin, title: 'Office', value: 'New York, NY, USA', sub: 'Visit by appointment', color: 'text-purple-400' },
               { icon: Clock, title: 'Response Time', value: 'Under 2 hours', sub: 'Average response time', color: 'text-amber-400' },
             ].map((item, i) => (
