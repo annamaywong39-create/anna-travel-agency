@@ -29,7 +29,6 @@ const TICKET_CATEGORIES = [
 ];
 
 export default function Tickets() {
-  // ✅ ALL HOOKS AT THE TOP — NO CONDITIONAL RETURNS BEFORE THIS
   const [matches, setMatches] = useState<MatchTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMatch, setSelectedMatch] = useState<MatchTicket | null>(null);
@@ -41,20 +40,27 @@ export default function Tickets() {
     fetchMatches();
   }, []);
 
-  // ---- helper functions ----
   const fetchMatches = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('matches')
-      .select('*')
-      .gte('match_date', '2026-07-01')
-      .order('match_date', { ascending: true });
-    if (error) {
-      console.error('Error fetching matches:', error);
-    } else {
-      setMatches(data || []);
+    try {
+      const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .gte('match_date', '2026-07-01')
+        .order('match_date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching matches:', error);
+        setMatches([]);
+      } else {
+        setMatches(data || []);
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setMatches([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const getStatusInfo = (status: string) => {
@@ -68,16 +74,17 @@ export default function Tickets() {
 
   const getCategoryPrice = (match: MatchTicket, categoryId: string): number => {
     const map: Record<string, number> = {
-      category_1: match.category_1_price,
-      category_2: match.category_2_price,
-      category_3: match.category_3_price,
-      category_4: match.category_4_price,
-      supporter_entry: match.supporter_entry_price,
+      category_1: match?.category_1_price || 0,
+      category_2: match?.category_2_price || 0,
+      category_3: match?.category_3_price || 0,
+      category_4: match?.category_4_price || 0,
+      supporter_entry: match?.supporter_entry_price || 0,
     };
     return map[categoryId] || 0;
   };
 
   const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
     return new Date(dateStr).toLocaleDateString('en-US', {
       weekday: 'short',
       month: 'short',
@@ -87,6 +94,7 @@ export default function Tickets() {
   };
 
   const getStageLabel = (dateStr: string): string => {
+    if (!dateStr) return 'Knockout';
     const date = new Date(dateStr);
     const month = date.getMonth();
     const day = date.getDate();
@@ -101,6 +109,7 @@ export default function Tickets() {
   };
 
   const availableCategories = (match: MatchTicket) => {
+    if (!match) return [];
     return TICKET_CATEGORIES.filter((cat) => {
       const price = getCategoryPrice(match, cat.id);
       return price > 0;
@@ -126,7 +135,6 @@ export default function Tickets() {
     }, 3000);
   };
 
-  // ---- render ----
   return (
     <main className="pt-24 pb-20 min-h-screen">
       <SEO title="FIFA World Cup 2026 Tickets" description="Buy official tickets for World Cup 2026 matches." path="/tickets" />
@@ -174,7 +182,7 @@ export default function Tickets() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {matches.map((match) => {
+            {(matches || []).map((match) => {
               const statusInfo = getStatusInfo(match.status);
               const stage = getStageLabel(match.match_date);
               const isFinal = stage.includes('FINAL');
@@ -202,7 +210,7 @@ export default function Tickets() {
                         <p className="text-gray-400 text-sm">{match.venue}</p>
                       </div>
                       <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {availCats.map((cat) => {
+                        {(availCats || []).map((cat) => {
                           const price = getCategoryPrice(match, cat.id);
                           return (
                             <div key={cat.id} className={`text-center p-2 rounded-lg bg-gradient-to-br ${cat.color} bg-opacity-10 border border-white/10`}>
