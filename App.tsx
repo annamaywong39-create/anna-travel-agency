@@ -1,3 +1,4 @@
+import React from 'react'; // <-- FIXED
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './contexts/AuthContext';
@@ -20,6 +21,7 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import AdminListingForm from './pages/AdminListingForm';
 import Tickets from './pages/Tickets';
+import Checkout from './pages/Checkout'; // <-- NEW ROUTE
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Refund from './pages/Refund';
@@ -44,6 +46,7 @@ export default function App() {
                   <Route path="/schedule" element={<Schedule />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/tickets" element={<Tickets />} />
+                  <Route path="/checkout" element={<Checkout />} /> {/* <-- NEW */}
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
