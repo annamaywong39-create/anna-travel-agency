@@ -58,7 +58,6 @@ export interface CartItem {
   price: number;
 }
 
-// ─── NEW: Event types ───
 export interface Event {
   id: string;
   title: string;
@@ -87,38 +86,22 @@ interface DataContextType {
   ticketOrders: TicketOrder[];
   isLoading: boolean;
   isDemo: boolean;
-
-  // Listings
   addListing: (listing: Omit<Listing, 'id'>) => Promise<void>;
   updateListing: (id: string, data: Partial<Listing>) => Promise<void>;
   deleteListing: (id: string) => Promise<void>;
-
-  // Bookings
   addBooking: (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'bitcoin' | 'paypal' | 'steam' }) => Promise<Booking>;
   updateBooking: (id: string, data: Partial<Booking>) => Promise<void>;
   cancelBooking: (id: string) => Promise<void>;
   getUserBookings: (userId: string) => Booking[];
-
-  // Ticket Orders
   addTicketOrder: (order: Omit<TicketOrder, 'id' | 'createdAt'>) => Promise<TicketOrder>;
-
-  // Reviews
   addReview: (review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
   deleteReview: (reviewId: string) => Promise<void>;
   getListingReviews: (listingId: string) => Review[];
   getListingAverageRating: (listingId: string) => number;
-
-  // Contacts
   saveContactMessage: (msg: { name: string; email: string; subject: string; message: string; type: string }) => Promise<void>;
-
-  // Users (admin)
   fetchAllUsers: () => Promise<UserProfile[]>;
-
-  // Matches (for ticket prices)
   fetchMatches: () => Promise<any[]>;
   updateMatchPrices: (matchId: string, updates: Record<string, number>) => Promise<void>;
-
-  // ─── NEW: Events ───
   fetchEvents: () => Promise<Event[]>;
   addEvent: (event: Omit<Event, 'id' | 'createdAt'>) => Promise<Event>;
   updateEvent: (id: string, data: Partial<Event>) => Promise<void>;
@@ -127,8 +110,6 @@ interface DataContextType {
   addEventTicket: (ticket: Omit<EventTicket, 'id' | 'createdAt'>) => Promise<EventTicket>;
   updateEventTicket: (id: string, data: Partial<EventTicket>) => Promise<void>;
   deleteEventTicket: (id: string) => Promise<void>;
-
-  // Unified Cart
   cartItems: CartItem[];
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string) => void;
@@ -552,7 +533,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await supabase.from('contact_messages').insert(msg);
   };
 
-  // ━━━ USERS (Admin) – FIXED ━━━
+  // ━━━ USERS (Admin) ━━━
   const fetchAllUsers = async (): Promise<UserProfile[]> => {
     if (isDemo) {
       const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
