@@ -31,6 +31,8 @@ export default function Listings() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [currentPage, setCurrentPage] = useState(1);
+  // ✅ FIX: Added missing dateRange state
+  const [dateRange, setDateRange] = useState({ checkIn: '', checkOut: '' });
 
   const filteredListings = useMemo(() => {
     return listings.filter((l) => {
@@ -47,7 +49,6 @@ export default function Listings() {
     });
   }, [listings, typeFilter, cityFilter, priceFilter, searchQuery]);
 
-  // ✅ Pagination
   const totalPages = Math.ceil(filteredListings.length / ITEMS_PER_PAGE);
   const paginatedListings = filteredListings.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -225,7 +226,6 @@ export default function Listings() {
                   ))}
                 </div>
 
-                {/* ✅ Pagination Controls */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-center gap-3 mt-8">
                     <button

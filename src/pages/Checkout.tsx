@@ -28,23 +28,22 @@ export default function Checkout() {
     if (!user) return navigate('/login');
     setIsProcessing(true);
 
-    // 1. Process room bookings
     for (const item of cartItems) {
-      if (item.type === 'booking') {
-        await addBooking(item.data);
-      }
-      if (item.type === 'ticket') {
+      if (item.type === 'room') {
+        // item.item contains the booking data
+        await addBooking(item.item);
+      } else if (item.type === 'ticket') {
         await addTicketOrder({
-          user_id: user.id,
-          ticket_id: item.data.ticketId,
-          quantity: item.data.quantity,
-          total_price: item.data.unitPrice * item.data.quantity,
-          payment_method: 'pending'
+          userId: user.id,
+          ticketId: item.item.ticketId,
+          quantity: item.quantity,
+          totalPrice: item.price * item.quantity,
+          paymentMethod: 'pending',
+          status: 'pending',
         });
       }
     }
 
-    // 2. Clear cart & redirect
     clearCart();
     setIsProcessing(false);
     navigate('/dashboard?checkout=success');
@@ -67,21 +66,21 @@ export default function Checkout() {
             <Card3D key={index}>
               <div className="p-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${item.type === 'booking' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                    {item.type === 'booking' ? <Calendar className="w-5 h-5" /> : <Ticket className="w-5 h-5" />}
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${item.type === 'room' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                    {item.type === 'room' ? <Calendar className="w-5 h-5" /> : <Ticket className="w-5 h-5" />}
                   </div>
                   <div>
                     <p className="text-white font-bold">
-                      {item.type === 'booking' ? item.data.userName : item.data.eventName}
+                      {item.type === 'room' ? item.item.userName : item.item.eventName}
                     </p>
                     <p className="text-gray-400 text-xs">
-                      {item.type === 'booking' ? `${item.data.checkIn} → ${item.data.checkOut}` : `${item.data.quantity} x ${item.data.ticketId.slice(0,8)}`}
+                      {item.type === 'room' ? `${item.item.checkIn} → ${item.item.checkOut}` : `${item.quantity} x ${item.item.ticketId?.slice(0, 8) || 'Ticket'}`}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-amber-400 font-bold">{item.type === 'booking' ? format(item.data.totalPrice) : format(item.data.unitPrice * item.data.quantity)}</span>
-                  <button onClick={() => removeFromCart(index)} className="text-red-400 hover:text-red-300">
+                  <span className="text-amber-400 font-bold">{format(item.price * item.quantity)}</span>
+                  <button onClick={() => removeFromCart(item.id)} className="text-red-400 hover:text-red-300">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

@@ -39,7 +39,17 @@ export interface UserProfile {
   created_at: string;
 }
 
-// --- Cart System ---
+export interface TicketOrder {
+  id: string;
+  userId: string;
+  ticketId: string;
+  quantity: number;
+  totalPrice: number;
+  paymentMethod: string;
+  status: 'pending' | 'confirmed' | 'cancelled';
+  createdAt: string;
+}
+
 export interface CartItem {
   id: string;
   type: 'room' | 'ticket';
@@ -52,6 +62,7 @@ interface DataContextType {
   listings: Listing[];
   bookings: Booking[];
   reviews: Review[];
+  ticketOrders: TicketOrder[];
   isLoading: boolean;
   isDemo: boolean;
   // Listings
@@ -63,6 +74,8 @@ interface DataContextType {
   updateBooking: (id: string, data: Partial<Booking>) => Promise<void>;
   cancelBooking: (id: string) => Promise<void>;
   getUserBookings: (userId: string) => Booking[];
+  // Ticket Orders
+  addTicketOrder: (order: Omit<TicketOrder, 'id' | 'createdAt'>) => Promise<TicketOrder>;
   // Reviews
   addReview: (review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
   deleteReview: (reviewId: string) => Promise<void>;
@@ -91,7 +104,6 @@ export function useData() {
   return context;
 }
 
-// Helper to generate unique booking ID
 function generateBookingId(): string {
   const prefix = 'ANA';
   const timestamp = Date.now().toString().slice(-6);
@@ -171,27 +183,40 @@ function rowToReview(r: Record<string, unknown>): Review {
   };
 }
 
+function rowToTicketOrder(r: Record<string, unknown>): TicketOrder {
+  return {
+    id: r.id as string,
+    userId: r.user_id as string,
+    ticketId: r.ticket_id as string,
+    quantity: r.quantity as number,
+    totalPrice: r.total_price as number,
+    paymentMethod: r.payment_method as string,
+    status: r.status as TicketOrder['status'],
+    createdAt: r.created_at as string,
+  };
+}
+
 // ━━━ Provider ━━━
 export function DataProvider({ children }: { children: ReactNode }) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const isDemo = !isSupabaseConfigured;
 
-  console.log('🔍 isDemo:', isDemo);
-
-  // ── Load data on mount ──
   useEffect(() => {
     if (isDemo) {
       const sl = localStorage.getItem('ath_listings');
       const sb = localStorage.getItem('ath_bookings');
       const sr = localStorage.getItem('ath_reviews');
+      const sto = localStorage.getItem('ath_ticketOrders');
       const sc = localStorage.getItem('ath_cart');
       setListings(sl ? JSON.parse(sl) : DEFAULT_LISTINGS);
       setBookings(sb ? JSON.parse(sb) : []);
       setReviews(sr ? JSON.parse(sr) : []);
+      setTicketOrders(sto ? JSON.parse(sto) : []);
       setCartItems(sc ? JSON.parse(sc) : []);
       setIsLoading(false);
     } else {
@@ -199,11 +224,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, [isDemo]);
 
-  // ── Save demo data to localStorage ──
   useEffect(() => {
-    if (isDemo && listings.length > 0) {
-      localStorage.setItem('ath_listings', JSON.stringify(listings));
-    }
+    if (isDemo && listings.length > 0) localStorage.setItem('ath_listings', JSON.stringify(listings));
   }, [isDemo, listings]);
 
   useEffect(() => {
@@ -215,21 +237,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [isDemo, reviews]);
 
   useEffect(() => {
+    if (isDemo) localStorage.setItem('ath_ticketOrders', JSON.stringify(ticketOrders));
+  }, [isDemo, ticketOrders]);
+
+  useEffect(() => {
     if (isDemo) localStorage.setItem('ath_cart', JSON.stringify(cartItems));
   }, [isDemo, cartItems]);
 
-  // ── Supabase loaders ──
   async function loadFromSupabase() {
     setIsLoading(true);
-    const [listRes, bookRes, revRes] = await Promise.all([
+    const [listRes, bookRes, revRes, ticketRes] = await Promise.all([
       supabase.from('listings').select('*').order('created_at', { ascending: false }),
       supabase.from('bookings').select('*').order('created_at', { ascending: false }),
       supabase.from('reviews').select('*').order('created_at', { ascending: false }),
+      supabase.from('ticket_orders').select('*').order('created_at', { ascending: false }),
     ]);
 
     if (listRes.data) setListings(listRes.data.map(rowToListing));
     if (bookRes.data) setBookings(bookRes.data.map(rowToBooking));
     if (revRes.data) setReviews(revRes.data.map(rowToReview));
+    if (ticketRes.data) setTicketOrders(ticketRes.data.map(rowToTicketOrder));
     setIsLoading(false);
   }
 
@@ -241,9 +268,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       return;
     }
     const { data, error } = await supabase.from('listings').insert(listingToRow(listing)).select().single();
-    if (!error && data) {
-      setListings(prev => [...prev, rowToListing(data)]);
-    }
+    if (!error && data) setListings(prev => [...prev, rowToListing(data)]);
   };
 
   const updateListing = async (id: string, data: Partial<Listing>) => {
@@ -347,26 +372,31 @@ export function DataProvider({ children }: { children: ReactNode }) {
         paypal: '🅿️ PayPal',
         steam: '🎮 Steam Card',
       };
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: 'hello@annatravelagency.com',
-          template: 'adminBookingNotification',
-          data: {
-            guestName: booking.userName,
-            guestEmail: booking.userEmail,
-            propertyName: listing?.title || 'Unknown Property',
-            city: listing?.city || 'Unknown City',
-            checkIn: booking.checkIn,
-            checkOut: booking.checkOut,
-            guests: booking.guests,
-            totalPrice: `$${booking.totalPrice}`,
-            bookingId: booking.id,
-            paymentMethod: booking.paymentMethod ? paymentMethodMap[booking.paymentMethod] : 'Pending',
-          }
-        })
-      });
+      // ✅ FIXED URL
+      const response = await fetch(
+        'https://wtktniphfzeltvajpbhb.supabase.co/functions/v1/send-email',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: 'hello@annatravelagency.com',
+            template: 'adminBookingNotification',
+            data: {
+              guestName: booking.userName,
+              guestEmail: booking.userEmail,
+              propertyName: listing?.title || 'Unknown Property',
+              city: listing?.city || 'Unknown City',
+              checkIn: booking.checkIn,
+              checkOut: booking.checkOut,
+              guests: booking.guests,
+              totalPrice: `$${booking.totalPrice}`,
+              bookingId: booking.id,
+              paymentMethod: booking.paymentMethod ? paymentMethodMap[booking.paymentMethod] : 'Pending',
+            }
+          })
+        }
+      );
+      if (!response.ok) console.error('Admin notification failed:', await response.text());
     } catch (error) {
       console.error('Failed to send admin notification:', error);
     }
@@ -381,25 +411,63 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (data.status !== undefined) row.status = data.status;
     if (data.specialRequests !== undefined) row.special_requests = data.specialRequests;
     
-    const { error } = await supabase
-      .from('bookings')
-      .update(row)
-      .eq('id', id);
-    
-    if (!error) {
-      setBookings(prev => prev.map(b => b.id === id ? { ...b, ...data } : b));
-    }
+    const { error } = await supabase.from('bookings').update(row).eq('id', id);
+    if (!error) setBookings(prev => prev.map(b => b.id === id ? { ...b, ...data } : b));
   };
 
-  const cancelBooking = async (id: string) => {
-    await updateBooking(id, { status: 'cancelled' });
-  };
+  const cancelBooking = async (id: string) => updateBooking(id, { status: 'cancelled' });
 
   const getUserBookings = useCallback((userId: string) => {
-    return bookings
-      .filter(b => b.userId === userId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return bookings.filter(b => b.userId === userId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [bookings]);
+
+  // ━━━ TICKET ORDERS ━━━
+  const addTicketOrder = async (order: Omit<TicketOrder, 'id' | 'createdAt'>): Promise<TicketOrder> => {
+    const generatedId = `TKT-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    
+    if (isDemo) {
+      const newOrder: TicketOrder = {
+        ...order,
+        id: generatedId,
+        createdAt: new Date().toISOString(),
+      };
+      setTicketOrders(prev => [...prev, newOrder]);
+      return newOrder;
+    }
+
+    try {
+      const { data, error } = await supabase.from('ticket_orders').insert({
+        user_id: order.userId,
+        ticket_id: order.ticketId,
+        quantity: order.quantity,
+        total_price: order.totalPrice,
+        payment_method: order.paymentMethod,
+        status: order.status || 'pending',
+      }).select().single();
+
+      if (error || !data) {
+        const fallback: TicketOrder = {
+          ...order,
+          id: generatedId,
+          createdAt: new Date().toISOString(),
+        };
+        setTicketOrders(prev => [...prev, fallback]);
+        return fallback;
+      }
+
+      const newOrder = rowToTicketOrder(data);
+      setTicketOrders(prev => [...prev, newOrder]);
+      return newOrder;
+    } catch (error) {
+      const fallback: TicketOrder = {
+        ...order,
+        id: generatedId,
+        createdAt: new Date().toISOString(),
+      };
+      setTicketOrders(prev => [...prev, fallback]);
+      return fallback;
+    }
+  };
 
   // ━━━ REVIEWS ━━━
   const addReview = async (review: Omit<Review, 'id' | 'createdAt'>) => {
@@ -412,7 +480,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setReviews(prev => [...prev, newReview]);
       return;
     }
-
     const { data, error } = await supabase.from('reviews').insert({
       listing_id: review.listingId,
       user_id: review.userId,
@@ -421,9 +488,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       comment: review.comment,
     }).select().single();
 
-    if (!error && data) {
-      setReviews(prev => [...prev, rowToReview(data)]);
-    }
+    if (!error && data) setReviews(prev => [...prev, rowToReview(data)]);
   };
 
   const deleteReview = async (reviewId: string) => {
@@ -431,19 +496,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setReviews(prev => prev.filter(r => r.id !== reviewId));
       return;
     }
-    const { error } = await supabase
-      .from('reviews')
-      .delete()
-      .eq('id', reviewId);
-    if (!error) {
-      setReviews(prev => prev.filter(r => r.id !== reviewId));
-    }
+    const { error } = await supabase.from('reviews').delete().eq('id', reviewId);
+    if (!error) setReviews(prev => prev.filter(r => r.id !== reviewId));
   };
 
   const getListingReviews = useCallback((listingId: string) => {
-    return reviews
-      .filter(r => r.listingId === listingId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return reviews.filter(r => r.listingId === listingId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [reviews]);
 
   const getListingAverageRating = useCallback((listingId: string) => {
@@ -463,7 +521,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await supabase.from('contact_messages').insert(msg);
   };
 
-  // ━━━ USERS (Admin) ━━━
+  // ━━━ USERS (Admin) – FIXED: uses RPC function ━━━
   const fetchAllUsers = async (): Promise<UserProfile[]> => {
     if (isDemo) {
       const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
@@ -477,48 +535,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }));
     }
 
-    // Fetch profiles from Supabase
-    const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (profilesError) {
-      console.error('Failed to fetch users:', profilesError);
+    // ✅ Call the RPC function (no admin API)
+    const { data, error } = await supabase.rpc('get_all_users_with_email');
+    if (error) {
+      console.error('Failed to fetch users:', error);
       return [];
     }
-
-    // Also get auth users to have email addresses (profiles may not store email)
-    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-    if (authError) {
-      // Fallback: return profiles without email
-      return profiles.map((p: any) => ({
-        id: p.id,
-        first_name: p.first_name,
-        last_name: p.last_name,
-        email: 'N/A',
-        role: p.role,
-        phone: p.phone,
-        country: p.country,
-        created_at: p.created_at,
-      }));
-    }
-
-    const userMap = new Map();
-    authUsers.users.forEach((u: any) => {
-      userMap.set(u.id, u.email);
-    });
-
-    return profiles.map((p: any) => ({
-      id: p.id,
-      first_name: p.first_name,
-      last_name: p.last_name,
-      email: userMap.get(p.id) || 'N/A',
-      role: p.role,
-      phone: p.phone,
-      country: p.country,
-      created_at: p.created_at,
-    }));
+    return data || [];
   };
 
   // ━━━ MATCHES (Ticket Prices) ━━━
@@ -533,10 +556,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const updateMatchPrices = async (matchId: string, updates: Record<string, number>) => {
-    const { error } = await supabase
-      .from('matches')
-      .update(updates)
-      .eq('id', matchId);
+    const { error } = await supabase.from('matches').update(updates).eq('id', matchId);
     if (error) throw error;
   };
 
@@ -559,20 +579,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-  };
+  const clearCart = () => setCartItems([]);
 
-  const getCartTotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  };
+  const getCartTotal = () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // ━━━ Context Provider ━━━
   return (
     <DataContext.Provider value={{
       listings,
       bookings,
       reviews,
+      ticketOrders,
       isLoading,
       isDemo,
       addListing,
@@ -582,6 +598,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       updateBooking,
       cancelBooking,
       getUserBookings,
+      addTicketOrder,
       addReview,
       deleteReview,
       getListingReviews,
