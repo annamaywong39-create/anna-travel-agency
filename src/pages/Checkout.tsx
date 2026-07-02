@@ -28,25 +28,36 @@ export default function Checkout() {
     if (!user) return navigate('/login');
     setIsProcessing(true);
 
-    for (const item of cartItems) {
-      if (item.type === 'room') {
-        // item.item contains the booking data
-        await addBooking(item.item);
-      } else if (item.type === 'ticket') {
-        await addTicketOrder({
-          userId: user.id,
-          ticketId: item.item.ticketId,
-          quantity: item.quantity,
-          totalPrice: item.price * item.quantity,
-          paymentMethod: 'pending',
-          status: 'pending',
-        });
+    try {
+      // 1. Process room bookings
+      for (const item of cartItems) {
+        if (item.type === 'room') {
+          await addBooking({
+            ...item.item,
+            userId: user.id,
+            status: 'pending', // or 'confirmed' if you want to auto-confirm
+          });
+        } else if (item.type === 'ticket') {
+          await addTicketOrder({
+            userId: user.id,
+            ticketId: item.item.ticketId,
+            quantity: item.quantity,
+            totalPrice: item.price * item.quantity,
+            paymentMethod: 'pending',
+            status: 'pending',
+          });
+        }
       }
-    }
 
-    clearCart();
-    setIsProcessing(false);
-    navigate('/dashboard?checkout=success');
+      // 2. Clear cart
+      clearCart();
+      setIsProcessing(false);
+      navigate('/dashboard?checkout=success');
+    } catch (error) {
+      console.error('Checkout failed:', error);
+      alert('Something went wrong. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -74,7 +85,9 @@ export default function Checkout() {
                       {item.type === 'room' ? item.item.userName : item.item.eventName}
                     </p>
                     <p className="text-gray-400 text-xs">
-                      {item.type === 'room' ? `${item.item.checkIn} → ${item.item.checkOut}` : `${item.quantity} x ${item.item.ticketId?.slice(0, 8) || 'Ticket'}`}
+                      {item.type === 'room' 
+                        ? `${item.item.checkIn} → ${item.item.checkOut}` 
+                        : `${item.quantity} x ${item.item.ticketId?.slice(0, 8) || 'Ticket'}`}
                     </p>
                   </div>
                 </div>

@@ -4,20 +4,20 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Building2, Calendar, Users, Plus, Edit2, Trash2,
   Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter, CheckCircle2,
-  Ticket, Save, RefreshCw, Calendar as CalendarIcon, MapPin, X
+  Ticket, Save, RefreshCw, Calendar as CalendarIcon, MapPin, X, Home, CreditCard
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useData, type Booking, type Event, type EventTicket } from '../contexts/DataContext';
+import { useData, type Booking, type Event, type EventTicket, type TicketOrder } from '../contexts/DataContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import Card3D from '../components/Card3D';
 
-type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'matchprices' | 'events';
+type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events';
 
 export default function Admin() {
   const { user } = useAuth();
   const {
-    listings, bookings, deleteListing, updateBooking, isDemo,
-    fetchAllUsers, fetchMatches, updateMatchPrices,
+    listings, bookings, ticketOrders, deleteListing, updateBooking, isDemo,
+    fetchAllUsers, updateTicketOrder, fetchAllTicketOrders,
     fetchEvents, addEvent, updateEvent, deleteEvent,
     fetchEventTickets, addEventTicket, updateEventTicket, deleteEventTicket
   } = useData();
@@ -31,12 +31,6 @@ export default function Admin() {
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
-  // Match Prices
-  const [matches, setMatches] = useState<any[]>([]);
-  const [loadingMatches, setLoadingMatches] = useState(false);
-  const [savingPrices, setSavingPrices] = useState(false);
-  const [priceChanges, setPriceChanges] = useState<Record<string, any>>({});
-
   // Events
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
@@ -47,14 +41,18 @@ export default function Admin() {
   const [showTicketForm, setShowTicketForm] = useState(false);
   const [editTicket, setEditTicket] = useState<Partial<EventTicket> | null>(null);
 
+  // Ticket Orders (for display)
+  const [allTicketOrders, setAllTicketOrders] = useState<TicketOrder[]>([]);
+  const [loadingTicketOrders, setLoadingTicketOrders] = useState(false);
+
   if (!user || user.role !== 'admin') {
     return <Navigate to="/login" replace />;
   }
 
   useEffect(() => {
     if (activeTab === 'users') loadUsers();
-    if (activeTab === 'matchprices') loadMatches();
     if (activeTab === 'events') loadEvents();
+    if (activeTab === 'bookings' || activeTab === 'overview') loadTicketOrders();
   }, [activeTab]);
 
   const loadUsers = async () => {
@@ -62,14 +60,6 @@ export default function Admin() {
     const users = await fetchAllUsers();
     setAllUsers(users);
     setLoadingUsers(false);
-  };
-
-  const loadMatches = async () => {
-    setLoadingMatches(true);
-    const data = await fetchMatches();
-    setMatches(data || []);
-    setLoadingMatches(false);
-    setPriceChanges({});
   };
 
   const loadEvents = async () => {
@@ -81,6 +71,13 @@ export default function Admin() {
     setEventTickets([]);
   };
 
+  const loadTicketOrders = async () => {
+    setLoadingTicketOrders(true);
+    const data = await fetchAllTicketOrders();
+    setAllTicketOrders(data);
+    setLoadingTicketOrders(false);
+  };
+
   const loadTickets = async (eventId: string) => {
     const data = await fetchEventTickets(eventId);
     setEventTickets(data);
@@ -89,29 +86,6 @@ export default function Admin() {
   const handleSelectEvent = (event: Event) => {
     setSelectedEvent(event);
     loadTickets(event.id);
-  };
-
-  const handlePriceChange = (matchId: string, field: string, value: string) => {
-    const numValue = value === '' ? 0 : Number(value);
-    setPriceChanges(prev => ({
-      ...prev,
-      [matchId]: { ...(prev[matchId] || {}), [field]: numValue }
-    }));
-  };
-
-  const saveMatchPrices = async () => {
-    setSavingPrices(true);
-    try {
-      for (const matchId of Object.keys(priceChanges)) {
-        await updateMatchPrices(matchId, priceChanges[matchId]);
-      }
-      await loadMatches();
-      alert('Prices updated successfully!');
-    } catch (error) {
-      console.error('Error saving prices:', error);
-      alert('Failed to save prices.');
-    }
-    setSavingPrices(false);
   };
 
   const handleSaveEvent = async (data: Partial<Event>) => {
@@ -163,26 +137,39 @@ export default function Admin() {
     if (selectedEvent) await loadTickets(selectedEvent.id);
   };
 
-  const totalRevenue = bookings
+  // ─── Stats ──────────────────────────────────────────────
+
+  const totalBookingsRevenue = bookings
     .filter(b => b.status === 'confirmed' || b.status === 'completed')
     .reduce((sum, b) => sum + b.totalPrice, 0);
 
+  const totalTicketRevenue = allTicketOrders
+    .filter(t => t.status === 'confirmed')
+    .reduce((sum, t) => sum + t.totalPrice, 0);
+
+  const totalRevenue = totalBookingsRevenue + totalTicketRevenue;
+
   const stats = [
     { label: 'Total Listings', value: listings.length, icon: Building2, color: 'text-blue-400' },
-    { label: 'Total Bookings', value: bookings.length, icon: Calendar, color: 'text-green-400' },
-    { label: 'Revenue', value: format(totalRevenue), icon: DollarSign, color: 'text-amber-400' },
-    { label: 'Pending', value: bookings.filter(b => b.status === 'pending').length, icon: TrendingUp, color: 'text-purple-400' },
+    { label: 'Hotel Bookings', value: bookings.length, icon: Home, color: 'text-green-400' },
+    { label: 'Ticket Orders', value: allTicketOrders.length, icon: Ticket, color: 'text-purple-400' },
+    { label: 'Total Revenue', value: format(totalRevenue), icon: DollarSign, color: 'text-amber-400' },
   ];
 
-  const getPaymentMethodDisplay = (method?: 'bitcoin' | 'paypal' | 'steam') => {
-    if (!method) return '⏳ Pending';
-    const map = {
+  // ─── Payment method display ─────────────────────────────
+
+  const getPaymentMethodDisplay = (method?: string) => {
+    if (!method || method === 'pending') return '⏳ Pending';
+    const map: Record<string, { label: string; color: string }> = {
       bitcoin: { label: '₿ Bitcoin', color: 'bg-orange-500/20 text-orange-400' },
       paypal: { label: '🅿️ PayPal', color: 'bg-blue-500/20 text-blue-400' },
       steam: { label: '🎮 Steam Card', color: 'bg-purple-500/20 text-purple-400' },
+      card: { label: '💳 Card', color: 'bg-green-500/20 text-green-400' },
     };
     return map[method] || { label: '⏳ Pending', color: 'bg-gray-500/20 text-gray-400' };
   };
+
+  // ─── Render ─────────────────────────────────────────────
 
   return (
     <main className="pt-24 pb-20 min-h-screen">
@@ -229,9 +216,8 @@ export default function Admin() {
           {[
             { id: 'overview' as Tab, icon: LayoutDashboard, label: 'Overview' },
             { id: 'listings' as Tab, icon: Building2, label: 'Listings' },
-            { id: 'bookings' as Tab, icon: Calendar, label: 'Bookings' },
+            { id: 'bookings' as Tab, icon: Calendar, label: 'Bookings & Tickets' },
             { id: 'events' as Tab, icon: Ticket, label: 'Events' },
-            { id: 'matchprices' as Tab, icon: Ticket, label: 'Match Prices' },
             { id: 'users' as Tab, icon: Users, label: 'Users' },
           ].map((tab) => (
             <button
@@ -249,7 +235,7 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* OVERVIEW TAB */}
+        {/* ═══ OVERVIEW TAB ═══ */}
         {activeTab === 'overview' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -267,28 +253,30 @@ export default function Admin() {
                 </motion.div>
               ))}
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">Recent Bookings</h3>
+
+            <h3 className="text-xl font-bold text-white mb-4">Recent Activity</h3>
             <Card3D>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">ID</th>
+                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Type</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Guest</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Dates</th>
+                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Details</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Amount</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Payment</th>
                       <th className="text-left p-4 text-gray-400 text-sm font-medium">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {bookings.slice(0, 5).map((booking) => {
+                    {/* Hotel Bookings */}
+                    {bookings.slice(0, 3).map((booking) => {
                       const pm = getPaymentMethodDisplay(booking.paymentMethod);
                       return (
                         <tr key={booking.id} className="border-b border-white/5">
-                          <td className="p-4 text-white text-sm font-mono">{booking.id.slice(0, 12)}...</td>
+                          <td className="p-4"><span className="px-2 py-1 rounded text-xs bg-green-500/20 text-green-400">🏨 Hotel</span></td>
                           <td className="p-4 text-white text-sm">{booking.userName}</td>
-                          <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
+                          <td className="p-4 text-gray-400 text-sm">{booking.checkIn} → {booking.checkOut}</td>
                           <td className="p-4 text-amber-400 text-sm font-medium">{format(booking.totalPrice)}</td>
                           <td className="p-4"><span className={`px-2 py-1 rounded text-xs ${pm.color}`}>{pm.label}</span></td>
                           <td className="p-4">
@@ -304,6 +292,31 @@ export default function Admin() {
                         </tr>
                       );
                     })}
+                    {/* Ticket Orders */}
+                    {allTicketOrders.slice(0, 3).map((order) => {
+                      const pm = getPaymentMethodDisplay(order.paymentMethod);
+                      return (
+                        <tr key={order.id} className="border-b border-white/5">
+                          <td className="p-4"><span className="px-2 py-1 rounded text-xs bg-purple-500/20 text-purple-400">🎟️ Ticket</span></td>
+                          <td className="p-4 text-white text-sm">User #{order.userId.slice(0, 8)}</td>
+                          <td className="p-4 text-gray-400 text-sm">{order.quantity} × Ticket (ID: {order.ticketId.slice(0, 8)})</td>
+                          <td className="p-4 text-amber-400 text-sm font-medium">{format(order.totalPrice)}</td>
+                          <td className="p-4"><span className={`px-2 py-1 rounded text-xs ${pm.color}`}>{pm.label}</span></td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded text-xs ${
+                              order.status === 'confirmed' ? 'bg-green-500/20 text-green-400' :
+                              order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {bookings.length === 0 && allTicketOrders.length === 0 && (
+                      <tr><td colSpan={6} className="p-8 text-center text-gray-500">No activity yet</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -311,7 +324,7 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* LISTINGS TAB */}
+        {/* ═══ LISTINGS TAB ═══ */}
         {activeTab === 'listings' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex gap-3 mb-6">
@@ -356,67 +369,149 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* BOOKINGS TAB */}
+        {/* ═══ BOOKINGS & TICKETS TAB ═══ */}
         {activeTab === 'bookings' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <Card3D>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">ID</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Guest</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Email</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Check-in</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Check-out</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Amount</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Payment</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Status</th>
-                      <th className="text-left p-4 text-gray-400 text-sm font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bookings.map((booking) => {
-                      const pm = getPaymentMethodDisplay(booking.paymentMethod);
-                      return (
-                        <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
-                          <td className="p-4 text-white text-sm font-mono"><span className="text-amber-400 font-bold">{booking.id.slice(-8).toUpperCase()}</span></td>
-                          <td className="p-4 text-white text-sm">{booking.userName}</td>
-                          <td className="p-4 text-gray-400 text-sm">{booking.userEmail}</td>
-                          <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
-                          <td className="p-4 text-gray-400 text-sm">{booking.checkOut}</td>
-                          <td className="p-4 text-amber-400 text-sm font-medium">{format(booking.totalPrice)}</td>
-                          <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-medium ${pm.color}`}>{pm.label}</span></td>
-                          <td className="p-4">
-                            <select
-                              value={booking.status}
-                              onChange={(e) => updateBooking(booking.id, { status: e.target.value as Booking['status'] })}
-                              className={`px-2 py-1 rounded text-xs focus:outline-none ${
-                                booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                                booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                                booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                              } border bg-white/5`}
-                            >
-                              <option value="pending">⏳ Pending</option>
-                              <option value="confirmed">✅ Confirm</option>
-                              <option value="cancelled">❌ Cancel</option>
-                              <option value="completed">✅ Complete</option>
-                            </select>
-                          </td>
-                          <td className="p-4"><button className="text-gray-400 hover:text-white"><Eye className="w-4 h-4" /></button></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                {bookings.length === 0 && <div className="p-12 text-center text-gray-500">No bookings yet</div>}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white">All Hotel Bookings & Ticket Orders</h3>
+              <button onClick={loadTicketOrders} className="px-4 py-2 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 text-sm flex items-center gap-2">
+                <RefreshCw className="w-4 h-4" /> Refresh
+              </button>
+            </div>
+
+            {loadingTicketOrders ? (
+              <div className="py-12 text-center text-gray-400">Loading...</div>
+            ) : bookings.length === 0 && allTicketOrders.length === 0 ? (
+              <div className="py-12 text-center text-gray-400">No bookings or ticket orders yet.</div>
+            ) : (
+              <div className="space-y-6">
+                {/* Hotel Bookings Section */}
+                {bookings.length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                      <Home className="w-5 h-5 text-green-400" /> Hotel Bookings ({bookings.length})
+                    </h4>
+                    <Card3D>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-white/10">
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Booking ID</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Guest</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Email</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Check-in</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Check-out</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Guests</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Amount</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Payment</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Status</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {bookings.map((booking) => {
+                              const pm = getPaymentMethodDisplay(booking.paymentMethod);
+                              return (
+                                <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
+                                  <td className="p-4 text-white text-sm font-mono"><span className="text-amber-400 font-bold">{booking.id.slice(-8).toUpperCase()}</span></td>
+                                  <td className="p-4 text-white text-sm">{booking.userName}</td>
+                                  <td className="p-4 text-gray-400 text-sm">{booking.userEmail}</td>
+                                  <td className="p-4 text-gray-400 text-sm">{booking.checkIn}</td>
+                                  <td className="p-4 text-gray-400 text-sm">{booking.checkOut}</td>
+                                  <td className="p-4 text-gray-400 text-sm">{booking.guests}</td>
+                                  <td className="p-4 text-amber-400 text-sm font-medium">{format(booking.totalPrice)}</td>
+                                  <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-medium ${pm.color}`}>{pm.label}</span></td>
+                                  <td className="p-4">
+                                    <select
+                                      value={booking.status}
+                                      onChange={(e) => updateBooking(booking.id, { status: e.target.value as Booking['status'] })}
+                                      className={`px-2 py-1 rounded text-xs focus:outline-none ${
+                                        booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                        booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                        booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                        'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                                      } border bg-white/5`}
+                                    >
+                                      <option value="pending">⏳ Pending</option>
+                                      <option value="confirmed">✅ Confirm</option>
+                                      <option value="cancelled">❌ Cancel</option>
+                                      <option value="completed">✅ Complete</option>
+                                    </select>
+                                  </td>
+                                  <td className="p-4"><button className="text-gray-400 hover:text-white"><Eye className="w-4 h-4" /></button></td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card3D>
+                  </div>
+                )}
+
+                {/* Ticket Orders Section */}
+                {allTicketOrders.length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                      <Ticket className="w-5 h-5 text-purple-400" /> Ticket Orders ({allTicketOrders.length})
+                    </h4>
+                    <Card3D>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-white/10">
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Order ID</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">User</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Event ID</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Quantity</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Amount</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Payment</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Status</th>
+                              <th className="text-left p-4 text-gray-400 text-sm font-medium">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {allTicketOrders.map((order) => {
+                              const pm = getPaymentMethodDisplay(order.paymentMethod);
+                              return (
+                                <tr key={order.id} className="border-b border-white/5 hover:bg-white/5">
+                                  <td className="p-4 text-white text-sm font-mono"><span className="text-amber-400 font-bold">{order.id.slice(-8).toUpperCase()}</span></td>
+                                  <td className="p-4 text-white text-sm">User #{order.userId.slice(0, 8)}</td>
+                                  <td className="p-4 text-gray-400 text-sm">{order.ticketId.slice(0, 12)}...</td>
+                                  <td className="p-4 text-white text-sm">{order.quantity}</td>
+                                  <td className="p-4 text-amber-400 text-sm font-medium">{format(order.totalPrice)}</td>
+                                  <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-medium ${pm.color}`}>{pm.label}</span></td>
+                                  <td className="p-4">
+                                    <select
+                                      value={order.status}
+                                      onChange={(e) => updateTicketOrder(order.id, { status: e.target.value as TicketOrder['status'] })}
+                                      className={`px-2 py-1 rounded text-xs focus:outline-none ${
+                                        order.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                        order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                        'bg-red-500/20 text-red-400 border-red-500/30'
+                                      } border bg-white/5`}
+                                    >
+                                      <option value="pending">⏳ Pending</option>
+                                      <option value="confirmed">✅ Confirm</option>
+                                      <option value="cancelled">❌ Cancel</option>
+                                    </select>
+                                  </td>
+                                  <td className="p-4"><button className="text-gray-400 hover:text-white"><Eye className="w-4 h-4" /></button></td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card3D>
+                  </div>
+                )}
               </div>
-            </Card3D>
+            )}
           </motion.div>
         )}
 
-        {/* EVENTS TAB */}
+        {/* ═══ EVENTS TAB ═══ (unchanged) */}
         {activeTab === 'events' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -544,77 +639,7 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* MATCH PRICES TAB */}
-        {activeTab === 'matchprices' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <Card3D>
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Ticket className="w-5 h-5 text-amber-400" /> Match Ticket Prices
-                  </h3>
-                  <div className="flex gap-2">
-                    <button onClick={loadMatches} className="px-4 py-2 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 text-sm flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4" /> Refresh
-                    </button>
-                    {Object.keys(priceChanges).length > 0 && (
-                      <button onClick={saveMatchPrices} disabled={savingPrices} className="px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-red-500 text-white hover:scale-105 text-sm flex items-center gap-2 disabled:opacity-50">
-                        <Save className="w-4 h-4" /> {savingPrices ? 'Saving...' : 'Save All Changes'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {loadingMatches ? (
-                  <div className="py-12 text-center text-gray-400">Loading matches...</div>
-                ) : matches.length === 0 ? (
-                  <div className="py-12 text-center text-gray-400">No matches found.</div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-white/10">
-                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Match</th>
-                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Date</th>
-                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Cat 1</th>
-                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Cat 2</th>
-                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Cat 3</th>
-                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Cat 4</th>
-                          <th className="text-left p-4 text-gray-400 text-sm font-medium">Supporter</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {matches.map((match) => {
-                          const changes = priceChanges[match.id] || {};
-                          const getValue = (field: string) => changes[field] !== undefined ? changes[field] : match[field] || 0;
-                          return (
-                            <tr key={match.id} className="border-b border-white/5 hover:bg-white/5">
-                              <td className="p-4 text-white text-sm">{match.home_team} vs {match.away_team}</td>
-                              <td className="p-4 text-gray-400 text-sm">{new Date(match.match_date).toLocaleDateString()}</td>
-                              {['category_1_price', 'category_2_price', 'category_3_price', 'category_4_price', 'supporter_entry_price'].map((field) => (
-                                <td key={field} className="p-4">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    value={getValue(field)}
-                                    onChange={(e) => handlePriceChange(match.id, field, e.target.value)}
-                                    className="w-20 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-amber-500/50"
-                                  />
-                                </td>
-                              ))}
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </Card3D>
-          </motion.div>
-        )}
-
-        {/* USERS TAB */}
+        {/* ═══ USERS TAB ═══ (unchanged) */}
         {activeTab === 'users' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <Card3D>
