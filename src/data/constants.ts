@@ -68,17 +68,6 @@ export const LISTINGS: Listing[] = [
   // Your listings here...
 ];
 
-export const MATCH_SCHEDULE = [
-  { date: 'June 11, 2026', match: '🇲🇽 Mexico vs South Africa 🇿🇦', venue: 'Estadio Azteca', city: 'Mexico City' },
-  { date: 'June 11, 2026', match: '🇰🇷 South Korea vs Czechia 🇨🇿', venue: 'Estadio Akron', city: 'Guadalajara' },
-  { date: 'June 12, 2026', match: '🇨🇦 Canada vs Bosnia & Herzegovina 🇧🇦', venue: 'BMO Field', city: 'Toronto' },
-  { date: 'June 12, 2026', match: '🇺🇸 USA vs Paraguay 🇵🇾', venue: 'SoFi Stadium', city: 'Los Angeles' },
-  { date: 'June 13, 2026', match: '🇧🇷 Brazil vs Morocco 🇲🇦', venue: 'MetLife Stadium', city: 'New York / NJ' },
-  { date: 'June 14, 2026', match: '🇳🇱 Netherlands vs Japan 🇯🇵', venue: 'AT&T Stadium', city: 'Dallas' },
-  { date: 'June 16, 2026', match: '🇫🇷 France vs Senegal 🇸🇳', venue: 'MetLife Stadium', city: 'New York / NJ' },
-  { date: 'June 16, 2026', match: '🇦🇷 Argentina vs Algeria 🇩🇿', venue: 'Arrowhead Stadium', city: 'Kansas City' },
-  { date: 'July 19', match: '🏆 FINAL', venue: 'MetLife Stadium', city: 'New York / NJ' },
-];
 
 // ✅ ONLY ONE DECLARATION
 export const TESTIMONIALS = [

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, Building2, Home, Key, SlidersHorizontal, X, Calendar, Map } from 'lucide-react';
+import { Search, Filter, Building2, Home, Key, SlidersHorizontal, X, Calendar, Map, Grid3X3 } from 'lucide-react';
 import SEO from '../components/SEO';
 import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
@@ -29,9 +29,8 @@ export default function Listings() {
   const [priceFilter, setPriceFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentPage, setCurrentPage] = useState(1);
-  // ✅ FIX: Added missing dateRange state
   const [dateRange, setDateRange] = useState({ checkIn: '', checkOut: '' });
 
   const filteredListings = useMemo(() => {
@@ -59,71 +58,64 @@ export default function Listings() {
 
   return (
     <main className="pt-24 pb-20 min-h-screen">
-      <SEO title="Accommodations" description="Browse hotels, apartments & shortlets for FIFA World Cup 2026 across 16 host cities." path="/listings" />
+      <SEO title="Accommodations" description="Browse hotels, apartments & shortlets worldwide." path="/listings" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
+          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-white/10 p-8 md:p-12"
         >
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
-            World Cup 2026{' '}
-            <span className="bg-gradient-to-r from-amber-300 to-red-400 bg-clip-text text-transparent">
-              Accommodations
-            </span>
-          </h1>
-          <p className="text-gray-400 text-lg">
-            {filteredListings.length} properties available
-          </p>
-        </motion.div>
-
-        {/* Search bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex gap-3 mb-6"
-        >
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by name, city, or description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-4 h-4 text-gray-400 hover:text-white" />
+          <div className="relative z-10">
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
+              Find Your Perfect Stay
+            </h1>
+            <p className="text-gray-400 text-lg max-w-2xl">
+              {filteredListings.length} properties available – from luxury hotels to cozy apartments.
+            </p>
+            
+            {/* Quick Search */}
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-3xl">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by city, property name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-all"
+                />
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-6 py-3 rounded-xl border transition-all flex items-center gap-2 ${
+                  showFilters
+                    ? 'bg-amber-500/20 border-amber-500/30 text-amber-300'
+                    : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                }`}
+              >
+                <Filter className="w-4 h-4" />
+                <span>Filters</span>
+                {(typeFilter !== 'all' || cityFilter !== 'all' || priceFilter !== 'all') && (
+                  <span className="ml-1 w-2 h-2 rounded-full bg-amber-400" />
+                )}
               </button>
-            )}
-          </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`px-4 rounded-xl border transition-all flex items-center gap-2 ${
-              showFilters
-                ? 'bg-amber-500/20 border-amber-500/30 text-amber-300'
-                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            <span className="hidden sm:inline">Filters</span>
-          </button>
-          <div className="flex rounded-xl border border-white/10 overflow-hidden">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-2 transition-all ${viewMode === 'grid' ? 'bg-amber-500/20 text-amber-300' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('map')}
-              className={`px-3 py-2 transition-all ${viewMode === 'map' ? 'bg-amber-500/20 text-amber-300' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
-            >
-              <Map className="w-4 h-4" />
-            </button>
+              <div className="flex rounded-xl border border-white/10 overflow-hidden">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-2 transition-all ${viewMode === 'grid' ? 'bg-amber-500/20 text-amber-300' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-2 transition-all ${viewMode === 'list' ? 'bg-amber-500/20 text-amber-300' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -212,10 +204,35 @@ export default function Listings() {
                 </div>
               </div>
             </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => {
+                  setTypeFilter('all');
+                  setCityFilter('all');
+                  setPriceFilter('all');
+                  setSearchQuery('');
+                  setDateRange({ checkIn: '', checkOut: '' });
+                }}
+                className="px-4 py-2 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 text-sm transition-all"
+              >
+                Clear All Filters
+              </button>
+            </div>
           </motion.div>
         )}
 
-        {/* Grid View with Pagination */}
+        {/* Results Count */}
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-gray-400 text-sm">
+            Showing <span className="text-white font-medium">{paginatedListings.length}</span> of{' '}
+            <span className="text-white font-medium">{filteredListings.length}</span> properties
+          </p>
+          {totalPages > 1 && (
+            <span className="text-gray-500 text-sm">Page {currentPage} of {totalPages}</span>
+          )}
+        </div>
+
+        {/* Grid View */}
         {viewMode === 'grid' && (
           <>
             {paginatedListings.length > 0 ? (
@@ -263,6 +280,7 @@ export default function Listings() {
                     setCityFilter('all');
                     setPriceFilter('all');
                     setSearchQuery('');
+                    setDateRange({ checkIn: '', checkOut: '' });
                   }}
                   className="px-6 py-3 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all"
                 >
@@ -271,6 +289,22 @@ export default function Listings() {
               </motion.div>
             )}
           </>
+        )}
+
+        {/* List View */}
+        {viewMode === 'list' && (
+          <div className="space-y-4">
+            {paginatedListings.map((listing, i) => (
+              <ListingCard key={listing.id} listing={listing} index={i} variant="list" />
+            ))}
+            {paginatedListings.length === 0 && (
+              <div className="py-20 text-center">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-2xl font-bold text-white mb-2">No listings found</h3>
+                <p className="text-gray-400 mb-6">Try adjusting your filters or search query.</p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </main>

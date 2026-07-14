@@ -8,7 +8,7 @@ import CurrencySelector from './CurrencySelector';
 const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/listings', label: 'Accommodations' },
-  { to: '/schedule', label: 'Match Schedule' },
+  { to: '/events', label: '📅 Events' },
   { to: '/tickets', label: '🎫 Tickets' },
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
@@ -60,7 +60,7 @@ export default function Navbar() {
                   Anna Travel Agency
                 </span>
                 <span className="block text-[10px] tracking-[0.3em] text-amber-400/70 uppercase">
-                  FIFA 2026 Official Partner
+                  Book With Confidence
                 </span>
               </div>
             </Link>

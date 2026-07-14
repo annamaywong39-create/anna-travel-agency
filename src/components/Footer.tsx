@@ -18,12 +18,12 @@ export default function Footer() {
               <div>
                 <span className="text-lg font-bold text-amber-300">Anna Travel Agency</span>
                 <div className="flex items-center gap-1 text-[10px] text-amber-400/60">
-                  <Trophy className="w-3 h-3" /> FIFA 2026
+                  <Trophy className="w-3 h-3" /> Book With Confidence
                 </div>
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Your premier accommodation partner for the FIFA World Cup 2026. Hotels, apartments, and shortlets across all host cities in USA, Mexico, and Canada.
+              Your premier accommodation and event ticket partner. Hotels, apartments, and shortlets — plus tickets to the best events worldwide.
             </p>
           </div>
 
@@ -33,7 +33,8 @@ export default function Footer() {
             <div className="flex flex-col gap-2">
               {[
                 { to: '/listings', label: 'All Accommodations' },
-                { to: '/schedule', label: 'Match Schedule' },
+                { to: '/events', label: 'Events' },
+                { to: '/tickets', label: 'Tickets' },
                 { to: '/about', label: 'About Us' },
                 { to: '/contact', label: 'Contact' },
               ].map((link) => (
@@ -44,17 +45,19 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Host Countries */}
+          {/* Destinations */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Host Countries</h4>
+            <h4 className="text-white font-semibold mb-4">Popular Destinations</h4>
             <div className="flex flex-col gap-2 text-sm text-gray-400">
-              <span>🇺🇸 United States (11 cities)</span>
-              <span>🇲🇽 Mexico (3 cities)</span>
-              <span>🇨🇦 Canada (2 cities)</span>
+              <span>🏙️ New York</span>
+              <span>🌴 Los Angeles</span>
+              <span>🌆 London</span>
+              <span>🏝️ Miami</span>
+              <span>🌉 San Francisco</span>
             </div>
           </div>
 
-          {/* Contact & Social Media */}
+          {/* Contact & Social */}
           <div>
             <h4 className="text-white font-semibold mb-4">Connect With Us</h4>
             <div className="flex flex-col gap-3 text-sm text-gray-400">
@@ -69,7 +72,6 @@ export default function Footer() {
               </span>
             </div>
 
-            {/* Social Media Icons */}
             <div className="flex gap-4 mt-4">
               <a
                 href="https://www.tiktok.com/@annatravelhost"
