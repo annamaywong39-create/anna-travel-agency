@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import {
   ArrowRight, Shield, Star, MapPin, Calendar, CreditCard,
   Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2, Search, Users,
-  Plane, Clock, Headphones as HeadphonesIcon, Hotel, Truck
+  Plane, Clock, Headphones as HeadphonesIcon, Hotel, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
@@ -12,18 +12,28 @@ import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
 import { IMAGES, TESTIMONIALS } from '../data/constants';
 
-// ─── Slideshow Images ──────────────────────────────
+// ─── Slideshow Images (Diverse Travel Collection) ────
 const SLIDESHOW_IMAGES = [
-  IMAGES.hotel1,
-  IMAGES.hotel2,
-  IMAGES.hotel3,
-  IMAGES.apartment1,
-  IMAGES.apartment2,
-  IMAGES.apartment3,
-  IMAGES.nyc,
-  IMAGES.mexico,
-  IMAGES.toronto,
-  IMAGES.vancouver,
+  // Beaches & Water
+  'https://images.pexels.com/photos/2606028/pexels-photo-2606028.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  // Hotels & Luxury Stays
+  'https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/14750392/pexels-photo-14750392.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/8134808/pexels-photo-8134808.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  // Mountains & Nature
+  'https://images.pexels.com/photos/371589/pexels-photo-371589.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/2834651/pexels-photo-2834651.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  // People Having Fun / Hiking / Travel
+  'https://images.pexels.com/photos/1687857/pexels-photo-1687857.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/31514419/pexels-photo-31514419.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/31514425/pexels-photo-31514425.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  // Cityscapes
+  'https://images.pexels.com/photos/1461370/pexels-photo-1461370.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/20624534/pexels-photo-20624534.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/25696388/pexels-photo-25696388.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
 ];
 
 // ─── Parallax Section ──────────────────────────────
@@ -50,13 +60,28 @@ export default function Home() {
 
   // ─── Slideshow State ──────────────────────────────
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
+  const totalSlides = SLIDESHOW_IMAGES.length;
+
+  const goToSlide = (index: number) => {
+    setCurrentImageIndex((index + totalSlides) % totalSlides);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds of inactivity
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+
+  const nextSlide = () => goToSlide(currentImageIndex + 1);
+  const prevSlide = () => goToSlide(currentImageIndex - 1);
+
+  // ─── Auto-play ────────────────────────────────────
   useEffect(() => {
+    if (!isAutoPlaying) return;
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % SLIDESHOW_IMAGES.length);
-    }, 5000);
+      setCurrentImageIndex((prev) => (prev + 1) % totalSlides);
+    }, 7000); // 7 seconds per slide
     return () => clearInterval(interval);
-  }, []);
+  }, [isAutoPlaying, totalSlides]);
 
   // ─── Search Widget State ──────────────────────────
   const [activeTab, setActiveTab] = useState<'stays' | 'events'>('stays');
@@ -82,7 +107,7 @@ export default function Home() {
             <motion.img
               key={currentImageIndex}
               src={SLIDESHOW_IMAGES[currentImageIndex]}
-              alt="Luxury travel destination"
+              alt="Travel destination"
               className="absolute inset-0 w-full h-full object-cover scale-110"
               loading="eager"
               fetchPriority="high"
@@ -92,33 +117,71 @@ export default function Home() {
               transition={{ duration: 1.2, ease: 'easeInOut' }}
             />
           </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a1a]/80 via-[#0a0a1a]/60 to-[#0a0a1a]" />
-          {/* Slideshow indicator dots */}
-          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a1a]/70 via-[#0a0a1a]/50 to-[#0a0a1a]" />
+        </motion.div>
+
+        {/* ─── Slideshow Controls ──────────────────── */}
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          {/* Previous Button */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 pointer-events-auto w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-all flex items-center justify-center border border-white/10"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          {/* Next Button */}
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 pointer-events-auto w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-all flex items-center justify-center border border-white/10"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Dots Indicator */}
+          <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-auto flex gap-2">
             {SLIDESHOW_IMAGES.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setCurrentImageIndex(i)}
+                onClick={() => goToSlide(i)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  i === currentImageIndex ? 'bg-amber-400 w-6' : 'bg-white/30 hover:bg-white/50'
+                  i === currentImageIndex ? 'bg-amber-400 w-8' : 'bg-white/30 hover:bg-white/50'
                 }`}
-                aria-label={`Slide ${i + 1}`}
+                aria-label={`Go to slide ${i + 1}`}
               />
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* ─── Content ────────────────────────────── */}
         <motion.div style={{ opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-32 pb-20">
-          {/* ─── Brand Tagline ────────────────────── */}
+          {/* ─── Logo ──────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-6"
+            className="flex flex-col items-center mb-6"
           >
-            <span className="text-sm tracking-[0.3em] text-amber-400/80 uppercase font-medium">
-              Anna Travel Agency
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl shadow-amber-500/30 mb-3">
+              <span className="text-white font-bold text-4xl">A</span>
+            </div>
+            <span className="text-3xl font-bold text-white tracking-wide">Anna</span>
+            <span className="text-sm tracking-[0.4em] text-amber-400/90 uppercase font-medium mt-1">
+              TRAVEL AGENCY
+            </span>
+          </motion.div>
+
+          {/* ─── Tagline ────────────────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-4"
+          >
+            <span className="text-sm tracking-[0.2em] text-white/60 uppercase font-light">
+              YOUR JOURNEY, OUR PRIORITY
             </span>
           </motion.div>
 
@@ -126,34 +189,23 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
             className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight"
           >
             <span className="text-white">
-              YOUR JOURNEY,
+              WE PLAN.
             </span>
             <br />
             <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
-              OUR PRIORITY
+              YOU ENJOY.
             </span>
           </motion.h1>
 
-          {/* ─── Subtitle ──────────────────────────── */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-4"
-          >
-            <span className="text-amber-400 font-medium">WE PLAN.</span>
-            <span className="text-white"> YOU ENJOY.</span>
-          </motion.p>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-10"
+            transition={{ delay: 0.8 }}
+            className="text-base md:text-lg text-gray-300 max-w-2xl mx-auto mb-10"
           >
             Hotels · Airport Transfers · Experiences · And More
           </motion.p>
@@ -162,7 +214,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 1 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
           >
             <Link
@@ -185,7 +237,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
+            transition={{ delay: 1.2 }}
             className="w-full max-w-4xl mx-auto bg-slate-950/80 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl text-left"
           >
             <div className="flex gap-4 border-b border-white/10 pb-4 mb-5">
@@ -242,7 +294,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 1.4 }}
             className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400"
           >
             <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-green-400" /> Secure Booking</div>
