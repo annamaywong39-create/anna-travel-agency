@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Plane, Trophy, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaTiktok, FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa';
 
 export default function Footer() {
@@ -12,18 +12,18 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-red-500 flex items-center justify-center">
-                <Plane className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                <span className="text-white font-bold text-xl">A</span>
               </div>
               <div>
-                <span className="text-lg font-bold text-amber-300">Anna Travel Agency</span>
-                <div className="flex items-center gap-1 text-[10px] text-amber-400/60">
-                  <Trophy className="w-3 h-3" /> Book With Confidence
+                <span className="text-lg font-bold text-white">Anna</span>
+                <div className="flex items-center gap-1 text-[10px] text-amber-400/60 tracking-wider">
+                  TRAVEL AGENCY
                 </div>
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Your premier accommodation and event ticket partner. Hotels, apartments, and shortlets — plus tickets to the best events worldwide.
+              YOUR JOURNEY, OUR PRIORITY. Hotels, apartments, shortlets, airport transfers, experiences — and more.
             </p>
           </div>
 
@@ -45,15 +45,14 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Destinations */}
+          {/* Services */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Popular Destinations</h4>
+            <h4 className="text-white font-semibold mb-4">Services</h4>
             <div className="flex flex-col gap-2 text-sm text-gray-400">
-              <span>🏙️ New York</span>
-              <span>🌴 Los Angeles</span>
-              <span>🌆 London</span>
-              <span>🏝️ Miami</span>
-              <span>🌉 San Francisco</span>
+              <span>🏨 Hotel Bookings</span>
+              <span>✈️ Airport Transfers</span>
+              <span>🌍 Experiences & Tours</span>
+              <span>🎫 Event Tickets</span>
             </div>
           </div>
 

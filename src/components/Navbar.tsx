@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Plane, Trophy, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Plane, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import CurrencySelector from './CurrencySelector';
 
 const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/listings', label: 'Accommodations' },
-  { to: '/events', label: '📅 Events' },
-  { to: '/tickets', label: '🎫 Tickets' },
+  { to: '/events', label: 'Events' },
+  { to: '/tickets', label: 'Tickets' },
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
 ];
@@ -45,27 +45,24 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            {/* Logo */}
+            {/* ─── LOGO ─── */}
             <Link to="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-red-500 flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:shadow-amber-500/50 transition-shadow">
-                  <Plane className="w-6 h-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
-                  <Trophy className="w-3 h-3 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:shadow-amber-500/50 transition-shadow">
+                  <span className="text-white font-bold text-xl">A</span>
                 </div>
               </div>
               <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
-                  Anna Travel Agency
+                <span className="text-xl font-bold text-white">
+                  Anna
                 </span>
-                <span className="block text-[10px] tracking-[0.3em] text-amber-400/70 uppercase">
-                  Book With Confidence
+                <span className="block text-[10px] tracking-[0.3em] text-amber-400/80 uppercase font-medium">
+                  TRAVEL AGENCY
                 </span>
               </div>
             </Link>
 
-            {/* Desktop nav */}
+            {/* ─── Desktop Nav ─── */}
             <div className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
@@ -82,7 +79,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Right side */}
+            {/* ─── Right Side ─── */}
             <div className="hidden lg:flex items-center gap-3">
               <CurrencySelector />
 
@@ -92,7 +89,7 @@ export default function Navbar() {
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white text-sm font-bold">
                       {user.firstName.charAt(0)}
                     </div>
                     <span className="text-gray-300 text-sm">{user.firstName}</span>
@@ -146,7 +143,7 @@ export default function Navbar() {
                   </Link>
                   <Link
                     to="/signup"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-semibold text-sm shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold text-sm shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
                   >
                     Sign Up
                   </Link>
@@ -196,7 +193,7 @@ export default function Navbar() {
                       to="/dashboard"
                       className="flex items-center gap-3 px-6 py-4 rounded-xl text-gray-300 hover:bg-white/5"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center text-white font-bold">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold">
                         {user.firstName.charAt(0)}
                       </div>
                       <div>
@@ -231,7 +228,7 @@ export default function Navbar() {
                     </Link>
                     <Link
                       to="/signup"
-                      className="block px-6 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-center"
+                      className="block px-6 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-center"
                     >
                       Sign Up
                     </Link>

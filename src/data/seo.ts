@@ -1,8 +1,8 @@
 export const SEO_CONFIG = {
   home: {
-    title: 'Anna Travel Agency — Book Hotels, Apartments & Event Tickets',
-    description: 'Book hotels, apartments & shortlets worldwide. Buy tickets for concerts, sports, and events. Your trusted travel partner.',
-    keywords: 'hotel booking, apartment rental, event tickets, travel accommodation, Anna Travel Agency',
+    title: 'Anna Travel Agency — Your Journey, Our Priority',
+    description: 'Book hotels, apartments, shortlets, airport transfers, and experiences worldwide. Your trusted travel partner.',
+    keywords: 'travel agency, hotel booking, airport transfers, experiences, Anna Travel Agency',
   },
   listings: {
     title: 'Accommodations — Hotels, Apartments & Shortlets',
@@ -21,12 +21,12 @@ export const SEO_CONFIG = {
   },
   about: {
     title: 'About Anna Travel Agency — Your Travel Partner',
-    description: 'Learn about Anna Travel Agency — trusted accommodation and event ticket partner. Verified properties, global reach, 24/7 support.',
+    description: 'Learn about Anna Travel Agency — trusted travel partner for accommodation, transfers, experiences, and tickets.',
     keywords: 'about us, travel agency, accommodation partner, ticket sales',
   },
   contact: {
     title: 'Contact Anna Travel Agency — 24/7 Support',
-    description: 'Get in touch with Anna Travel Agency. 24/7 support for accommodation and ticket inquiries.',
+    description: 'Get in touch with Anna Travel Agency. 24/7 support for accommodation, transfers, and ticket inquiries.',
     keywords: 'contact us, support, travel help, ticket inquiries',
   },
 };

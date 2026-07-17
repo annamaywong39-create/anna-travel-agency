@@ -3,36 +3,36 @@ import { motion, useScroll, useTransform, useReducedMotion, useWillChange, Anima
 import { useRef, useState, useEffect } from 'react';
 import {
   ArrowRight, Shield, Star, MapPin, Calendar, CreditCard,
-  Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2, Search, Users
+  Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2, Search, Users,
+  Plane, Clock, Headphones as HeadphonesIcon, Hotel, Truck
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
 import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
-import { IMAGES, HOST_CITIES, TESTIMONIALS } from '../data/constants';
+import { IMAGES, TESTIMONIALS } from '../data/constants';
 
-// ─── Carousel Images ──────────────────────────────────────
-const CAROUSEL_IMAGES = [
-  // Hotels & luxury stays
-  'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  'https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  // Travel destinations
-  'https://images.pexels.com/photos/1486222/pexels-photo-1486222.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  'https://images.pexels.com/photos/417074/pexels-photo-417074.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  'https://images.pexels.com/photos/2487717/pexels-photo-2487717.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  'https://images.pexels.com/photos/1266310/pexels-photo-1266310.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+// ─── Slideshow Images ──────────────────────────────
+const SLIDESHOW_IMAGES = [
+  IMAGES.hotel1,
+  IMAGES.hotel2,
+  IMAGES.hotel3,
+  IMAGES.apartment1,
+  IMAGES.apartment2,
+  IMAGES.apartment3,
+  IMAGES.nyc,
+  IMAGES.mexico,
+  IMAGES.toronto,
+  IMAGES.vancouver,
 ];
 
-// 🚀 PERFORMANCE: Offloads scroll parallax calculation to the GPU
+// ─── Parallax Section ──────────────────────────────
 function ParallaxSection({ children, offset = 50 }: { children: React.ReactNode; offset?: number }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], [offset, -offset]);
   const willChange = useWillChange();
   const shouldReduceMotion = useReducedMotion();
-
   return (
     <motion.div ref={ref} style={{ y: shouldReduceMotion ? 0 : y, willChange }}>
       {children}
@@ -43,120 +43,122 @@ function ParallaxSection({ children, offset = 50 }: { children: React.ReactNode;
 export default function Home() {
   const { listings } = useData();
   const heroRef = useRef(null);
-  
   const shouldReduceMotion = useReducedMotion();
-  
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  
   const heroY = shouldReduceMotion ? 0 : useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = shouldReduceMotion ? 1 : useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  // ─── Carousel State ──────────────────────────────────────
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // ─── Slideshow State ──────────────────────────────
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
-    }, 2000); // 2 seconds per slide
-
+      setCurrentImageIndex((prev) => (prev + 1) % SLIDESHOW_IMAGES.length);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // Search Widget Tab State
+  // ─── Search Widget State ──────────────────────────
   const [activeTab, setActiveTab] = useState<'stays' | 'events'>('stays');
-
-  // Filter available listings
   const availableListings = listings.filter(l => l.available !== false);
+
+  // ─── Core Services ────────────────────────────────
+  const services = [
+    { icon: Hotel, title: 'Hotels', description: 'Luxury & budget stays worldwide', color: 'from-amber-400 to-amber-600' },
+    { icon: Plane, title: 'Airport Transfers', description: 'Seamless pickup & drop-off', color: 'from-amber-500 to-amber-700' },
+    { icon: Globe, title: 'Experiences', description: 'Curated tours & activities', color: 'from-amber-400 to-amber-600' },
+    { icon: HeadphonesIcon, title: '24/7 Support', description: 'Round-the-clock assistance', color: 'from-amber-500 to-amber-700' },
+  ];
 
   return (
     <main className="overflow-x-hidden">
       <SEO />
 
-      {/* ═══════════════ HERO SECTION WITH CAROUSEL ═══════════════ */}
+      {/* ═══════════════ HERO SECTION ═══════════════ */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Carousel */}
-        <div className="absolute inset-0">
+        {/* ─── Slideshow Background ───────────────── */}
+        <motion.div style={{ y: heroY }} className="absolute inset-0">
           <AnimatePresence mode="wait">
             <motion.img
-              key={currentIndex}
-              src={CAROUSEL_IMAGES[currentIndex]}
-              alt="Travel destination"
-              className="w-full h-full object-cover scale-110"
+              key={currentImageIndex}
+              src={SLIDESHOW_IMAGES[currentImageIndex]}
+              alt="Luxury travel destination"
+              className="absolute inset-0 w-full h-full object-cover scale-110"
+              loading="eager"
+              fetchPriority="high"
               initial={{ opacity: 0, scale: 1.1 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              transition={{ duration: 0.8 }}
-              loading={currentIndex === 0 ? 'eager' : 'lazy'}
-              fetchPriority={currentIndex === 0 ? 'high' : 'auto'}
+              exit={{ opacity: 0, scale: 1.1 }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
             />
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a1a]/80 via-[#0a0a1a]/60 to-[#0a0a1a]" />
-          {/* Overlay gradient for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-transparent to-[#0a0a1a]/30" />
-        </div>
-
-        {/* Ambient floating elements - Skipped if user prefers reduced motion */}
-        {!shouldReduceMotion && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(15)].map((_, i) => (
-              <motion.div
+          {/* Slideshow indicator dots */}
+          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+            {SLIDESHOW_IMAGES.map((_, i) => (
+              <button
                 key={i}
-                className="absolute w-1 h-1 bg-amber-400/30 rounded-full"
-                style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
-                animate={{
-                  y: [0, -100, 0],
-                  opacity: [0, 1, 0],
-                  scale: [0, 1.5, 0],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 4,
-                  repeat: Infinity,
-                  delay: Math.random() * 5,
-                }}
+                onClick={() => setCurrentImageIndex(i)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  i === currentImageIndex ? 'bg-amber-400 w-6' : 'bg-white/30 hover:bg-white/50'
+                }`}
+                aria-label={`Slide ${i + 1}`}
               />
             ))}
           </div>
-        )}
+        </motion.div>
 
+        {/* ─── Content ────────────────────────────── */}
         <motion.div style={{ opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-32 pb-20">
-          {/* Badge */}
+          {/* ─── Brand Tagline ────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm font-medium mb-8"
+            className="mb-6"
           >
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            Your Trusted Travel & Event Accommodation Partner
+            <span className="text-sm tracking-[0.3em] text-amber-400/80 uppercase font-medium">
+              Anna Travel Agency
+            </span>
           </motion.div>
 
-          {/* Title */}
+          {/* ─── Main Title ────────────────────────── */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight"
+            className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight"
           >
-            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-              Book Your Stay
+            <span className="text-white">
+              YOUR JOURNEY,
             </span>
             <br />
             <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
-              Anywhere, Anytime
+              OUR PRIORITY
             </span>
           </motion.h1>
 
+          {/* ─── Subtitle ──────────────────────────── */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed"
+            className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-4"
           >
-            Hotels, apartments & shortlets across <strong className="text-white">hundreds of cities</strong> worldwide.
-            Book your accommodation with <strong className="text-amber-300">Anna Travel Agency</strong>.
+            <span className="text-amber-400 font-medium">WE PLAN.</span>
+            <span className="text-white"> YOU ENJOY.</span>
           </motion.p>
 
-          {/* CTAs */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-10"
+          >
+            Hotels · Airport Transfers · Experiences · And More
+          </motion.p>
+
+          {/* ─── CTAs ──────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -165,7 +167,7 @@ export default function Home() {
           >
             <Link
               to="/listings"
-              className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300 flex items-center gap-2"
+              className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300 flex items-center gap-2"
             >
               Browse Accommodations
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -179,7 +181,7 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          {/* 🎯 Interactive Booking Search Widget */}
+          {/* ─── Search Widget ────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -230,7 +232,7 @@ export default function Home() {
                   className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-amber-400 transition-all"
                 />
               </div>
-              <button className="w-full bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold rounded-2xl py-3.5 hover:shadow-lg hover:shadow-amber-500/20 active:scale-98 transition-all flex items-center justify-center gap-2">
+              <button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-2xl py-3.5 hover:shadow-lg hover:shadow-amber-500/20 active:scale-98 transition-all flex items-center justify-center gap-2">
                 <Search className="w-5 h-5" /> Search Now
               </button>
             </div>
@@ -248,22 +250,6 @@ export default function Home() {
             <div className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-blue-400" /> Easy Payment</div>
             <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-purple-400" /> Global Reach</div>
           </motion.div>
-
-          {/* Slide indicator dots */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {CAROUSEL_IMAGES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentIndex(i)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  i === currentIndex
-                    ? 'bg-amber-400 w-6'
-                    : 'bg-white/30 hover:bg-white/60'
-                }`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
-          </div>
         </motion.div>
 
         {/* Scroll indicator */}
@@ -282,7 +268,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ─── Rest of the page (unchanged) ─────────────────────── */}
+      {/* ═══════════════ SERVICES SECTION ═══════════════ */}
       <section className="py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -294,7 +280,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium mb-4"
               >
-                Accommodation Types
+                Services
               </motion.span>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
@@ -302,7 +288,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="text-4xl md:text-5xl font-black text-white mb-4"
               >
-                Find Your Perfect Stay
+                WE PLAN. YOU ENJOY.
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0 }}
@@ -311,10 +297,65 @@ export default function Home() {
                 transition={{ delay: 0.2 }}
                 className="text-gray-400 text-lg max-w-2xl mx-auto"
               >
-                Whether you're traveling solo, with family, or for an event — we've got you covered.
+                Hotels · Airport Transfers · Experiences · And More
               </motion.p>
             </div>
           </ParallaxSection>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((service, i) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card3D>
+                  <div className="p-6 text-center">
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-amber-500/20`}>
+                      <service.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-white font-bold text-lg mb-2">{service.title}</h3>
+                    <p className="text-gray-400 text-sm">{service.description}</p>
+                  </div>
+                </Card3D>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ ACCOMMODATION TYPES ═══════════════ */}
+      <section className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <motion.span
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium mb-4"
+            >
+              Accommodation Types
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-black text-white mb-4"
+            >
+              Find Your Perfect Stay
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-gray-400 text-lg max-w-2xl mx-auto"
+            >
+              Whether you're traveling solo, with family, or for an event — we've got you covered.
+            </motion.p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -385,6 +426,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════ WHY CHOOSE US ═══════════════ */}
       <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -394,7 +436,7 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-4xl md:text-5xl font-black text-white mb-4"
             >
-              Why Anna Travel Agency?
+              Why Choose Anna Travel Agency?
             </motion.h2>
           </div>
 
@@ -403,7 +445,7 @@ export default function Home() {
               { icon: Shield, title: 'Verified Properties', desc: 'Every listing is personally verified for quality and safety.', color: 'text-green-400' },
               { icon: MapPin, title: 'Best Locations', desc: 'Properties in prime locations with easy access to transport.', color: 'text-blue-400' },
               { icon: CreditCard, title: 'Secure Payments', desc: 'Pay safely with Stripe. Full refund policy included.', color: 'text-purple-400' },
-              { icon: Headphones, title: '24/7 Support', desc: 'Round-the-clock multilingual support for all guests.', color: 'text-amber-400' },
+              { icon: HeadphonesIcon, title: '24/7 Support', desc: 'Round-the-clock multilingual support for all guests.', color: 'text-amber-400' },
             ].map((item, i) => (
               <motion.div
                 key={item.title}
@@ -425,6 +467,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════ FEATURED LISTINGS ═══════════════ */}
       <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -455,7 +498,7 @@ export default function Home() {
           <div className="mt-12 text-center">
             <Link
               to="/listings"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
             >
               View All Accommodations <ArrowRight className="w-5 h-5" />
             </Link>
@@ -463,6 +506,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════ TESTIMONIALS ═══════════════ */}
       <section className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -494,7 +538,7 @@ export default function Home() {
                     </div>
                     <p className="text-gray-300 text-sm mb-4 leading-relaxed italic">"{t.text}"</p>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center text-white text-xs font-bold">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white text-xs font-bold">
                         {t.name.charAt(0)}
                       </div>
                       <div>
@@ -510,6 +554,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════ EVENTS & TICKETS ═══════════════ */}
       <section className="py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.03] to-transparent" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -544,7 +589,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             {[
               { icon: '🎵', title: 'Concerts', desc: 'Find tickets for your favorite artists and bands.', gradient: 'from-pink-500 to-rose-500' },
-              { icon: '⚽', title: 'Sports Events', desc: 'Football, basketball, tennis — get tickets to live matches.', gradient: 'from-amber-500 to-red-500' },
+              { icon: '⚽', title: 'Sports Events', desc: 'Football, basketball, tennis — get tickets to live matches.', gradient: 'from-amber-500 to-amber-600' },
               { icon: '🎭', title: 'Theater & Shows', desc: 'Broadway, comedy, and more — book your seat today.', gradient: 'from-purple-500 to-indigo-500' },
             ].map((item, i) => (
               <motion.div
@@ -575,7 +620,7 @@ export default function Home() {
           >
             <Link
               to="/tickets"
-              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all inline-flex items-center gap-2"
+              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all inline-flex items-center gap-2"
             >
               Browse Events & Tickets <ArrowRight className="w-5 h-5" />
             </Link>
@@ -583,6 +628,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════ CTA BANNER ═══════════════ */}
       <section className="py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -603,7 +649,7 @@ export default function Home() {
                 <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
                   Ready to Travel?
                   <br />
-                  <span className="bg-gradient-to-r from-amber-300 to-red-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">
                     Book Your Stay Today.
                   </span>
                 </h2>
@@ -612,7 +658,7 @@ export default function Home() {
                 </p>
                 <Link
                   to="/listings"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all"
                 >
                   Browse Now <ArrowRight className="w-5 h-5" />
                 </Link>
