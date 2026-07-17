@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, useReducedMotion, useWillChange } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion, useWillChange, AnimatePresence } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
 import {
   ArrowRight, Shield, Star, MapPin, Calendar, CreditCard,
   Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2, Search, Users
@@ -11,12 +11,26 @@ import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
 import { IMAGES, HOST_CITIES, TESTIMONIALS } from '../data/constants';
 
-// 🚀 PERFORMANCE IMPROVEMENT: Offloads scroll parallax calculation to the GPU
+// ─── Carousel Images ──────────────────────────────────────
+const CAROUSEL_IMAGES = [
+  // Hotels & luxury stays
+  'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  // Travel destinations
+  'https://images.pexels.com/photos/1486222/pexels-photo-1486222.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/417074/pexels-photo-417074.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/2487717/pexels-photo-2487717.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+  'https://images.pexels.com/photos/1266310/pexels-photo-1266310.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
+];
+
+// 🚀 PERFORMANCE: Offloads scroll parallax calculation to the GPU
 function ParallaxSection({ children, offset = 50 }: { children: React.ReactNode; offset?: number }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], [offset, -offset]);
-  const willChange = useWillChange(); // Creates a new composite layer on the GPU
+  const willChange = useWillChange();
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -30,13 +44,23 @@ export default function Home() {
   const { listings } = useData();
   const heroRef = useRef(null);
   
-  // ⚡ ACCESSIBILITY: Detects if user prefers reduced motion
   const shouldReduceMotion = useReducedMotion();
   
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   
   const heroY = shouldReduceMotion ? 0 : useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = shouldReduceMotion ? 1 : useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  // ─── Carousel State ──────────────────────────────────────
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+    }, 2000); // 2 seconds per slide
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Search Widget Tab State
   const [activeTab, setActiveTab] = useState<'stays' | 'events'>('stays');
@@ -48,19 +72,28 @@ export default function Home() {
     <main className="overflow-x-hidden">
       <SEO />
 
-      {/* ═══════════════ HERO SECTION ═══════════════ */}
+      {/* ═══════════════ HERO SECTION WITH CAROUSEL ═══════════════ */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <motion.div style={{ y: heroY }} className="absolute inset-0">
-          {/* ⚡ IMAGE OPTIMIZATION: Prioritized loading for LCP (Largest Contentful Paint) */}
-          <img 
-            src={IMAGES.hero} 
-            alt="Luxury Accommodation" 
-            className="w-full h-full object-cover scale-110" 
-            loading="eager"
-            fetchPriority="high"
-          />
+        {/* Background Carousel */}
+        <div className="absolute inset-0">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentIndex}
+              src={CAROUSEL_IMAGES[currentIndex]}
+              alt="Travel destination"
+              className="w-full h-full object-cover scale-110"
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              transition={{ duration: 0.8 }}
+              loading={currentIndex === 0 ? 'eager' : 'lazy'}
+              fetchPriority={currentIndex === 0 ? 'high' : 'auto'}
+            />
+          </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a1a]/80 via-[#0a0a1a]/60 to-[#0a0a1a]" />
-        </motion.div>
+          {/* Overlay gradient for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-transparent to-[#0a0a1a]/30" />
+        </div>
 
         {/* Ambient floating elements - Skipped if user prefers reduced motion */}
         {!shouldReduceMotion && (
@@ -146,7 +179,7 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          {/* 🎯 INTERACTIVE BOOKING SEARCH WIDGET */}
+          {/* 🎯 Interactive Booking Search Widget */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -215,6 +248,22 @@ export default function Home() {
             <div className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-blue-400" /> Easy Payment</div>
             <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-purple-400" /> Global Reach</div>
           </motion.div>
+
+          {/* Slide indicator dots */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            {CAROUSEL_IMAGES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  i === currentIndex
+                    ? 'bg-amber-400 w-6'
+                    : 'bg-white/30 hover:bg-white/60'
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
         </motion.div>
 
         {/* Scroll indicator */}
@@ -233,7 +282,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ═══════════════ ACCOMMODATION TYPES ═══════════════ */}
+      {/* ─── Rest of the page (unchanged) ─────────────────────── */}
       <section className="py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -336,7 +385,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════ WHY CHOOSE US ═══════════════ */}
       <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -377,7 +425,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════ FEATURED LISTINGS ═══════════════ */}
       <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -416,7 +463,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════ TESTIMONIALS ═══════════════ */}
       <section className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -464,7 +510,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════ EVENTS & TICKETS ═══════════════ */}
       <section className="py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.03] to-transparent" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -538,7 +583,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════ CTA BANNER ═══════════════ */}
       <section className="py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -547,7 +591,6 @@ export default function Home() {
             viewport={{ once: true }}
             className="relative rounded-3xl overflow-hidden"
           >
-            {/* ⚡ IMAGE OPTIMIZATION: lazy loading since this is far down the viewport layout */}
             <img 
               src={IMAGES.fans1} 
               alt="Travel" 
