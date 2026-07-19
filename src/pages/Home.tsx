@@ -161,7 +161,7 @@ export default function Home() {
               src="/logo.png" 
               alt="Anna Travel Agency Logo" 
               className="h-28 md:h-36 w-auto object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-300 hover:scale-105"
-              onError={(e) => {
+              onError={(e: { currentTarget: { style: { display: string; }; }; }) => {
                 // Fail-safe layout in case logo.png hasn't been uploaded to public folder yet
                 e.currentTarget.style.display = 'none';
                 const fallback = document.getElementById('brand-fallback');
