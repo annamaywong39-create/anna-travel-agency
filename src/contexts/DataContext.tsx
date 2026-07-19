@@ -48,11 +48,6 @@ export interface TicketOrder {
   paymentMethod: string;
   status: 'pending' | 'confirmed' | 'cancelled';
   createdAt: string;
-  // For display purposes, we'll join with events
-  eventName?: string;
-  eventDate?: string;
-  eventVenue?: string;
-  eventCity?: string;
 }
 
 export interface CartItem {
@@ -72,6 +67,7 @@ export interface Event {
   city: string;
   image_url?: string;
   status: 'upcoming' | 'live' | 'finished';
+  category?: string;
   created_at: string;
 }
 
@@ -87,31 +83,43 @@ export interface EventTicket {
 interface DataContextType {
   listings: Listing[];
   bookings: Booking[];
-  ticketOrders: TicketOrder[];
   reviews: Review[];
+  ticketOrders: TicketOrder[];
   isLoading: boolean;
   isDemo: boolean;
+
   // Listings
   addListing: (listing: Omit<Listing, 'id'>) => Promise<void>;
   updateListing: (id: string, data: Partial<Listing>) => Promise<void>;
   deleteListing: (id: string) => Promise<void>;
+
   // Bookings
   addBooking: (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'bitcoin' | 'paypal' | 'steam' }) => Promise<Booking>;
   updateBooking: (id: string, data: Partial<Booking>) => Promise<void>;
   cancelBooking: (id: string) => Promise<void>;
   getUserBookings: (userId: string) => Booking[];
+
   // Ticket Orders
   addTicketOrder: (order: Omit<TicketOrder, 'id' | 'createdAt'>) => Promise<TicketOrder>;
   updateTicketOrder: (id: string, data: Partial<TicketOrder>) => Promise<void>;
+  fetchAllTicketOrders: () => Promise<TicketOrder[]>;
+
   // Reviews
   addReview: (review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
   deleteReview: (reviewId: string) => Promise<void>;
   getListingReviews: (listingId: string) => Review[];
   getListingAverageRating: (listingId: string) => number;
+
   // Contacts
   saveContactMessage: (msg: { name: string; email: string; subject: string; message: string; type: string }) => Promise<void>;
+
   // Users (admin)
   fetchAllUsers: () => Promise<UserProfile[]>;
+
+  // Matches (for ticket prices)
+  fetchMatches: () => Promise<any[]>;
+  updateMatchPrices: (matchId: string, updates: Record<string, number>) => Promise<void>;
+
   // Events
   fetchEvents: () => Promise<Event[]>;
   addEvent: (event: Omit<Event, 'id' | 'createdAt'>) => Promise<Event>;
@@ -121,14 +129,13 @@ interface DataContextType {
   addEventTicket: (ticket: Omit<EventTicket, 'id' | 'createdAt'>) => Promise<EventTicket>;
   updateEventTicket: (id: string, data: Partial<EventTicket>) => Promise<void>;
   deleteEventTicket: (id: string) => Promise<void>;
-  // Cart
+
+  // Unified Cart
   cartItems: CartItem[];
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   getCartTotal: () => number;
-  // Admin - fetch all ticket orders with event details
-  fetchAllTicketOrders: () => Promise<TicketOrder[]>;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -241,6 +248,7 @@ function rowToEvent(r: Record<string, unknown>): Event {
     city: r.city as string,
     image_url: r.image_url as string || undefined,
     status: r.status as Event['status'],
+    category: r.category as string || undefined,
     created_at: r.created_at as string,
   };
 }
@@ -260,23 +268,24 @@ function rowToEventTicket(r: Record<string, unknown>): EventTicket {
 export function DataProvider({ children }: { children: ReactNode }) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const isDemo = !isSupabaseConfigured;
 
+  // ── Load data on mount ──
   useEffect(() => {
     if (isDemo) {
       const sl = localStorage.getItem('ath_listings');
       const sb = localStorage.getItem('ath_bookings');
-      const sto = localStorage.getItem('ath_ticketOrders');
       const sr = localStorage.getItem('ath_reviews');
+      const sto = localStorage.getItem('ath_ticketOrders');
       const sc = localStorage.getItem('ath_cart');
       setListings(sl ? JSON.parse(sl) : DEFAULT_LISTINGS);
       setBookings(sb ? JSON.parse(sb) : []);
-      setTicketOrders(sto ? JSON.parse(sto) : []);
       setReviews(sr ? JSON.parse(sr) : []);
+      setTicketOrders(sto ? JSON.parse(sto) : []);
       setCartItems(sc ? JSON.parse(sc) : []);
       setIsLoading(false);
     } else {
@@ -284,35 +293,41 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, [isDemo]);
 
+  // ── Save demo data to localStorage ──
   useEffect(() => {
     if (isDemo && listings.length > 0) localStorage.setItem('ath_listings', JSON.stringify(listings));
   }, [isDemo, listings]);
+
   useEffect(() => {
     if (isDemo) localStorage.setItem('ath_bookings', JSON.stringify(bookings));
   }, [isDemo, bookings]);
-  useEffect(() => {
-    if (isDemo) localStorage.setItem('ath_ticketOrders', JSON.stringify(ticketOrders));
-  }, [isDemo, ticketOrders]);
+
   useEffect(() => {
     if (isDemo) localStorage.setItem('ath_reviews', JSON.stringify(reviews));
   }, [isDemo, reviews]);
+
+  useEffect(() => {
+    if (isDemo) localStorage.setItem('ath_ticketOrders', JSON.stringify(ticketOrders));
+  }, [isDemo, ticketOrders]);
+
   useEffect(() => {
     if (isDemo) localStorage.setItem('ath_cart', JSON.stringify(cartItems));
   }, [isDemo, cartItems]);
 
+  // ── Supabase loaders ──
   async function loadFromSupabase() {
     setIsLoading(true);
-    const [listRes, bookRes, ticketRes, revRes] = await Promise.all([
+    const [listRes, bookRes, revRes, ticketRes] = await Promise.all([
       supabase.from('listings').select('*').order('created_at', { ascending: false }),
       supabase.from('bookings').select('*').order('created_at', { ascending: false }),
-      supabase.from('ticket_orders').select('*').order('created_at', { ascending: false }),
       supabase.from('reviews').select('*').order('created_at', { ascending: false }),
+      supabase.from('ticket_orders').select('*').order('created_at', { ascending: false }),
     ]);
 
     if (listRes.data) setListings(listRes.data.map(rowToListing));
     if (bookRes.data) setBookings(bookRes.data.map(rowToBooking));
-    if (ticketRes.data) setTicketOrders(ticketRes.data.map(rowToTicketOrder));
     if (revRes.data) setReviews(revRes.data.map(rowToReview));
+    if (ticketRes.data) setTicketOrders(ticketRes.data.map(rowToTicketOrder));
     setIsLoading(false);
   }
 
@@ -573,7 +588,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await supabase.from('contact_messages').insert(msg);
   };
 
-  // ━━━ USERS (Admin) ━━━
+  // ━━━ USERS (Admin) – FIXED: uses RPC function ━━━
   const fetchAllUsers = async (): Promise<UserProfile[]> => {
     if (isDemo) {
       const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
@@ -586,6 +601,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         created_at: u.createdAt || new Date().toISOString(),
       }));
     }
+
     const { data, error } = await supabase.rpc('get_all_users_with_email');
     if (error) {
       console.error('Failed to fetch users:', error);
@@ -594,9 +610,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return data || [];
   };
 
+  // ━━━ MATCHES (Ticket Prices) ━━━
+  const fetchMatches = async () => {
+    const { data, error } = await supabase
+      .from('matches')
+      .select('*')
+      .gte('match_date', '2026-07-01')
+      .order('match_date', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  };
+
+  const updateMatchPrices = async (matchId: string, updates: Record<string, number>) => {
+    const { error } = await supabase.from('matches').update(updates).eq('id', matchId);
+    if (error) throw error;
+  };
+
   // ━━━ EVENTS ━━━
   const fetchEvents = async (): Promise<Event[]> => {
-    const { data, error } = await supabase.from('events').select('*').order('date', { ascending: true });
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: true });
     if (error) throw error;
     return data || [];
   };
@@ -666,12 +701,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const getCartTotal = () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  // ━━━ Context Provider ━━━
   return (
     <DataContext.Provider value={{
       listings,
       bookings,
-      ticketOrders,
       reviews,
+      ticketOrders,
       isLoading,
       isDemo,
       addListing,
@@ -683,12 +719,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       getUserBookings,
       addTicketOrder,
       updateTicketOrder,
+      fetchAllTicketOrders,
       addReview,
       deleteReview,
       getListingReviews,
       getListingAverageRating,
       saveContactMessage,
       fetchAllUsers,
+      fetchMatches,
+      updateMatchPrices,
       fetchEvents,
       addEvent,
       updateEvent,
@@ -702,7 +741,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       removeFromCart,
       clearCart,
       getCartTotal,
-      fetchAllTicketOrders,
     }}>
       {children}
     </DataContext.Provider>
