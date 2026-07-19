@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Ticket, X, Check } from 'lucide-react';
+import { Calendar, MapPin, Ticket, X, Check, ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
 import { supabase } from '../lib/supabase';
@@ -61,6 +62,7 @@ export default function Tickets() {
   const [quantity, setQuantity] = useState(1);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const { addToCart } = useData();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAll();
@@ -159,7 +161,7 @@ export default function Tickets() {
     setPurchaseSuccess(false);
   };
 
-  const handlePurchase = () => {
+  const handleAddToCart = () => {
     if (!selectedItem) return;
 
     if (selectedItem.type === 'match') {
@@ -195,7 +197,16 @@ export default function Tickets() {
     }
 
     setPurchaseSuccess(true);
-    setTimeout(() => closeModal(), 3000);
+    setTimeout(() => {
+      closeModal();
+    }, 2000);
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    setTimeout(() => {
+      navigate('/checkout');
+    }, 300);
   };
 
   return (
@@ -310,7 +321,7 @@ export default function Tickets() {
         )}
       </div>
 
-      {/* Purchase Modal */}
+      {/* ─── Purchase Modal ─── */}
       {selectedItem && !purchaseSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={closeModal}>
           <motion.div
@@ -434,17 +445,27 @@ export default function Tickets() {
               </div>
             </div>
 
-            <button
-              onClick={handlePurchase}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all shadow-lg shadow-[#DB8293]/25"
-            >
-              <Ticket className="w-4 h-4 inline mr-2" /> Add to Cart
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 py-3 rounded-xl bg-[#C49B55]/20 text-[#C49B55] font-bold hover:bg-[#C49B55]/30 transition-all border border-[#C49B55]/30"
+              >
+                <ShoppingCart className="w-4 h-4 inline mr-2" />
+                Add to Cart
+              </button>
+              <button
+                onClick={handleBuyNow}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all shadow-lg shadow-[#DB8293]/25"
+              >
+                Buy Now
+              </button>
+            </div>
             <p className="text-gray-500 text-xs text-center mt-4">🔒 Secure checkout.</p>
           </motion.div>
         </div>
       )}
 
+      {/* ─── Success Toast ─── */}
       {purchaseSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <motion.div

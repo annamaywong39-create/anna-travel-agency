@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, CreditCard, Shield, CheckCircle2, Calendar, Users, MapPin,
-  Lock, AlertCircle, Sparkles, Clock, Info, Plus, X, Copy, Check
+  Lock, AlertCircle, Sparkles, Clock, Info, Plus, X, Copy, Check, ShoppingCart
 } from 'lucide-react';
 import Card3D from '../components/Card3D';
 import { useAuth } from '../contexts/AuthContext';
@@ -60,10 +60,11 @@ export default function Booking() {
     country: user?.country || '', checkIn: '2026-06-11',
     checkOut: '2026-06-18', guests: '2', specialRequests: '',
   });
-  
+
   const [steamCodes, setSteamCodes] = useState<string[]>(['']);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [cartAdded, setCartAdded] = useState(false);
 
   if (!listing) {
     return (
@@ -107,7 +108,37 @@ export default function Booking() {
     if (validateDetails()) setStep('payment');
   };
 
-  const handlePayment = async () => {
+  const handleAddToCart = () => {
+    if (!validatePayment()) return;
+
+    const roomData = {
+      listingId: listing.id,
+      userId: user?.id || 'guest',
+      userEmail: formData.email,
+      userName: `${formData.firstName} ${formData.lastName}`,
+      checkIn: formData.checkIn,
+      checkOut: formData.checkOut,
+      guests: parseInt(formData.guests),
+      totalPrice: total,
+      status: 'pending',
+      specialRequests: formData.specialRequests,
+      paymentMethod: paymentMethod,
+    };
+
+    addToCart({
+      id: `room-${listing.id}-${Date.now()}`,
+      type: 'room',
+      item: roomData,
+      quantity: 1,
+      price: total,
+    });
+
+    setCartAdded(true);
+    setBookingId('CART-ADDED');
+    setStep('confirmation');
+  };
+
+  const handleBuyNow = () => {
     if (!validatePayment()) return;
 
     const roomData = {
@@ -199,6 +230,7 @@ export default function Booking() {
                       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                         <Users className="w-6 h-6 text-[#DB8293]" /> Guest Information
                       </h2>
+                      {/* ... (the guest details form remains the same) ... */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
                           { key: 'firstName', label: 'First Name', placeholder: 'John', type: 'text' },
@@ -349,42 +381,21 @@ export default function Booking() {
                               <h3 className="text-[#C49B55] font-bold text-lg">PayPal Temporarily Unavailable</h3>
                             </div>
                             <p className="text-gray-300 text-sm mb-4">
-                              We're currently experiencing a temporary network issue with our PayPal payment gateway.
-                              Your booking is still secure — please choose an alternative payment method below.
+                              We're experiencing a temporary issue with PayPal. Please choose an alternative payment method.
                             </p>
                             <div className="bg-white/5 rounded-lg p-4 mb-4">
                               <p className="text-gray-400 text-sm">
                                 <strong className="text-white">Alternative Payment Options:</strong>
                               </p>
                               <ul className="text-gray-400 text-sm list-disc list-inside mt-2 space-y-1">
-                                <li>Pay with <strong className="text-[#DB8293]">Bitcoin (BTC)</strong> — instant confirmation</li>
-                                <li>Pay with <strong className="text-[#DB8293]">Steam Card</strong> — manual verification within 2 hours</li>
-                                <li><strong className="text-[#C49B55]">PayPal invoice</strong> will be emailed to you within 24 hours if you prefer</li>
+                                <li>Pay with <strong className="text-[#DB8293]">Bitcoin (BTC)</strong></li>
+                                <li>Pay with <strong className="text-[#DB8293]">Steam Card</strong></li>
+                                <li><strong className="text-[#C49B55]">PayPal invoice</strong> will be emailed within 24 hours</li>
                               </ul>
                             </div>
-                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
-                              <p className="text-blue-300 text-xs flex items-center gap-2">
-                                <span>📧</span>
-                                <span>If you need PayPal, our team will send a secure invoice to your email within 24 hours.</span>
-                              </p>
-                            </div>
                             <p className="text-gray-500 text-xs">
-                              Questions? Email us at <a href="mailto:hello@annatravelagency.com" className="text-[#DB8293] hover:underline">hello@annatravelagency.com</a>
+                              Questions? Email <a href="mailto:hello@annatravelagency.com" className="text-[#DB8293] hover:underline">hello@annatravelagency.com</a>
                             </p>
-                            <div className="flex gap-3 mt-4">
-                              <button
-                                onClick={() => setPaymentMethod('bitcoin')}
-                                className="px-4 py-2 rounded-lg bg-[#DB8293]/20 text-[#DB8293] hover:bg-[#DB8293]/30 transition-all text-sm border border-[#DB8293]/30"
-                              >
-                                ₿ Use Bitcoin
-                              </button>
-                              <button
-                                onClick={() => setPaymentMethod('steam')}
-                                className="px-4 py-2 rounded-lg bg-[#DB8293]/20 text-[#DB8293] hover:bg-[#DB8293]/30 transition-all text-sm border border-[#DB8293]/30"
-                              >
-                                🎮 Use Steam Card
-                              </button>
-                            </div>
                           </div>
                         </motion.div>
                       )}
@@ -438,14 +449,13 @@ export default function Booking() {
                           className="px-6 py-4 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition-all">
                           ← Back
                         </button>
-                        <button onClick={handlePayment} disabled={isProcessing}
-                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                          {isProcessing ? (
-                            <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                              className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" /> Processing...</>
-                          ) : (
-                            <><Lock className="w-4 h-4" /> Add to Cart</>
-                          )}
+                        <button onClick={handleAddToCart}
+                          className="flex-1 py-4 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                          <ShoppingCart className="w-4 h-4" /> Add to Cart
+                        </button>
+                        <button onClick={handleBuyNow}
+                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 flex items-center justify-center gap-2">
+                          <Lock className="w-4 h-4" /> Buy Now
                         </button>
                       </div>
                     </div>
@@ -455,56 +465,49 @@ export default function Booking() {
 
               {step === 'confirmation' && (
                 <motion.div key="confirmation" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                  <Card3D glowColor="rgba(34, 197, 94, 0.2)">
+                  <Card3D glowColor={cartAdded ? 'rgba(219, 130, 147, 0.2)' : 'rgba(34, 197, 94, 0.2)'}>
                     <div className="p-8 md:p-12 text-center bg-[#131C2E] rounded-2xl border border-white/5">
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.2 }}
-                        className="w-20 h-20 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 className="w-10 h-10 text-green-400" />
+                        className="w-20 h-20 rounded-full bg-[#DB8293]/20 border-2 border-[#DB8293] flex items-center justify-center mx-auto mb-6">
+                        {cartAdded ? (
+                          <ShoppingCart className="w-10 h-10 text-[#DB8293]" />
+                        ) : (
+                          <CheckCircle2 className="w-10 h-10 text-green-400" />
+                        )}
                       </motion.div>
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                         <h2 className="text-3xl font-black text-white mb-2">
-                          {paymentMethod === 'paypal' ? 'Booking Confirmed! 🎉' : 'Booking Submitted! ⏳'}
+                          {cartAdded ? 'Added to Cart! 🛒' : 'Booking Submitted! ⏳'}
                         </h2>
-                        <p className="text-gray-400 mb-4">Your World Cup accommodation is secured.</p>
-                        <div className={`mx-auto max-w-md mb-6 p-4 rounded-xl border flex items-start gap-3 text-left ${
-                          paymentMethod === 'bitcoin' ? 'bg-[#DB8293]/10 border-[#DB8293]/20' :
-                          paymentMethod === 'paypal' ? 'bg-[#C49B55]/10 border-[#C49B55]/20' :
-                          'bg-[#DB8293]/10 border-[#DB8293]/20'
-                        }`}>
-                          <Info className={`w-5 h-5 shrink-0 mt-0.5 ${selectedMethod.timeColor}`} />
-                          <div>
-                            <p className={`text-sm font-bold ${selectedMethod.timeColor}`}>
-                              {selectedMethod.icon} {selectedMethod.label} — {selectedMethod.time}
-                            </p>
-                            <p className="text-gray-400 text-xs mt-1">
-                              {paymentMethod === 'bitcoin' && 'Awaiting blockchain confirmation. Your booking will be confirmed once the transaction has 3+ confirmations.'}
-                              {paymentMethod === 'paypal' && 'Your payment was processed instantly. Your booking is confirmed!'}
-                              {paymentMethod === 'steam' && 'Our team is verifying your Steam card codes. Confirmation email will arrive within approximately 2 hours.'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#DB8293]/10 border border-[#DB8293]/20 text-[#DB8293] text-sm mb-6">
-                          <Sparkles className="w-4 h-4" /> Confirmation #{bookingId.slice(-8).toUpperCase()}
-                        </div>
-                        <div className="bg-white/5 rounded-xl p-6 text-left max-w-md mx-auto mb-6 space-y-3">
-                          <div className="flex justify-between text-sm"><span className="text-gray-400">Property</span><span className="text-white font-medium">{listing.title}</span></div>
-                          <div className="flex justify-between text-sm"><span className="text-gray-400">Location</span><span className="text-white">{listing.city}</span></div>
-                          <div className="flex justify-between text-sm"><span className="text-gray-400">Check-in</span><span className="text-white">{formData.checkIn}</span></div>
-                          <div className="flex justify-between text-sm"><span className="text-gray-400">Check-out</span><span className="text-white">{formData.checkOut}</span></div>
-                          <div className="flex justify-between text-sm"><span className="text-gray-400">Guests</span><span className="text-white">{formData.guests}</span></div>
-                          <div className="flex justify-between text-sm"><span className="text-gray-400">Payment Method</span><span className="text-white">{selectedMethod.icon} {selectedMethod.label}</span></div>
-                          <div className="border-t border-white/10 pt-3 flex justify-between">
-                            <span className="text-white font-bold">Total</span>
-                            <span className="text-green-400 font-bold">{format(total)}</span>
-                          </div>
-                        </div>
-                        <p className="text-gray-500 text-sm mb-6">
-                          A confirmation email will be sent to <strong className="text-white">{formData.email}</strong>
+                        <p className="text-gray-400 mb-4">
+                          {cartAdded
+                            ? 'Your room has been added to your cart. You can continue browsing or proceed to checkout.'
+                            : 'Your World Cup accommodation is secured.'}
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                          {user && <Link to="/dashboard" className="px-6 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-all">View My Bookings</Link>}
-                          <Link to="/" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-105 transition-all">Back to Home ⚽</Link>
-                        </div>
+
+                        {cartAdded && (
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                            <button
+                              onClick={() => navigate('/checkout')}
+                              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-105 transition-all"
+                            >
+                              Proceed to Checkout
+                            </button>
+                            <button
+                              onClick={() => navigate('/listings')}
+                              className="px-8 py-4 rounded-2xl border-2 border-white/20 text-white font-bold text-lg hover:bg-white/5 transition-all"
+                            >
+                              Continue Browsing
+                            </button>
+                          </div>
+                        )}
+
+                        {!cartAdded && (
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                            {user && <Link to="/dashboard" className="px-6 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-all">View My Bookings</Link>}
+                            <Link to="/" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-105 transition-all">Back to Home ⚽</Link>
+                          </div>
+                        )}
                       </motion.div>
                     </div>
                   </Card3D>
@@ -513,6 +516,7 @@ export default function Booking() {
             </AnimatePresence>
           </div>
 
+          {/* ─── Sidebar ─── */}
           <div className="lg:col-span-1">
             <div className="sticky top-28">
               <Card3D>
