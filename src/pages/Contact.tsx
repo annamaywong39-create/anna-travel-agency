@@ -22,38 +22,36 @@ export default function Contact() {
   };
 
   return (
-    <main className="pt-24 pb-20 min-h-screen">
-      <SEO title="Contact Us" description="Get in touch with Anna Travel Agency. 24/7 support for your World Cup 2026 accommodation needs." path="/contact" />
+    <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
+      <SEO title="Contact Us" description="Get in touch with Anna Travel Agency. 24/7 support for accommodation and ticket inquiries." path="/contact" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#DB8293]/10 border border-[#DB8293]/20 text-[#DB8293] text-sm mb-6">
             <MessageSquare className="w-4 h-4" />
             Get In Touch
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-white mb-4">
             Contact{' '}
-            <span className="bg-gradient-to-r from-amber-300 to-red-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#DB8293] to-[#C49B55] bg-clip-text text-transparent">
               Us
             </span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Have questions about your World Cup accommodation? We're here to help 24/7.
+            Have questions? We're here to help 24/7.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Contact info cards */}
           <div className="space-y-4">
             {[
-              { icon: Mail, title: 'Email Us', value: 'hello@annatravelagency.com', sub: 'We reply within 2 hours', color: 'text-blue-400' },
-              { icon: Phone, title: 'Call Us', value: '+1 (587) 681-0591', sub: 'Mon-Sun, 24/7', color: 'text-green-400' },
-              { icon: MapPin, title: 'Office', value: 'New York, NY, USA', sub: 'Visit by appointment', color: 'text-purple-400' },
-              { icon: Clock, title: 'Response Time', value: 'Under 2 hours', sub: 'Average response time', color: 'text-amber-400' },
+              { icon: Mail, title: 'Email Us', value: 'hello@annatravelagency.com', sub: 'We reply within 2 hours', color: 'text-[#DB8293]' },
+              { icon: Phone, title: 'Call Us', value: '+1 (587) 681-0591', sub: 'Mon-Sun, 24/7', color: 'text-[#C49B55]' },
+              { icon: MapPin, title: 'Office', value: 'New York, NY, USA', sub: 'Visit by appointment', color: 'text-[#DB8293]' },
+              { icon: Clock, title: 'Response Time', value: 'Under 2 hours', sub: 'Average response time', color: 'text-[#C49B55]' },
             ].map((item, i) => (
               <motion.div
                 key={item.title}
@@ -62,7 +60,7 @@ export default function Contact() {
                 transition={{ delay: i * 0.1 }}
               >
                 <Card3D>
-                  <div className="p-5 flex items-center gap-4">
+                  <div className="p-5 flex items-center gap-4 bg-[#131C2E] rounded-2xl border border-white/5">
                     <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 ${item.color}`}>
                       <item.icon className="w-5 h-5" />
                     </div>
@@ -76,16 +74,15 @@ export default function Contact() {
               </motion.div>
             ))}
 
-            {/* Languages */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
               <Card3D>
-                <div className="p-5">
+                <div className="p-5 bg-[#131C2E] rounded-2xl border border-white/5">
                   <div className="flex items-center gap-2 mb-3">
-                    <Globe className="w-5 h-5 text-amber-400" />
+                    <Globe className="w-5 h-5 text-[#C49B55]" />
                     <h3 className="text-white font-semibold">We Speak Your Language</h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -100,15 +97,14 @@ export default function Contact() {
             </motion.div>
           </div>
 
-          {/* Contact form */}
           <div className="lg:col-span-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Card3D glowColor="rgba(245, 158, 11, 0.15)">
-                <div className="p-6 md:p-8">
+              <Card3D>
+                <div className="p-6 md:p-8 bg-[#131C2E] rounded-2xl border border-white/5">
                   {submitted ? (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -125,7 +121,7 @@ export default function Contact() {
                           setSubmitted(false);
                           setFormData({ name: '', email: '', subject: '', message: '', type: 'general' });
                         }}
-                        className="px-6 py-3 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all"
+                        className="px-6 py-3 rounded-xl bg-[#DB8293]/20 text-[#DB8293] border border-[#DB8293]/30 hover:bg-[#DB8293]/30 transition-all"
                       >
                         Send Another Message
                       </button>
@@ -133,11 +129,10 @@ export default function Contact() {
                   ) : (
                     <form onSubmit={handleSubmit}>
                       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                        <Headphones className="w-6 h-6 text-amber-400" />
+                        <Headphones className="w-6 h-6 text-[#C49B55]" />
                         Send Us a Message
                       </h2>
 
-                      {/* Inquiry type */}
                       <div className="flex flex-wrap gap-2 mb-6">
                         {[
                           { value: 'general', label: '💬 General' },
@@ -151,7 +146,7 @@ export default function Contact() {
                             onClick={() => setFormData(prev => ({ ...prev, type: t.value }))}
                             className={`px-4 py-2 rounded-lg text-sm transition-all ${
                               formData.type === t.value
-                                ? 'bg-amber-500/20 border border-amber-500/30 text-amber-300'
+                                ? 'bg-[#DB8293]/20 border border-[#DB8293]/30 text-[#DB8293]'
                                 : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'
                             }`}
                           >
@@ -169,7 +164,7 @@ export default function Contact() {
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="John Doe"
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
                           />
                         </div>
                         <div>
@@ -180,7 +175,7 @@ export default function Contact() {
                             value={formData.email}
                             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                             placeholder="john@example.com"
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
                           />
                         </div>
                       </div>
@@ -192,8 +187,8 @@ export default function Contact() {
                           required
                           value={formData.subject}
                           onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
-                          placeholder="Help with World Cup booking"
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                          placeholder="Help with booking"
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
                         />
                       </div>
 
@@ -205,13 +200,13 @@ export default function Contact() {
                           onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                           placeholder="Tell us how we can help..."
                           rows={5}
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 resize-none transition-all"
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 resize-none transition-all"
                         />
                       </div>
 
                       <button
                         type="submit"
-                        className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
+                        className="w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 flex items-center justify-center gap-2"
                       >
                         <Send className="w-5 h-5" />
                         Send Message

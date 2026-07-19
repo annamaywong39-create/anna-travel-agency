@@ -46,16 +46,15 @@ export default function Dashboard() {
   const getListingById = (id: string) => listings.find(l => l.id === id);
 
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
           <div className="flex items-center gap-4 mb-2">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center text-2xl font-bold text-white">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center text-2xl font-bold text-white">
               {user.firstName.charAt(0)}{user.lastName.charAt(0)}
             </div>
             <div>
@@ -66,13 +65,12 @@ export default function Dashboard() {
             </div>
           </div>
           {user.role === 'admin' && (
-            <Link to="/admin" className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 text-sm hover:bg-purple-500/30 transition-all">
+            <Link to="/admin" className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-[#DB8293]/20 border border-[#DB8293]/30 text-[#DB8293] text-sm hover:bg-[#DB8293]/30 transition-all">
               <Settings className="w-4 h-4" /> Go to Admin Panel
             </Link>
           )}
         </motion.div>
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-white/10 pb-4">
           {[
             { id: 'bookings' as Tab, icon: Calendar, label: 'My Bookings' },
@@ -84,7 +82,7 @@ export default function Dashboard() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  ? 'bg-[#DB8293]/20 text-[#DB8293] border border-[#DB8293]/30'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -103,13 +101,13 @@ export default function Dashboard() {
 
             {userBookings.length === 0 ? (
               <Card3D>
-                <div className="p-12 text-center">
+                <div className="p-12 text-center bg-[#131C2E] rounded-2xl border border-white/5">
                   <div className="text-5xl mb-4">📅</div>
                   <h3 className="text-xl font-bold text-white mb-2">No bookings yet</h3>
-                  <p className="text-gray-400 mb-6">Start planning your World Cup adventure!</p>
+                  <p className="text-gray-400 mb-6">Start planning your next adventure!</p>
                   <Link
                     to="/listings"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-105 transition-all"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all"
                   >
                     Browse Accommodations <ChevronRight className="w-4 h-4" />
                   </Link>
@@ -129,7 +127,7 @@ export default function Dashboard() {
                       animate={{ opacity: 1, y: 0 }}
                     >
                       <Card3D>
-                        <div className="p-5 flex flex-col md:flex-row gap-4">
+                        <div className="p-5 flex flex-col md:flex-row gap-4 bg-[#131C2E] rounded-2xl border border-white/5">
                           {listing && (
                             <img
                               src={listing.images[0]}
@@ -142,7 +140,7 @@ export default function Dashboard() {
                               <div>
                                 <h3 className="text-white font-bold">{listing?.title || 'Property'}</h3>
                                 <p className="text-gray-400 text-sm flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" /> {listing?.city}
+                                  <MapPin className="w-3 h-3 text-[#C49B55]" /> {listing?.city}
                                 </p>
                               </div>
                               <span className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${status.color}`}>
@@ -152,11 +150,11 @@ export default function Dashboard() {
                             </div>
                             <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-3">
                               <span className="flex items-center gap-1">
-                                <Calendar className="w-3.5 h-3.5" />
+                                <Calendar className="w-3.5 h-3.5 text-[#DB8293]" />
                                 {booking.checkIn} → {booking.checkOut}
                               </span>
                               <span>{booking.guests} guest(s)</span>
-                              <span className="text-amber-400 font-medium">{format(booking.totalPrice)}</span>
+                              <span className="text-[#DB8293] font-medium">{format(booking.totalPrice)}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-gray-500">
@@ -186,12 +184,12 @@ export default function Dashboard() {
         {activeTab === 'profile' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <Card3D>
-              <div className="p-6">
+              <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-white">Profile Information</h2>
                   <button
                     onClick={() => editMode ? handleSaveProfile() : setEditMode(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all text-sm"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#DB8293]/20 text-[#DB8293] border border-[#DB8293]/30 hover:bg-[#DB8293]/30 transition-all text-sm"
                   >
                     <Edit2 className="w-4 h-4" />
                     {editMode ? 'Save Changes' : 'Edit Profile'}
@@ -212,7 +210,7 @@ export default function Dashboard() {
                           type="text"
                           value={profileData[field.key as keyof typeof profileData]}
                           onChange={(e) => setProfileData(prev => ({ ...prev, [field.key]: e.target.value }))}
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-amber-500/50 transition-all"
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293] transition-all"
                         />
                       ) : (
                         <p className="px-4 py-3 rounded-xl bg-white/5 text-white">
@@ -247,20 +245,20 @@ export default function Dashboard() {
         {activeTab === 'settings' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <Card3D>
-              <div className="p-6">
+              <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
                 <h3 className="text-white font-bold mb-4">Notifications</h3>
                 <div className="space-y-3">
                   {[
                     { label: 'Email notifications for bookings', checked: true },
                     { label: 'Promotional emails', checked: false },
-                    { label: 'Match reminders', checked: true },
+                    { label: 'Event reminders', checked: true },
                   ].map((item) => (
                     <label key={item.label} className="flex items-center justify-between cursor-pointer">
                       <span className="text-gray-300">{item.label}</span>
                       <input
                         type="checkbox"
                         defaultChecked={item.checked}
-                        className="w-5 h-5 rounded border-gray-600 bg-white/5 text-amber-500 focus:ring-amber-500/20"
+                        className="w-5 h-5 rounded border-gray-600 bg-white/5 text-[#DB8293] focus:ring-[#DB8293]/20"
                       />
                     </label>
                   ))}
@@ -269,16 +267,16 @@ export default function Dashboard() {
             </Card3D>
 
             <Card3D>
-              <div className="p-6">
+              <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
                 <h3 className="text-white font-bold mb-4">Account Actions</h3>
                 <div className="space-y-3">
                   <button className="w-full text-left px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 transition-all flex items-center justify-between">
                     <span>Change Password</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 text-[#C49B55]" />
                   </button>
                   <button className="w-full text-left px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 transition-all flex items-center justify-between">
                     <span>Download My Data</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 text-[#C49B55]" />
                   </button>
                   <button
                     onClick={logout}
