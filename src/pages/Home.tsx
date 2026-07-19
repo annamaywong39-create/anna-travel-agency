@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import {
   ArrowRight, Shield, Star, MapPin, Calendar, CreditCard,
   Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2, Search, Users,
-  Plane, Clock, Headphones as HeadphonesIcon, Hotel, ChevronLeft, ChevronRight
+  Plane, Clock, Headphones as HeadphonesIcon, Hotel, ChevronLeft, ChevronRight, Car
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
@@ -14,23 +14,18 @@ import { IMAGES, TESTIMONIALS } from '../data/constants';
 
 // ─── Slideshow Images (Diverse Travel Collection) ────
 const SLIDESHOW_IMAGES = [
-  // Beaches & Water
   'https://images.pexels.com/photos/2606028/pexels-photo-2606028.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  // Hotels & Luxury Stays
   'https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/14750392/pexels-photo-14750392.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/8134808/pexels-photo-8134808.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  // Mountains & Nature
   'https://images.pexels.com/photos/371589/pexels-photo-371589.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/2834651/pexels-photo-2834651.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  // People Having Fun / Hiking / Travel
   'https://images.pexels.com/photos/1687857/pexels-photo-1687857.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/31514419/pexels-photo-31514419.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/31514425/pexels-photo-31514425.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
-  // Cityscapes
   'https://images.pexels.com/photos/1461370/pexels-photo-1461370.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/20624534/pexels-photo-20624534.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/25696388/pexels-photo-25696388.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
@@ -67,7 +62,6 @@ export default function Home() {
   const goToSlide = (index: number) => {
     setCurrentImageIndex((index + totalSlides) % totalSlides);
     setIsAutoPlaying(false);
-    // Resume auto-play after 10 seconds of inactivity
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
@@ -79,7 +73,7 @@ export default function Home() {
     if (!isAutoPlaying) return;
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % totalSlides);
-    }, 7000); // 7 seconds per slide
+    }, 7000);
     return () => clearInterval(interval);
   }, [isAutoPlaying, totalSlides]);
 
@@ -87,16 +81,16 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'stays' | 'events'>('stays');
   const availableListings = listings.filter(l => l.available !== false);
 
-  // ─── Core Services ────────────────────────────────
+  // ─── Core Services aligned to Banner Footer ──────
   const services = [
-    { icon: Hotel, title: 'Hotels', description: 'Luxury & budget stays worldwide', color: 'from-amber-400 to-amber-600' },
-    { icon: Plane, title: 'Airport Transfers', description: 'Seamless pickup & drop-off', color: 'from-amber-500 to-amber-700' },
-    { icon: Globe, title: 'Experiences', description: 'Curated tours & activities', color: 'from-amber-400 to-amber-600' },
-    { icon: HeadphonesIcon, title: '24/7 Support', description: 'Round-the-clock assistance', color: 'from-amber-500 to-amber-700' },
+    { icon: Hotel, title: 'Hotel Bookings', description: 'Luxury & handpicked hotels worldwide.', color: 'from-[#DB8293] to-[#e8a3b0]' },
+    { icon: Car, title: 'Airport Transfers', description: 'Seamless luxury pickup & drop-off.', color: 'from-[#C49B55] to-[#dcb16f]' },
+    { icon: Globe, title: 'Travel Experiences', description: 'Curated world tours & bespoke activities.', color: 'from-[#DB8293] to-[#C49B55]' },
+    { icon: HeadphonesIcon, title: 'Support 24/7', description: 'Our team is always on call for you.', color: 'from-[#C49B55] to-[#DB8293]' },
   ];
 
   return (
-    <main className="overflow-x-hidden">
+    <main className="overflow-x-hidden bg-[#0A1128] text-white">
       <SEO />
 
       {/* ═══════════════ HERO SECTION ═══════════════ */}
@@ -117,12 +111,11 @@ export default function Home() {
               transition={{ duration: 1.2, ease: 'easeInOut' }}
             />
           </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a1a]/70 via-[#0a0a1a]/50 to-[#0a0a1a]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1220]/85 via-[#0B1220]/60 to-[#0B1220]" />
         </motion.div>
 
         {/* ─── Slideshow Controls ──────────────────── */}
         <div className="absolute inset-0 z-20 pointer-events-none">
-          {/* Previous Button */}
           <button
             onClick={prevSlide}
             className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 pointer-events-auto w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-all flex items-center justify-center border border-white/10"
@@ -131,7 +124,6 @@ export default function Home() {
             <ChevronLeft className="w-6 h-6" />
           </button>
 
-          {/* Next Button */}
           <button
             onClick={nextSlide}
             className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 pointer-events-auto w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-all flex items-center justify-center border border-white/10"
@@ -147,7 +139,7 @@ export default function Home() {
                 key={i}
                 onClick={() => goToSlide(i)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  i === currentImageIndex ? 'bg-amber-400 w-8' : 'bg-white/30 hover:bg-white/50'
+                  i === currentImageIndex ? 'bg-[#DB8293] w-8' : 'bg-white/30 hover:bg-white/50'
                 }`}
                 aria-label={`Go to slide ${i + 1}`}
               />
@@ -157,46 +149,66 @@ export default function Home() {
 
         {/* ─── Content ────────────────────────────── */}
         <motion.div style={{ opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-32 pb-20">
-          {/* ─── Logo ──────────────────────────────── */}
+          
+          {/* ─── Logo Component Integration ────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex flex-col items-center mb-6"
+            className="flex flex-col items-center mb-4"
           >
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl shadow-amber-500/30 mb-3">
-              <span className="text-white font-bold text-4xl">A</span>
+            <img 
+              src="/logo.png" 
+              alt="Anna Travel Agency Logo" 
+              className="h-28 md:h-36 w-auto object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-300 hover:scale-105"
+              onError={(e) => {
+                // Fail-safe layout in case logo.png hasn't been uploaded to public folder yet
+                e.currentTarget.style.display = 'none';
+                const fallback = document.getElementById('brand-fallback');
+                if (fallback) fallback.classList.remove('hidden');
+              }}
+            />
+            {/* Fail-safe Fallback Markups */}
+            <div id="brand-fallback" className="hidden flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center shadow-2xl mb-3">
+                <span className="text-white font-bold text-4xl">A</span>
+              </div>
+              <span className="text-3xl font-bold tracking-wide">Anna</span>
+              <span className="text-sm tracking-[0.4em] text-[#C49B55] uppercase font-medium mt-1">
+                TRAVEL AGENCY
+              </span>
             </div>
-            <span className="text-3xl font-bold text-white tracking-wide">Anna</span>
-            <span className="text-sm tracking-[0.4em] text-amber-400/90 uppercase font-medium mt-1">
-              TRAVEL AGENCY
-            </span>
           </motion.div>
 
-          {/* ─── Tagline ────────────────────────────── */}
+          {/* ─── Tagline & Heart Separator ─────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mb-4"
+            className="mb-4 flex flex-col items-center"
           >
-            <span className="text-sm tracking-[0.2em] text-white/60 uppercase font-light">
+            <div className="flex items-center gap-4 w-full justify-center max-w-md">
+              <div className="h-[1px] bg-gradient-to-r from-transparent to-white/20 flex-1" />
+              <span className="text-red-400 text-lg">♥</span>
+              <div className="h-[1px] bg-gradient-to-l from-transparent to-white/20 flex-1" />
+            </div>
+            <span className="text-xs md:text-sm tracking-[0.3em] text-[#C49B55] uppercase font-semibold mt-2">
               YOUR JOURNEY, OUR PRIORITY
             </span>
           </motion.div>
 
-          {/* ─── Main Title ────────────────────────── */}
+          {/* ─── Main Header Banner Typography ──────── */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight"
+            className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight tracking-tight"
           >
             <span className="text-white">
               WE PLAN.
             </span>
             <br />
-            <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#DB8293] via-[#e8a3b0] to-[#C49B55] bg-clip-text text-transparent">
               YOU ENJOY.
             </span>
           </motion.h1>
@@ -205,12 +217,12 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="text-base md:text-lg text-gray-300 max-w-2xl mx-auto mb-10"
+            className="text-sm md:text-base text-gray-300 font-medium tracking-[0.15em] max-w-2xl mx-auto mb-10 uppercase"
           >
-            Hotels · Airport Transfers · Experiences · And More
+            Hotels <span className="text-[#DB8293]">•</span> Transfers <span className="text-[#DB8293]">•</span> Experiences <span className="text-[#DB8293]">•</span> And More
           </motion.p>
 
-          {/* ─── CTAs ──────────────────────────────── */}
+          {/* ─── CTAs (Branded Buttons) ───────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -219,32 +231,32 @@ export default function Home() {
           >
             <Link
               to="/listings"
-              className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300 flex items-center gap-2"
+              className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg shadow-2xl shadow-[#DB8293]/25 hover:shadow-[#DB8293]/40 hover:scale-105 transition-all duration-300 flex items-center gap-2"
             >
               Browse Accommodations
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               to="/tickets"
-              className="px-8 py-4 rounded-2xl border-2 border-white/20 text-white font-bold text-lg hover:bg-white/5 hover:border-white/30 transition-all duration-300 flex items-center gap-2"
+              className="px-8 py-4 rounded-2xl border-2 border-white/20 text-white font-bold text-lg hover:bg-white/5 hover:border-[#DB8293]/50 transition-all duration-300 flex items-center gap-2"
             >
-              <Calendar className="w-5 h-5" />
+              <Calendar className="w-5 h-5 text-[#C49B55]" />
               View Events & Tickets
             </Link>
           </motion.div>
 
-          {/* ─── Search Widget ────────────────────── */}
+          {/* ─── Brand Search Widget ────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2 }}
-            className="w-full max-w-4xl mx-auto bg-slate-950/80 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl text-left"
+            className="w-full max-w-4xl mx-auto bg-[#0B1220]/90 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl text-left"
           >
             <div className="flex gap-4 border-b border-white/10 pb-4 mb-5">
               <button 
                 onClick={() => setActiveTab('stays')}
                 className={`flex items-center gap-2 font-bold text-sm pb-2 transition-all border-b-2 ${
-                  activeTab === 'stays' ? 'text-amber-300 border-amber-400' : 'text-gray-400 border-transparent hover:text-white'
+                  activeTab === 'stays' ? 'text-[#DB8293] border-[#DB8293]' : 'text-gray-400 border-transparent hover:text-white'
                 }`}
               >
                 <Building2 className="w-4 h-4" /> Find Stays
@@ -252,7 +264,7 @@ export default function Home() {
               <button 
                 onClick={() => setActiveTab('events')}
                 className={`flex items-center gap-2 font-bold text-sm pb-2 transition-all border-b-2 ${
-                  activeTab === 'events' ? 'text-amber-300 border-amber-400' : 'text-gray-400 border-transparent hover:text-white'
+                  activeTab === 'events' ? 'text-[#DB8293] border-[#DB8293]' : 'text-gray-400 border-transparent hover:text-white'
                 }`}
               >
                 <Calendar className="w-4 h-4" /> Find Tickets
@@ -265,14 +277,14 @@ export default function Home() {
                 <input 
                   type="text" 
                   placeholder={activeTab === 'stays' ? "Where are you going?" : "Search artist or event..."}
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
+                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/30 transition-all"
                 />
               </div>
               <div className="relative">
                 <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input 
                   type="date" 
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-amber-400 transition-all"
+                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] transition-all"
                 />
               </div>
               <div className="relative">
@@ -281,10 +293,10 @@ export default function Home() {
                   type="number" 
                   min="1" 
                   placeholder={activeTab === 'stays' ? "Guests" : "Tickets count"}
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-amber-400 transition-all"
+                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] transition-all"
                 />
               </div>
-              <button className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-2xl py-3.5 hover:shadow-lg hover:shadow-amber-500/20 active:scale-98 transition-all flex items-center justify-center gap-2">
+              <button className="w-full bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold rounded-2xl py-3.5 hover:shadow-lg hover:shadow-[#DB8293]/20 active:scale-98 transition-all flex items-center justify-center gap-2">
                 <Search className="w-5 h-5" /> Search Now
               </button>
             </div>
@@ -297,10 +309,10 @@ export default function Home() {
             transition={{ delay: 1.4 }}
             className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400"
           >
-            <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-green-400" /> Secure Booking</div>
-            <div className="flex items-center gap-2"><Star className="w-4 h-4 text-amber-400" /> 4.9/5 Rating</div>
-            <div className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-blue-400" /> Easy Payment</div>
-            <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-purple-400" /> Global Reach</div>
+            <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-emerald-400" /> Secure Booking</div>
+            <div className="flex items-center gap-2"><Star className="w-4 h-4 text-[#C49B55]" /> 4.9/5 Rating</div>
+            <div className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-[#DB8293]" /> Easy Payment</div>
+            <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-sky-400" /> Global Reach</div>
           </motion.div>
         </motion.div>
 
@@ -314,15 +326,15 @@ export default function Home() {
             <motion.div
               animate={{ y: [0, 16, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-amber-400"
+              className="w-1.5 h-1.5 rounded-full bg-[#DB8293]"
             />
           </div>
         </motion.div>
       </section>
 
       {/* ═══════════════ SERVICES SECTION ═══════════════ */}
-      <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent" />
+      <section className="py-24 relative bg-[#0B1220]">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#DB8293]/[0.02] to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <ParallaxSection>
             <div className="text-center mb-16">
@@ -330,9 +342,9 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium mb-4"
+                className="inline-block px-4 py-1.5 rounded-full bg-[#DB8293]/10 border border-[#DB8293]/20 text-[#DB8293] text-sm font-semibold mb-4"
               >
-                Services
+                Bespoke Services
               </motion.span>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
@@ -349,7 +361,7 @@ export default function Home() {
                 transition={{ delay: 0.2 }}
                 className="text-gray-400 text-lg max-w-2xl mx-auto"
               >
-                Hotels · Airport Transfers · Experiences · And More
+                From luxury resorts to rapid airport logistics, discover our range of premium travel offerings.
               </motion.p>
             </div>
           </ParallaxSection>
@@ -364,12 +376,12 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
               >
                 <Card3D>
-                  <div className="p-6 text-center">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-amber-500/20`}>
+                  <div className="p-6 text-center bg-[#131C2E] rounded-2xl border border-white/5 shadow-xl hover:border-[#DB8293]/25 transition-all">
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-[#DB8293]/10`}>
                       <service.icon className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-white font-bold text-lg mb-2">{service.title}</h3>
-                    <p className="text-gray-400 text-sm">{service.description}</p>
+                    <p className="text-gray-400 text-sm leading-relaxed">{service.description}</p>
                   </div>
                 </Card3D>
               </motion.div>
@@ -379,14 +391,14 @@ export default function Home() {
       </section>
 
       {/* ═══════════════ ACCOMMODATION TYPES ═══════════════ */}
-      <section className="py-24 relative">
+      <section className="py-24 relative bg-[#0A1128]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <motion.span
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium mb-4"
+              className="inline-block px-4 py-1.5 rounded-full bg-[#C49B55]/10 border border-[#C49B55]/20 text-[#C49B55] text-sm font-semibold mb-4"
             >
               Accommodation Types
             </motion.span>
@@ -405,7 +417,7 @@ export default function Home() {
               transition={{ delay: 0.2 }}
               className="text-gray-400 text-lg max-w-2xl mx-auto"
             >
-              Whether you're traveling solo, with family, or for an event — we've got you covered.
+              Whether you are traveling solo, with family, or attending a major event — we have you covered.
             </motion.p>
           </div>
 
@@ -414,28 +426,28 @@ export default function Home() {
               {
                 icon: Building2,
                 title: 'Hotels',
-                color: 'from-blue-500 to-cyan-400',
-                shadow: 'shadow-blue-500/20',
-                description: 'Premium hotels with full amenities, room service, and concierge.',
-                features: ['24/7 Front Desk', 'Room Service', 'Gym & Pool', 'Airport Shuttle'],
+                color: 'from-[#C49B55] to-[#dcb16f]',
+                shadow: 'shadow-[#C49B55]/10',
+                description: 'Premium hotels with curated elite amenities, full room service, and concierge care.',
+                features: ['24/7 Front Desk', 'Room Service', 'Gym & Pool Access', 'Premium Shuttles'],
                 count: listings.filter((l: any) => l.type === 'hotel').length,
               },
               {
                 icon: HomeIcon,
                 title: 'Apartments',
-                color: 'from-emerald-500 to-green-400',
-                shadow: 'shadow-emerald-500/20',
-                description: 'Fully furnished apartments with kitchen and living space.',
-                features: ['Full Kitchen', 'Living Room', 'Washer/Dryer', 'Local Experience'],
+                color: 'from-[#DB8293] to-[#e8a3b0]',
+                shadow: 'shadow-[#DB8293]/10',
+                description: 'Fully furnished high-end apartments with home privacy and complete functional kitchens.',
+                features: ['Full Kitchen', 'Private Living Areas', 'Washer/Dryer Included', 'Local Experience'],
                 count: listings.filter((l: any) => l.type === 'apartment').length,
               },
               {
                 icon: Key,
                 title: 'Shortlets',
-                color: 'from-purple-500 to-pink-400',
-                shadow: 'shadow-purple-500/20',
-                description: 'Short-term rentals perfect for groups and extended stays.',
-                features: ['Multi-Bedroom', 'Group Friendly', 'Cost Effective', 'Flexible Dates'],
+                color: 'from-slate-700 to-slate-800',
+                shadow: 'shadow-slate-500/5',
+                description: 'Highly flexible short-term leases optimized for family vacations, events, and group travel.',
+                features: ['Multi-Bedroom Layouts', 'Group/Family Friendly', 'Cost Effective Rates', 'Flexible Extension Dates'],
                 count: listings.filter((l: any) => l.type === 'shortlet').length,
               },
             ].map((type: any, i: number) => (
@@ -447,22 +459,24 @@ export default function Home() {
                 transition={{ delay: i * 0.15 }}
               >
                 <Card3D>
-                  <div className="p-8">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${type.color} flex items-center justify-center mb-6 ${type.shadow} shadow-lg`}>
-                      <type.icon className="w-7 h-7 text-white" />
+                  <div className="p-8 bg-[#131C2E] rounded-3xl border border-white/5 h-full flex flex-col justify-between">
+                    <div>
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${type.color} flex items-center justify-center mb-6 ${type.shadow} shadow-lg`}>
+                        <type.icon className="w-7 h-7 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">{type.title}</h3>
+                      <p className="text-gray-400 mb-6 leading-relaxed text-sm">{type.description}</p>
+                      <div className="space-y-2 mb-6">
+                        {type.features.map((f: string) => (
+                          <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
+                            <CheckCircle2 className="w-4 h-4 text-[#DB8293]" />
+                            {f}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">{type.title}</h3>
-                    <p className="text-gray-400 mb-6 leading-relaxed">{type.description}</p>
-                    <div className="space-y-2 mb-6">
-                      {type.features.map((f: string) => (
-                        <div key={f} className="flex items-center gap-2 text-sm text-gray-300">
-                          <CheckCircle2 className="w-4 h-4 text-green-400" />
-                          {f}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">{type.count}+ listings available</span>
+                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                      <span className="text-xs text-gray-500">{type.count}+ listings available</span>
                       <Link
                         to="/listings"
                         className={`px-4 py-2 rounded-xl bg-gradient-to-r ${type.color} text-white font-semibold text-sm hover:scale-105 transition-transform`}
@@ -479,7 +493,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════ WHY CHOOSE US ═══════════════ */}
-      <section className="py-24 relative">
+      <section className="py-24 relative bg-[#0B1220]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <motion.h2
@@ -494,10 +508,10 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Shield, title: 'Verified Properties', desc: 'Every listing is personally verified for quality and safety.', color: 'text-green-400' },
-              { icon: MapPin, title: 'Best Locations', desc: 'Properties in prime locations with easy access to transport.', color: 'text-blue-400' },
-              { icon: CreditCard, title: 'Secure Payments', desc: 'Pay safely with Stripe. Full refund policy included.', color: 'text-purple-400' },
-              { icon: HeadphonesIcon, title: '24/7 Support', desc: 'Round-the-clock multilingual support for all guests.', color: 'text-amber-400' },
+              { icon: Shield, title: 'Verified Properties', desc: 'Every luxury listing is thoroughly checked for privacy, comfort, and security.', color: 'text-[#DB8293]' },
+              { icon: MapPin, title: 'Elite Locations', desc: 'Handpicked spots offering proximity to key transport routes and top views.', color: 'text-[#C49B55]' },
+              { icon: CreditCard, title: 'Safe Transactions', desc: 'Completely secure localized checkouts with customer-first refund safety policies.', color: 'text-[#DB8293]' },
+              { icon: HeadphonesIcon, title: '24/7 Concierge Support', desc: 'Round-the-clock multilingual desk standby to assist with any travel issues.', color: 'text-[#C49B55]' },
             ].map((item, i) => (
               <motion.div
                 key={item.title}
@@ -507,10 +521,10 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
               >
                 <Card3D>
-                  <div className="p-6 text-center">
+                  <div className="p-6 text-center bg-[#131C2E] border border-white/5 rounded-2xl shadow-lg hover:border-[#C49B55]/20 transition-all">
                     <item.icon className={`w-10 h-10 mx-auto mb-4 ${item.color}`} />
                     <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
-                    <p className="text-gray-400 text-sm">{item.desc}</p>
+                    <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                   </div>
                 </Card3D>
               </motion.div>
@@ -520,16 +534,16 @@ export default function Home() {
       </section>
 
       {/* ═══════════════ FEATURED LISTINGS ═══════════════ */}
-      <section className="py-24 relative">
+      <section className="py-24 relative bg-[#0A1128]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <motion.span
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="inline-block px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium mb-4"
+              className="inline-block px-4 py-1.5 rounded-full bg-[#DB8293]/10 border border-[#DB8293]/20 text-[#DB8293] text-sm font-semibold mb-4"
             >
-              ⭐ Featured Listings
+              ★ Top Pick Accommodations
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -537,7 +551,7 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-4xl md:text-5xl font-black text-white mb-4"
             >
-              Top Picks For Your Stay
+              Our Hand-Selected Top Stays
             </motion.h2>
           </div>
 
@@ -550,7 +564,7 @@ export default function Home() {
           <div className="mt-12 text-center">
             <Link
               to="/listings"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg shadow-2xl shadow-[#DB8293]/25 hover:shadow-[#DB8293]/40 hover:scale-105 transition-all duration-300"
             >
               View All Accommodations <ArrowRight className="w-5 h-5" />
             </Link>
@@ -559,7 +573,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════ TESTIMONIALS ═══════════════ */}
-      <section className="py-24 relative overflow-hidden">
+      <section className="py-24 relative overflow-hidden bg-[#0B1220]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <motion.h2
@@ -582,15 +596,15 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
               >
                 <Card3D>
-                  <div className="p-6">
+                  <div className="p-6 bg-[#131C2E] border border-white/5 rounded-2xl">
                     <div className="flex mb-3">
                       {[...Array(t.rating)].map((_, j) => (
-                        <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                        <Star key={j} className="w-4 h-4 text-[#C49B55] fill-[#C49B55]" />
                       ))}
                     </div>
                     <p className="text-gray-300 text-sm mb-4 leading-relaxed italic">"{t.text}"</p>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white text-xs font-bold">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center text-white text-xs font-bold">
                         {t.name.charAt(0)}
                       </div>
                       <div>
@@ -607,15 +621,15 @@ export default function Home() {
       </section>
 
       {/* ═══════════════ EVENTS & TICKETS ═══════════════ */}
-      <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.03] to-transparent" />
+      <section className="py-24 relative bg-[#0A1128]">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#C49B55]/[0.02] to-transparent" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-12">
             <motion.span
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium mb-4"
+              className="inline-block px-4 py-1.5 rounded-full bg-[#C49B55]/10 border border-[#C49B55]/20 text-[#C49B55] text-sm font-semibold mb-4"
             >
               🎫 Events & Ticket Sales
             </motion.span>
@@ -625,7 +639,7 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-4xl md:text-5xl font-black text-white mb-4"
             >
-              Buy Tickets for Events
+              Get Verified Live Event Tickets
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
@@ -634,15 +648,16 @@ export default function Home() {
               transition={{ delay: 0.2 }}
               className="text-gray-400 text-lg max-w-2xl mx-auto"
             >
-              From concerts to sports, find tickets for events near you. Safe, verified, and guaranteed.
+              From concerts to exclusive local sports, find secure tickets for major events near you.
             </motion.p>
           </div>
 
+          {/* Corrected Cut-off Card Logic */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             {[
-              { icon: '🎵', title: 'Concerts', desc: 'Find tickets for your favorite artists and bands.', gradient: 'from-pink-500 to-rose-500' },
-              { icon: '⚽', title: 'Sports Events', desc: 'Football, basketball, tennis — get tickets to live matches.', gradient: 'from-amber-500 to-amber-600' },
-              { icon: '🎭', title: 'Theater & Shows', desc: 'Broadway, comedy, and more — book your seat today.', gradient: 'from-purple-500 to-indigo-500' },
+              { icon: '🎵', title: 'Concerts', desc: 'Secure reliable access to your favorite local and touring global artists.', gradient: 'from-[#DB8293] to-[#e8a3b0]' },
+              { icon: '⚽', title: 'Sports Matches', desc: 'Football, basketball tournaments, tennis — buy authentic verified entry seats.', gradient: 'from-[#C49B55] to-[#dcb16f]' },
+              { icon: '🎭', title: 'Theater & Shows', desc: 'Bespoke drama, standup comedy events, and premium musical experiences.', gradient: 'from-slate-700 to-slate-800' },
             ].map((item, i) => (
               <motion.div
                 key={item.title}
@@ -652,71 +667,28 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
               >
                 <Card3D>
-                  <div className="p-6 text-center">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg`}>
-                      {item.icon}
+                  <div className="p-6 text-center bg-[#131C2E] border border-white/5 rounded-2xl shadow-xl h-full flex flex-col justify-between">
+                    <div>
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg shadow-[#0B1220]/50`}>
+                        {item.icon}
+                      </div>
+                      <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
+                      <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                     </div>
-                    <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                   </div>
                 </Card3D>
               </motion.div>
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
+          <div className="mt-12 text-center">
             <Link
               to="/tickets"
-              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg shadow-2xl shadow-[#DB8293]/25 hover:shadow-[#DB8293]/40 hover:scale-105 transition-all duration-300"
             >
-              Browse Events & Tickets <ArrowRight className="w-5 h-5" />
+              Explore Tickets <ArrowRight className="w-5 h-5" />
             </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══════════════ CTA BANNER ═══════════════ */}
-      <section className="py-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="relative rounded-3xl overflow-hidden"
-          >
-            <img 
-              src={IMAGES.fans1} 
-              alt="Travel" 
-              className="w-full h-80 md:h-96 object-cover" 
-              loading="lazy" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a1a]/95 via-[#0a0a1a]/80 to-[#0a0a1a]/60" />
-            <div className="absolute inset-0 flex items-center">
-              <div className="px-8 md:px-16 max-w-2xl">
-                <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-                  Ready to Travel?
-                  <br />
-                  <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">
-                    Book Your Stay Today.
-                  </span>
-                </h2>
-                <p className="text-gray-300 mb-8">
-                  Find the perfect accommodation for your next trip. Browse our verified listings and book with confidence.
-                </p>
-                <Link
-                  to="/listings"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all"
-                >
-                  Browse Now <ArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </main>
