@@ -108,6 +108,7 @@ export default function Booking() {
     if (validateDetails()) setStep('payment');
   };
 
+  // ─── Unified: Add to Cart ───
   const handleAddToCart = () => {
     if (!validatePayment()) return;
 
@@ -138,6 +139,7 @@ export default function Booking() {
     setStep('confirmation');
   };
 
+  // ─── Unified: Add to Cart + Go to Checkout ───
   const handleBuyNow = () => {
     if (!validatePayment()) return;
 
@@ -230,7 +232,6 @@ export default function Booking() {
                       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                         <Users className="w-6 h-6 text-[#DB8293]" /> Guest Information
                       </h2>
-                      {/* ... (the guest details form remains the same) ... */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
                           { key: 'firstName', label: 'First Name', placeholder: 'John', type: 'text' },

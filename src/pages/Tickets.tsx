@@ -60,7 +60,7 @@ export default function Tickets() {
   const [selectedItem, setSelectedItem] = useState<DisplayItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('category_1');
   const [quantity, setQuantity] = useState(1);
-  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { addToCart } = useData();
   const navigate = useNavigate();
 
@@ -153,14 +153,15 @@ export default function Tickets() {
       setSelectedCategory(item.tickets[0].id);
     }
     setQuantity(1);
-    setPurchaseSuccess(false);
+    setShowSuccess(false);
   };
 
   const closeModal = () => {
     setSelectedItem(null);
-    setPurchaseSuccess(false);
+    setShowSuccess(false);
   };
 
+  // ─── Unified: Add to Cart ───
   const handleAddToCart = () => {
     if (!selectedItem) return;
 
@@ -196,12 +197,13 @@ export default function Tickets() {
       }
     }
 
-    setPurchaseSuccess(true);
+    setShowSuccess(true);
     setTimeout(() => {
       closeModal();
     }, 2000);
   };
 
+  // ─── Unified: Add to Cart + Go to Checkout ───
   const handleBuyNow = () => {
     handleAddToCart();
     setTimeout(() => {
@@ -322,7 +324,7 @@ export default function Tickets() {
       </div>
 
       {/* ─── Purchase Modal ─── */}
-      {selectedItem && !purchaseSuccess && (
+      {selectedItem && !showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={closeModal}>
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -466,7 +468,7 @@ export default function Tickets() {
       )}
 
       {/* ─── Success Toast ─── */}
-      {purchaseSuccess && (
+      {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -480,12 +482,20 @@ export default function Tickets() {
             <p className="text-gray-400 mb-4">
               {quantity} ticket{quantity > 1 ? 's' : ''} added to your cart.
             </p>
-            <button
-              onClick={closeModal}
-              className="px-6 py-2 rounded-xl bg-white/10 text-gray-300 hover:bg-white/20 transition-all"
-            >
-              Continue Shopping
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={closeModal}
+                className="px-6 py-2 rounded-xl bg-white/10 text-gray-300 hover:bg-white/20 transition-all"
+              >
+                Continue Shopping
+              </button>
+              <button
+                onClick={() => { closeModal(); navigate('/checkout'); }}
+                className="px-6 py-2 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all"
+              >
+                Go to Checkout
+              </button>
+            </div>
           </motion.div>
         </div>
       )}

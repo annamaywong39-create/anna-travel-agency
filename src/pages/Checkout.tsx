@@ -14,6 +14,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (cartItems.length === 0) {
     return (
@@ -35,9 +36,10 @@ export default function Checkout() {
     }
 
     setIsProcessing(true);
+    setError(null);
 
     try {
-      // Process all cart items
+      // Process all cart items (rooms + tickets) together
       for (const item of cartItems) {
         if (item.type === 'room') {
           // Process hotel booking
@@ -68,9 +70,9 @@ export default function Checkout() {
       setTimeout(() => {
         navigate('/dashboard?checkout=success');
       }, 3000);
-    } catch (error) {
-      console.error('Checkout failed:', error);
-      alert('Something went wrong. Please try again.');
+    } catch (err) {
+      console.error('Checkout failed:', err);
+      setError('Something went wrong. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -102,6 +104,10 @@ export default function Checkout() {
     );
   }
 
+  // Calculate totals by type
+  const roomItems = cartItems.filter(item => item.type === 'room');
+  const ticketItems = cartItems.filter(item => item.type === 'ticket');
+
   return (
     <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -115,6 +121,7 @@ export default function Checkout() {
           <span className="text-sm text-gray-400 font-normal ml-2">({cartItems.length} items)</span>
         </h1>
 
+        {/* ─── Cart Items ─── */}
         <div className="space-y-4 mb-8">
           {cartItems.map((item, index) => {
             const isRoom = item.type === 'room';
@@ -154,12 +161,35 @@ export default function Checkout() {
           })}
         </div>
 
+        {/* ─── Summary ─── */}
         <Card3D>
           <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
-            <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
+            {/* Breakdown by type */}
+            <div className="mb-4 border-b border-white/10 pb-4">
+              {roomItems.length > 0 && (
+                <div className="flex justify-between text-sm py-1">
+                  <span className="text-gray-400">Rooms ({roomItems.length})</span>
+                  <span className="text-white">{format(roomItems.reduce((sum, i) => sum + i.price * i.quantity, 0))}</span>
+                </div>
+              )}
+              {ticketItems.length > 0 && (
+                <div className="flex justify-between text-sm py-1">
+                  <span className="text-gray-400">Tickets ({ticketItems.length})</span>
+                  <span className="text-white">{format(ticketItems.reduce((sum, i) => sum + i.price * i.quantity, 0))}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between mb-4">
               <span className="text-xl font-bold text-white">Total</span>
               <span className="text-3xl font-black text-green-400">{format(getCartTotal())}</span>
             </div>
+
+            {error && (
+              <div className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
 
             {!user && (
               <div className="mb-4 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
