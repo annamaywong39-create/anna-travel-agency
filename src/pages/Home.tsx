@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import {
   ArrowRight, Shield, Star, MapPin, Calendar, CreditCard,
   Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2, Search, Users,
-  Plane, Clock, Headphones as HeadphonesIcon, Hotel, ChevronLeft, ChevronRight, Car
+  Plane, Clock, Headphones as HeadphonesIcon, Hotel, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
@@ -12,7 +12,7 @@ import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
 import { IMAGES, TESTIMONIALS } from '../data/constants';
 
-// ─── Slideshow Images (Diverse Travel Collection) ────
+// ─── Slideshow Images ──────────────────────────────
 const SLIDESHOW_IMAGES = [
   'https://images.pexels.com/photos/2606028/pexels-photo-2606028.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
   'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920',
@@ -53,10 +53,8 @@ export default function Home() {
   const heroY = shouldReduceMotion ? 0 : useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = shouldReduceMotion ? 1 : useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  // ─── Slideshow State ──────────────────────────────
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
   const totalSlides = SLIDESHOW_IMAGES.length;
 
   const goToSlide = (index: number) => {
@@ -68,7 +66,6 @@ export default function Home() {
   const nextSlide = () => goToSlide(currentImageIndex + 1);
   const prevSlide = () => goToSlide(currentImageIndex - 1);
 
-  // ─── Auto-play ────────────────────────────────────
   useEffect(() => {
     if (!isAutoPlaying) return;
     const interval = setInterval(() => {
@@ -77,11 +74,9 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, totalSlides]);
 
-  // ─── Search Widget State ──────────────────────────
   const [activeTab, setActiveTab] = useState<'stays' | 'events'>('stays');
   const availableListings = listings.filter(l => l.available !== false);
 
-  // ─── Core Services aligned to Banner Footer ──────
   const services = [
     { icon: Hotel, title: 'Hotel Bookings', description: 'Luxury & handpicked hotels worldwide.', color: 'from-[#DB8293] to-[#e8a3b0]' },
     { icon: Car, title: 'Airport Transfers', description: 'Seamless luxury pickup & drop-off.', color: 'from-[#C49B55] to-[#dcb16f]' },
@@ -103,6 +98,8 @@ export default function Home() {
               src={SLIDESHOW_IMAGES[currentImageIndex]}
               alt="Travel destination"
               className="absolute inset-0 w-full h-full object-cover scale-110"
+              width="1920"
+              height="1080"
               loading="eager"
               fetchPriority="high"
               initial={{ opacity: 0, scale: 1.1 }}
@@ -132,7 +129,6 @@ export default function Home() {
             <ChevronRight className="w-6 h-6" />
           </button>
 
-          {/* Dots Indicator */}
           <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-auto flex gap-2">
             {SLIDESHOW_IMAGES.map((_, i) => (
               <button
@@ -150,7 +146,7 @@ export default function Home() {
         {/* ─── Content ────────────────────────────── */}
         <motion.div style={{ opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-32 pb-20">
           
-          {/* ─── Logo Component Integration ────────── */}
+          {/* ─── Logo ──────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -161,14 +157,14 @@ export default function Home() {
               src="/logo.png" 
               alt="Anna Travel Agency Logo" 
               className="h-28 md:h-36 w-auto object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-300 hover:scale-105"
-              onError={(e: { currentTarget: { style: { display: string; }; }; }) => {
-                // Fail-safe layout in case logo.png hasn't been uploaded to public folder yet
+              width="200"
+              height="144"
+              onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 const fallback = document.getElementById('brand-fallback');
                 if (fallback) fallback.classList.remove('hidden');
               }}
             />
-            {/* Fail-safe Fallback Markups */}
             <div id="brand-fallback" className="hidden flex flex-col items-center">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center shadow-2xl mb-3">
                 <span className="text-white font-bold text-4xl">A</span>
@@ -180,7 +176,7 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* ─── Tagline & Heart Separator ─────────── */}
+          {/* ─── Tagline ────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -197,16 +193,14 @@ export default function Home() {
             </span>
           </motion.div>
 
-          {/* ─── Main Header Banner Typography ──────── */}
+          {/* ─── Main Title ────────────────────────── */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
             className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight tracking-tight"
           >
-            <span className="text-white">
-              WE PLAN.
-            </span>
+            <span className="text-white">WE PLAN.</span>
             <br />
             <span className="bg-gradient-to-r from-[#DB8293] via-[#e8a3b0] to-[#C49B55] bg-clip-text text-transparent">
               YOU ENJOY.
@@ -222,7 +216,7 @@ export default function Home() {
             Hotels <span className="text-[#DB8293]">•</span> Transfers <span className="text-[#DB8293]">•</span> Experiences <span className="text-[#DB8293]">•</span> And More
           </motion.p>
 
-          {/* ─── CTAs (Branded Buttons) ───────────────── */}
+          {/* ─── CTAs ──────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -245,62 +239,64 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          {/* ─── Brand Search Widget ────────────────── */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-            className="w-full max-w-4xl mx-auto bg-[#0B1220]/90 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl text-left"
-          >
-            <div className="flex gap-4 border-b border-white/10 pb-4 mb-5">
-              <button 
-                onClick={() => setActiveTab('stays')}
-                className={`flex items-center gap-2 font-bold text-sm pb-2 transition-all border-b-2 ${
-                  activeTab === 'stays' ? 'text-[#DB8293] border-[#DB8293]' : 'text-gray-400 border-transparent hover:text-white'
-                }`}
-              >
-                <Building2 className="w-4 h-4" /> Find Stays
-              </button>
-              <button 
-                onClick={() => setActiveTab('events')}
-                className={`flex items-center gap-2 font-bold text-sm pb-2 transition-all border-b-2 ${
-                  activeTab === 'events' ? 'text-[#DB8293] border-[#DB8293]' : 'text-gray-400 border-transparent hover:text-white'
-                }`}
-              >
-                <Calendar className="w-4 h-4" /> Find Tickets
-              </button>
-            </div>
+          {/* ─── Search Widget (FIXED: min-h-[180px] reserves space) ─── */}
+          <div className="w-full max-w-4xl mx-auto min-h-[180px]">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+              className="w-full bg-[#0B1220]/90 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl text-left"
+            >
+              <div className="flex gap-4 border-b border-white/10 pb-4 mb-5">
+                <button 
+                  onClick={() => setActiveTab('stays')}
+                  className={`flex items-center gap-2 font-bold text-sm pb-2 transition-all border-b-2 ${
+                    activeTab === 'stays' ? 'text-[#DB8293] border-[#DB8293]' : 'text-gray-400 border-transparent hover:text-white'
+                  }`}
+                >
+                  <Building2 className="w-4 h-4" /> Find Stays
+                </button>
+                <button 
+                  onClick={() => setActiveTab('events')}
+                  className={`flex items-center gap-2 font-bold text-sm pb-2 transition-all border-b-2 ${
+                    activeTab === 'events' ? 'text-[#DB8293] border-[#DB8293]' : 'text-gray-400 border-transparent hover:text-white'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4" /> Find Tickets
+                </button>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input 
-                  type="text" 
-                  placeholder={activeTab === 'stays' ? "Where are you going?" : "Search artist or event..."}
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/30 transition-all"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="relative">
+                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input 
+                    type="text" 
+                    placeholder={activeTab === 'stays' ? "Where are you going?" : "Search artist or event..."}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/30 transition-all"
+                  />
+                </div>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input 
+                    type="date" 
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] transition-all"
+                  />
+                </div>
+                <div className="relative">
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input 
+                    type="number" 
+                    min="1" 
+                    placeholder={activeTab === 'stays' ? "Guests" : "Tickets count"}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] transition-all"
+                  />
+                </div>
+                <button className="w-full bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold rounded-2xl py-3.5 hover:shadow-lg hover:shadow-[#DB8293]/20 active:scale-98 transition-all flex items-center justify-center gap-2">
+                  <Search className="w-5 h-5" /> Search Now
+                </button>
               </div>
-              <div className="relative">
-                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input 
-                  type="date" 
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] transition-all"
-                />
-              </div>
-              <div className="relative">
-                <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input 
-                  type="number" 
-                  min="1" 
-                  placeholder={activeTab === 'stays' ? "Guests" : "Tickets count"}
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#DB8293] transition-all"
-                />
-              </div>
-              <button className="w-full bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold rounded-2xl py-3.5 hover:shadow-lg hover:shadow-[#DB8293]/20 active:scale-98 transition-all flex items-center justify-center gap-2">
-                <Search className="w-5 h-5" /> Search Now
-              </button>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
           {/* Trust badges */}
           <motion.div
@@ -652,7 +648,6 @@ export default function Home() {
             </motion.p>
           </div>
 
-          {/* Corrected Cut-off Card Logic */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             {[
               { icon: '🎵', title: 'Concerts', desc: 'Secure reliable access to your favorite local and touring global artists.', gradient: 'from-[#DB8293] to-[#e8a3b0]' },

@@ -36,12 +36,14 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
     >
       <Card3D>
         <Link to={`/listing/${listing.id}`} className="block">
-          {/* Image */}
+          {/* ─── Image ─── */}
           <div className="relative h-52 overflow-hidden">
             <img
               src={listing.images[0]}
               alt={listing.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              width="400"
+              height="208"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -59,7 +61,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
             </div>
           </div>
 
-          {/* Content */}
+          {/* ─── Content ─── */}
           <div className="p-5">
             <h3 className="text-white font-semibold text-lg mb-1 line-clamp-1">{listing.title}</h3>
 

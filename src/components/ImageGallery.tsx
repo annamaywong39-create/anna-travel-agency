@@ -30,6 +30,9 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               src={images[activeIndex]}
               alt={`${title} - Photo ${activeIndex + 1}`}
               className="w-full h-64 md:h-[420px] object-cover"
+              width="800"
+              height="420"
+              loading="eager"
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -86,6 +89,8 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                   src={img}
                   alt={`Thumbnail ${i + 1}`}
                   className="w-20 h-14 md:w-24 md:h-16 object-cover"
+                  width="96"
+                  height="64"
                   loading="lazy"
                 />
               </button>
@@ -120,6 +125,8 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                   src={images[activeIndex]}
                   alt={`${title} - Full view`}
                   className="max-w-full max-h-[80vh] object-contain rounded-lg"
+                  width="1200"
+                  height="800"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
@@ -156,7 +163,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     i === activeIndex ? 'ring-2 ring-amber-500' : 'opacity-50 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt="" className="w-full h-full object-cover" width="48" height="32" loading="lazy" />
                 </button>
               ))}
             </div>
