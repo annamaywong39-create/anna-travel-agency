@@ -18,7 +18,6 @@ export default function Signup() {
   const { signup, user } = useAuth();
   const navigate = useNavigate();
 
-  // If already logged in, redirect
   if (user) {
     navigate('/dashboard', { replace: true });
     return null;
@@ -78,19 +77,19 @@ export default function Signup() {
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
 
   return (
-    <main className="min-h-screen pt-24 pb-20 flex items-center justify-center px-4">
+    <main className="min-h-screen pt-24 pb-20 flex items-center justify-center px-4 bg-[#0A1128]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden p-8">
+        <div className="rounded-2xl border border-white/10 bg-[#131C2E] backdrop-blur-sm overflow-hidden p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center mx-auto mb-4">
               <UserPlus className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl font-black text-white mb-2">Create Account</h1>
-            <p className="text-gray-400">Join us for FIFA World Cup 2026!</p>
+            <p className="text-gray-400">Join us for your next adventure!</p>
           </div>
 
           {error && (
@@ -107,10 +106,14 @@ export default function Signup() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-gray-400 mb-1 block">First Name</label>
+                <label htmlFor="firstName" className="text-sm text-gray-400 mb-1 block">
+                  First Name
+                </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
                   <input
+                    id="firstName"
+                    name="firstName"
                     type="text"
                     required
                     value={formData.firstName}
@@ -122,8 +125,12 @@ export default function Signup() {
                 </div>
               </div>
               <div>
-                <label className="text-sm text-gray-400 mb-1 block">Last Name</label>
+                <label htmlFor="lastName" className="text-sm text-gray-400 mb-1 block">
+                  Last Name
+                </label>
                 <input
+                  id="lastName"
+                  name="lastName"
                   type="text"
                   required
                   value={formData.lastName}
@@ -136,10 +143,14 @@ export default function Signup() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Email</label>
+              <label htmlFor="email" className="text-sm text-gray-400 mb-1 block">
+                Email
+              </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
                 <input
+                  id="email"
+                  name="email"
                   type="email"
                   required
                   value={formData.email}
@@ -152,10 +163,14 @@ export default function Signup() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Password</label>
+              <label htmlFor="password" className="text-sm text-gray-400 mb-1 block">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
                 <input
+                  id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={formData.password}
@@ -187,10 +202,14 @@ export default function Signup() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="text-sm text-gray-400 mb-1 block">
+                Confirm Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
                 <input
+                  id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
                   required
                   value={formData.confirmPassword}

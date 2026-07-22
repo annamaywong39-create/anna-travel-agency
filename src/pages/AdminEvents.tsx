@@ -74,35 +74,35 @@ export default function AdminEvents() {
   };
 
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <Link to="/admin" className="inline-flex items-center gap-2 text-amber-400 text-sm mb-2 hover:underline">
+            <Link to="/admin" className="inline-flex items-center gap-2 text-[#DB8293] text-sm mb-2 hover:underline">
               <ArrowLeft className="w-4 h-4" /> Back to Admin
             </Link>
             <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <Ticket className="w-8 h-8 text-amber-400" />
+              <Ticket className="w-8 h-8 text-[#C49B55]" />
               Event Manager
             </h1>
           </div>
           <button
             onClick={() => { setEditEvent({}); setShowForm(true); }}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-105 transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all"
           >
             <Plus className="w-5 h-5" /> New Event
           </button>
         </div>
 
         {loading ? (
-          <div className="py-12 text-center"><div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent" /><p className="text-gray-400 mt-4">Loading events...</p></div>
+          <div className="py-12 text-center"><div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#DB8293] border-t-transparent" /><p className="text-gray-400 mt-4">Loading events...</p></div>
         ) : events.length === 0 ? (
           <div className="py-12 text-center text-gray-400">No events created yet.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {events.map((event) => (
               <Card3D key={event.id}>
-                <div className="p-5">
+                <div className="p-5 bg-[#131C2E] rounded-2xl border border-white/5">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-white font-bold text-lg">{event.title}</h3>
                     <span className={`px-2 py-0.5 rounded text-xs ${event.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400' : event.status === 'live' ? 'bg-red-500/20 text-red-400' : 'bg-gray-500/20 text-gray-400'}`}>
@@ -110,8 +110,8 @@ export default function AdminEvents() {
                     </span>
                   </div>
                   <div className="space-y-1 text-sm text-gray-400 mb-3">
-                    <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(event.date).toLocaleDateString()}</div>
-                    <div className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {event.venue}, {event.city}</div>
+                    <div className="flex items-center gap-1"><Calendar className="w-3 h-3 text-[#DB8293]" /> {new Date(event.date).toLocaleDateString()}</div>
+                    <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-[#C49B55]" /> {event.venue}, {event.city}</div>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditEvent(event); setShowForm(true); }} className="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /></button>
@@ -129,7 +129,7 @@ export default function AdminEvents() {
           <div className="mt-8">
             <h2 className="text-xl font-bold text-white mb-4">Tickets for {selectedEvent.title}</h2>
             <Card3D>
-              <div className="p-6">
+              <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
                 <div className="flex justify-between mb-4">
                   <span className="text-gray-400 text-sm">Manage ticket categories and prices</span>
                   <button
@@ -146,7 +146,7 @@ export default function AdminEvents() {
                         await loadTickets(selectedEvent.id);
                       }
                     }}
-                    className="px-4 py-2 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-sm"
+                    className="px-4 py-2 rounded-lg bg-[#DB8293]/20 text-[#DB8293] hover:bg-[#DB8293]/30 text-sm"
                   >
                     + Add Ticket Tier
                   </button>
@@ -155,39 +155,57 @@ export default function AdminEvents() {
                   <p className="text-gray-400 text-sm">No ticket tiers added yet.</p>
                 ) : (
                   <div className="space-y-2">
-                    {tickets.map((t) => (
-                      <div key={t.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
-                        <div>
-                          <p className="text-white font-medium">{t.category_name}</p>
-                          <p className="text-amber-400 text-sm">${t.price}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={async () => {
-                              const newPrice = prompt('New price:', String(t.price));
-                              if (newPrice) {
-                                await updateEventTicket(t.id, { price: parseInt(newPrice) });
+                    {tickets.map((t) => {
+                      const isSoldOut = t.quantity_available === 0;
+                      return (
+                        <div key={t.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
+                          <div>
+                            <p className="text-white font-medium">{t.category_name}</p>
+                            <p className="text-[#DB8293] text-sm">{isSoldOut ? 'Sold Out' : `$${t.price}`}</p>
+                            <p className="text-gray-500 text-xs">{t.quantity_available} available</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={async () => {
+                                const newPrice = prompt('New price:', String(t.price));
+                                if (newPrice) {
+                                  await updateEventTicket(t.id, { price: parseInt(newPrice) });
+                                  await loadTickets(selectedEvent.id);
+                                }
+                              }}
+                              className="p-1 rounded bg-blue-500/20 text-blue-400"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (confirm('Delete this ticket tier?')) {
+                                  await deleteEventTicket(t.id);
+                                  await loadTickets(selectedEvent.id);
+                                }
+                              }}
+                              className="p-1 rounded bg-red-500/20 text-red-400"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                const newQty = t.quantity_available > 0 ? 0 : 100;
+                                await updateEventTicket(t.id, { quantity_available: newQty });
                                 await loadTickets(selectedEvent.id);
-                              }
-                            }}
-                            className="p-1 rounded bg-blue-500/20 text-blue-400"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={async () => {
-                              if (confirm('Delete this ticket tier?')) {
-                                await deleteEventTicket(t.id);
-                                await loadTickets(selectedEvent.id);
-                              }
-                            }}
-                            className="p-1 rounded bg-red-500/20 text-red-400"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                              }}
+                              className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+                                isSoldOut
+                                  ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+                                  : 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
+                              }`}
+                            >
+                              {isSoldOut ? 'Sold Out' : 'Available'}
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -201,7 +219,7 @@ export default function AdminEvents() {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-[#14142a] rounded-2xl border border-white/10 max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
+              className="bg-[#131C2E] rounded-2xl border border-white/10 max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold text-white">
@@ -226,21 +244,46 @@ export default function AdminEvents() {
               }}>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm text-gray-400">Title *</label>
-                    <input name="title" required defaultValue={editEvent?.title || ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-amber-500/50" />
+                    <label htmlFor="title" className="text-sm text-gray-400">Title *</label>
+                    <input
+                      id="title"
+                      name="title"
+                      type="text"
+                      required
+                      defaultValue={editEvent?.title || ''}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                    />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">Description</label>
-                    <textarea name="description" rows={3} defaultValue={editEvent?.description || ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-amber-500/50" />
+                    <label htmlFor="description" className="text-sm text-gray-400">Description</label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      rows={3}
+                      defaultValue={editEvent?.description || ''}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm text-gray-400">Date & Time *</label>
-                      <input name="date" type="datetime-local" required defaultValue={editEvent?.date ? new Date(editEvent.date).toISOString().slice(0, 16) : ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                      <label htmlFor="date" className="text-sm text-gray-400">Date & Time *</label>
+                      <input
+                        id="date"
+                        name="date"
+                        type="datetime-local"
+                        required
+                        defaultValue={editEvent?.date ? new Date(editEvent.date).toISOString().slice(0, 16) : ''}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white"
+                      />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400">Status</label>
-                      <select name="status" defaultValue={editEvent?.status || 'upcoming'} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white">
+                      <label htmlFor="status" className="text-sm text-gray-400">Status</label>
+                      <select
+                        id="status"
+                        name="status"
+                        defaultValue={editEvent?.status || 'upcoming'}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                      >
                         <option value="upcoming">Upcoming</option>
                         <option value="live">Live</option>
                         <option value="finished">Finished</option>
@@ -249,19 +292,39 @@ export default function AdminEvents() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm text-gray-400">Venue *</label>
-                      <input name="venue" required defaultValue={editEvent?.venue || ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                      <label htmlFor="venue" className="text-sm text-gray-400">Venue *</label>
+                      <input
+                        id="venue"
+                        name="venue"
+                        type="text"
+                        required
+                        defaultValue={editEvent?.venue || ''}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                      />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400">City *</label>
-                      <input name="city" required defaultValue={editEvent?.city || ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                      <label htmlFor="city" className="text-sm text-gray-400">City *</label>
+                      <input
+                        id="city"
+                        name="city"
+                        type="text"
+                        required
+                        defaultValue={editEvent?.city || ''}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                      />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">Image URL</label>
-                    <input name="image_url" defaultValue={editEvent?.image_url || ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                    <label htmlFor="image_url" className="text-sm text-gray-400">Image URL</label>
+                    <input
+                      id="image_url"
+                      name="image_url"
+                      type="url"
+                      defaultValue={editEvent?.image_url || ''}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                    />
                   </div>
-                  <button type="submit" className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-[1.02] transition-all">
+                  <button type="submit" className="w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-[1.02] transition-all">
                     {editEvent?.id ? 'Update Event' : 'Create Event'}
                   </button>
                 </div>

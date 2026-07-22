@@ -39,45 +39,77 @@ export default function Checkout() {
     setError(null);
 
     try {
-      // Process all cart items (rooms + tickets) together
+      let bookedRooms = 0;
+      let orderedTickets = 0;
+      let errors: string[] = [];
+
+      console.log('🛒 Processing cart items:', cartItems);
+
       for (const item of cartItems) {
         if (item.type === 'room') {
-          // Process hotel booking
-          await addBooking({
-            ...item.item,
-            userId: user.id,
-            status: 'pending',
-          });
+          try {
+            const booking = await addBooking({
+              ...item.item,
+              userId: user.id,
+              status: 'pending',
+            });
+            if (booking) {
+              bookedRooms++;
+              console.log('✅ Room booked:', booking);
+            }
+          } catch (err) {
+            console.error('❌ Room booking failed:', err);
+            errors.push(`Room booking failed: ${err.message}`);
+          }
         } else if (item.type === 'ticket') {
-          // Process ticket order
-          await addTicketOrder({
-            userId: user.id,
-            ticketId: item.item.ticketId || item.id,
-            quantity: item.quantity,
-            totalPrice: item.price * item.quantity,
-            paymentMethod: 'pending',
-            status: 'pending',
-          });
+          try {
+            console.log('📦 Processing ticket:', {
+              userId: user.id,
+              ticketId: item.item.ticketId || item.id,
+              quantity: item.quantity,
+              totalPrice: item.price * item.quantity,
+            });
+            
+            const ticketOrder = await addTicketOrder({
+              userId: user.id,
+              ticketId: item.item.ticketId || item.id,
+              quantity: item.quantity,
+              totalPrice: item.price * item.quantity,
+              paymentMethod: 'pending',
+              status: 'pending',
+            });
+            
+            if (ticketOrder) {
+              orderedTickets++;
+              console.log('✅ Ticket order created:', ticketOrder);
+            }
+          } catch (err) {
+            console.error('❌ Ticket order failed:', err);
+            errors.push(`Ticket order failed: ${err.message}`);
+          }
         }
       }
 
-      // Clear cart and show success
+      if (errors.length > 0) {
+        throw new Error(`Some items failed: ${errors.join(', ')}`);
+      }
+
+      console.log(`✅ Checkout complete: ${bookedRooms} rooms, ${orderedTickets} tickets`);
+
       clearCart();
       setIsProcessing(false);
       setPaymentSuccess(true);
 
-      // Redirect after 3 seconds
       setTimeout(() => {
         navigate('/dashboard?checkout=success');
       }, 3000);
     } catch (err) {
-      console.error('Checkout failed:', err);
-      setError('Something went wrong. Please try again.');
+      console.error('❌ Checkout failed:', err);
+      setError(err.message || 'Something went wrong. Please try again.');
       setIsProcessing(false);
     }
   };
 
-  // If payment was successful, show success message
   if (paymentSuccess) {
     return (
       <main className="pt-32 pb-20 text-center bg-[#0A1128] min-h-screen">
@@ -104,7 +136,6 @@ export default function Checkout() {
     );
   }
 
-  // Calculate totals by type
   const roomItems = cartItems.filter(item => item.type === 'room');
   const ticketItems = cartItems.filter(item => item.type === 'ticket');
 
@@ -121,7 +152,6 @@ export default function Checkout() {
           <span className="text-sm text-gray-400 font-normal ml-2">({cartItems.length} items)</span>
         </h1>
 
-        {/* ─── Cart Items ─── */}
         <div className="space-y-4 mb-8">
           {cartItems.map((item, index) => {
             const isRoom = item.type === 'room';
@@ -150,7 +180,6 @@ export default function Checkout() {
                     <button 
                       onClick={() => removeFromCart(item.id)} 
                       className="text-gray-500 hover:text-red-400 transition-colors"
-                      title="Remove item"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -161,10 +190,8 @@ export default function Checkout() {
           })}
         </div>
 
-        {/* ─── Summary ─── */}
         <Card3D>
           <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
-            {/* Breakdown by type */}
             <div className="mb-4 border-b border-white/10 pb-4">
               {roomItems.length > 0 && (
                 <div className="flex justify-between text-sm py-1">

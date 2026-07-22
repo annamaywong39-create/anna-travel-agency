@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Star, MapPin, Users, BedDouble, Wifi, Car, Dumbbell,
-  UtensilsCrossed, Waves, Shield, Calendar, CheckCircle2
+  UtensilsCrossed, Waves, Shield, Calendar, CheckCircle2, Hotel
 } from 'lucide-react';
 import Card3D from '../components/Card3D';
 import ImageGallery from '../components/ImageGallery';
@@ -28,9 +28,9 @@ export default function ListingDetail() {
 
   if (!listing) {
     return (
-      <main className="pt-32 pb-20 text-center">
+      <main className="pt-32 pb-20 text-center bg-[#0A1128]">
         <h1 className="text-3xl font-bold text-white">Listing not found</h1>
-        <Link to="/listings" className="text-amber-400 mt-4 inline-block">← Back to listings</Link>
+        <Link to="/listings" className="text-[#DB8293] mt-4 inline-block">← Back to listings</Link>
       </main>
     );
   }
@@ -42,9 +42,9 @@ export default function ListingDetail() {
   const total = subtotal + serviceFee + cleaningFee;
 
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link to="/listings" className="inline-flex items-center gap-2 text-amber-400 text-sm mb-6 hover:underline">
+        <Link to="/listings" className="inline-flex items-center gap-2 text-[#DB8293] text-sm mb-6 hover:underline">
           <ArrowLeft className="w-4 h-4" /> Back to all listings
         </Link>
 
@@ -60,13 +60,13 @@ export default function ListingDetail() {
                 <div>
                   <h1 className="text-3xl md:text-4xl font-black text-white mb-2">{listing.title}</h1>
                   <div className="flex items-center gap-3 text-gray-400">
-                    <div className="flex items-center gap-1"><MapPin className="w-4 h-4 text-amber-400" /> {listing.city}</div>
+                    <div className="flex items-center gap-1"><MapPin className="w-4 h-4 text-[#C49B55]" /> {listing.city}</div>
                     <span>·</span>
                     <span className="capitalize">{listing.type}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                  <Star className="w-5 h-5 text-[#C49B55] fill-[#C49B55]" />
                   <span className="text-white font-bold text-lg">{displayRating.toFixed(1)}</span>
                   <span className="text-gray-400">({displayReviews} reviews)</span>
                 </div>
@@ -83,8 +83,8 @@ export default function ListingDetail() {
                   { icon: Calendar, label: 'Available', value: listing.available ? 'Yes' : 'No' },
                 ].map((stat) => (
                   <Card3D key={stat.label}>
-                    <div className="p-4 text-center">
-                      <stat.icon className="w-5 h-5 text-amber-400 mx-auto mb-2" />
+                    <div className="p-4 text-center bg-[#131C2E] rounded-2xl border border-white/5">
+                      <stat.icon className="w-5 h-5 text-[#DB8293] mx-auto mb-2" />
                       <p className="text-white font-bold">{stat.value}</p>
                       <p className="text-gray-500 text-xs">{stat.label}</p>
                     </div>
@@ -99,7 +99,7 @@ export default function ListingDetail() {
                   const Icon = amenityIcons[a] || CheckCircle2;
                   return (
                     <div key={a} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-300">
-                      <Icon className="w-4 h-4 text-amber-400" />
+                      <Icon className="w-4 h-4 text-[#DB8293]" />
                       {a}
                     </div>
                   );
@@ -108,8 +108,8 @@ export default function ListingDetail() {
 
               {/* Stadium info */}
               <Card3D>
-                <div className="p-6 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center text-2xl shrink-0">
+                <div className="p-6 flex items-center gap-4 bg-[#131C2E] rounded-2xl border border-white/5">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center text-2xl shrink-0">
                     ⚽
                   </div>
                   <div>
@@ -132,8 +132,8 @@ export default function ListingDetail() {
               transition={{ delay: 0.2 }}
               className="sticky top-28"
             >
-              <Card3D glowColor="rgba(245, 158, 11, 0.2)">
-                <div className="p-6">
+              <Card3D glowColor="rgba(219, 130, 147, 0.2)">
+                <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
                   <div className="flex items-baseline gap-2 mb-6">
                     <span className="text-4xl font-black text-white">{format(listing.price)}</span>
                     <span className="text-gray-400">/ night</span>
@@ -155,17 +155,18 @@ export default function ListingDetail() {
                     </div>
                     <div className="border-t border-white/10 pt-3 flex justify-between">
                       <span className="text-white font-bold">Total ({nights} nights)</span>
-                      <span className="text-amber-400 font-bold text-lg">
+                      <span className="text-[#DB8293] font-bold text-lg">
                         {format(total)}
                       </span>
                     </div>
                   </div>
 
+                  {/* ✅ FIXED: No soccer ball icon */}
                   <Link
                     to={`/booking/${listing.id}`}
-                    className="block w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-center text-lg shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-[1.02] transition-all duration-300"
+                    className="block w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-center text-lg shadow-lg shadow-[#DB8293]/25 hover:shadow-[#DB8293]/40 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2"
                   >
-                    Book Now ⚽
+                    <Hotel className="w-5 h-5" /> Book Now
                   </Link>
 
                   <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-400">

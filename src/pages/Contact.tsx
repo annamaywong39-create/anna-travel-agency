@@ -157,8 +157,12 @@ export default function Contact() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label className="text-sm text-gray-400 mb-1 block">Your Name *</label>
+                          <label htmlFor="name" className="text-sm text-gray-400 mb-1 block">
+                            Your Name *
+                          </label>
                           <input
+                            id="name"
+                            name="name"
                             type="text"
                             required
                             value={formData.name}
@@ -168,8 +172,12 @@ export default function Contact() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm text-gray-400 mb-1 block">Email *</label>
+                          <label htmlFor="email" className="text-sm text-gray-400 mb-1 block">
+                            Email *
+                          </label>
                           <input
+                            id="email"
+                            name="email"
                             type="email"
                             required
                             value={formData.email}
@@ -181,8 +189,12 @@ export default function Contact() {
                       </div>
 
                       <div className="mb-4">
-                        <label className="text-sm text-gray-400 mb-1 block">Subject *</label>
+                        <label htmlFor="subject" className="text-sm text-gray-400 mb-1 block">
+                          Subject *
+                        </label>
                         <input
+                          id="subject"
+                          name="subject"
                           type="text"
                           required
                           value={formData.subject}
@@ -193,8 +205,12 @@ export default function Contact() {
                       </div>
 
                       <div className="mb-6">
-                        <label className="text-sm text-gray-400 mb-1 block">Message *</label>
+                        <label htmlFor="message" className="text-sm text-gray-400 mb-1 block">
+                          Message *
+                        </label>
                         <textarea
+                          id="message"
+                          name="message"
                           required
                           value={formData.message}
                           onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}

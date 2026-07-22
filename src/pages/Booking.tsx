@@ -108,7 +108,6 @@ export default function Booking() {
     if (validateDetails()) setStep('payment');
   };
 
-  // ─── Unified: Add to Cart ───
   const handleAddToCart = () => {
     if (!validatePayment()) return;
 
@@ -139,7 +138,6 @@ export default function Booking() {
     setStep('confirmation');
   };
 
-  // ─── Unified: Add to Cart + Go to Checkout ───
   const handleBuyNow = () => {
     if (!validatePayment()) return;
 
@@ -240,40 +238,83 @@ export default function Booking() {
                           { key: 'phone', label: 'Phone', placeholder: '+1 234 567 8900', type: 'tel' },
                         ].map((f) => (
                           <div key={f.key}>
-                            <label className="text-sm text-gray-400 mb-1 block">{f.label}</label>
-                            <input type={f.type} placeholder={f.placeholder} value={formData[f.key as keyof typeof formData]}
-                              onChange={(e) => setFormData(p => ({ ...p, [f.key]: e.target.value }))} className={inputCls(f.key)} />
+                            <label htmlFor={f.key} className="text-sm text-gray-400 mb-1 block">
+                              {f.label}
+                            </label>
+                            <input
+                              id={f.key}
+                              name={f.key}
+                              type={f.type}
+                              placeholder={f.placeholder}
+                              value={formData[f.key as keyof typeof formData]}
+                              onChange={(e) => setFormData(p => ({ ...p, [f.key]: e.target.value }))}
+                              className={inputCls(f.key)}
+                            />
                             {errors[f.key] && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors[f.key]}</p>}
                           </div>
                         ))}
                         <div>
-                          <label className="text-sm text-gray-400 mb-1 block">Country</label>
-                          <select value={formData.country} onChange={(e) => setFormData(p => ({ ...p, country: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50 appearance-none">
+                          <label htmlFor="country" className="text-sm text-gray-400 mb-1 block">Country</label>
+                          <select
+                            id="country"
+                            name="country"
+                            value={formData.country}
+                            onChange={(e) => setFormData(p => ({ ...p, country: e.target.value }))}
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50 appearance-none"
+                          >
                             <option value="">Select country</option>
                             {['US','UK','BR','AR','DE','FR','JP','NG','MX','CA','GH','EG','Other'].map(c => <option key={c} value={c}>{c}</option>)}
                           </select>
                         </div>
                         <div>
-                          <label className="text-sm text-gray-400 mb-1 block">Guests</label>
-                          <select value={formData.guests} onChange={(e) => setFormData(p => ({ ...p, guests: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50 appearance-none">
+                          <label htmlFor="guests" className="text-sm text-gray-400 mb-1 block">Guests</label>
+                          <select
+                            id="guests"
+                            name="guests"
+                            value={formData.guests}
+                            onChange={(e) => setFormData(p => ({ ...p, guests: e.target.value }))}
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50 appearance-none"
+                          >
                             {[...Array(listing.maxGuests)].map((_, i) => <option key={i} value={i+1}>{i+1} Guest{i>0?'s':''}</option>)}
                           </select>
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div><label className="text-sm text-gray-400 mb-1 block">Check-in</label>
-                          <input type="date" value={formData.checkIn} onChange={(e) => setFormData(p => ({ ...p, checkIn: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50" /></div>
-                        <div><label className="text-sm text-gray-400 mb-1 block">Check-out</label>
-                          <input type="date" value={formData.checkOut} onChange={(e) => setFormData(p => ({ ...p, checkOut: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50" /></div>
+                        <div>
+                          <label htmlFor="checkIn" className="text-sm text-gray-400 mb-1 block">Check-in</label>
+                          <input
+                            id="checkIn"
+                            name="checkIn"
+                            type="date"
+                            value={formData.checkIn}
+                            onChange={(e) => setFormData(p => ({ ...p, checkIn: e.target.value }))}
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="checkOut" className="text-sm text-gray-400 mb-1 block">Check-out</label>
+                          <input
+                            id="checkOut"
+                            name="checkOut"
+                            type="date"
+                            value={formData.checkOut}
+                            onChange={(e) => setFormData(p => ({ ...p, checkOut: e.target.value }))}
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                          />
+                        </div>
                       </div>
-                      <div className="mt-4"><label className="text-sm text-gray-400 mb-1 block">Special Requests (optional)</label>
-                        <textarea value={formData.specialRequests} onChange={(e) => setFormData(p => ({ ...p, specialRequests: e.target.value }))}
-                          placeholder="Any special requirements..." rows={3}
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293]/50 resize-none" /></div>
+                      <div className="mt-4">
+                        <label htmlFor="specialRequests" className="text-sm text-gray-400 mb-1 block">Special Requests (optional)</label>
+                        <textarea
+                          id="specialRequests"
+                          name="specialRequests"
+                          value={formData.specialRequests}
+                          onChange={(e) => setFormData(p => ({ ...p, specialRequests: e.target.value }))}
+                          placeholder="Any special requirements..."
+                          rows={3}
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293]/50 resize-none"
+                        />
+                      </div>
                       <button onClick={handleDetailsSubmit}
                         className="mt-6 w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25">
                         Continue to Payment →

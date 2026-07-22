@@ -153,6 +153,13 @@ function generateBookingId(): string {
   return `${prefix}-${timestamp}-${random}`;
 }
 
+function generateTicketId(): string {
+  const prefix = 'TKT';
+  const timestamp = Date.now().toString().slice(-6);
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${prefix}-${timestamp}-${random}`;
+}
+
 // ━━━ Row ↔ App model helpers ━━━
 function rowToListing(r: Record<string, unknown>): Listing {
   return {
@@ -483,33 +490,56 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return bookings.filter(b => b.userId === userId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [bookings]);
 
-  // ━━━ TICKET ORDERS ━━━
+  // ━━━ TICKET ORDERS ━━━ (FIXED)
   const addTicketOrder = async (order: Omit<TicketOrder, 'id' | 'createdAt'>): Promise<TicketOrder> => {
-    const generatedId = `TKT-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const generatedId = generateTicketId();
+    
     if (isDemo) {
-      const newOrder: TicketOrder = { ...order, id: generatedId, createdAt: new Date().toISOString() };
+      const newOrder: TicketOrder = {
+        ...order,
+        id: generatedId,
+        createdAt: new Date().toISOString(),
+      };
       setTicketOrders(prev => [...prev, newOrder]);
       return newOrder;
     }
+
     try {
+      // Ensure ticket_id is always a string
+      const ticketId = String(order.ticketId || 'ticket-' + generatedId);
+      
       const { data, error } = await supabase.from('ticket_orders').insert({
         user_id: order.userId,
-        ticket_id: order.ticketId,
+        ticket_id: ticketId,
         quantity: order.quantity,
         total_price: order.totalPrice,
-        payment_method: order.paymentMethod,
+        payment_method: order.paymentMethod || 'pending',
         status: order.status || 'pending',
       }).select().single();
-      if (error || !data) {
-        const fallback: TicketOrder = { ...order, id: generatedId, createdAt: new Date().toISOString() };
+
+      if (error) {
+        console.error('❌ Supabase insert error:', error);
+        // Fallback - save locally
+        const fallback: TicketOrder = {
+          ...order,
+          id: generatedId,
+          createdAt: new Date().toISOString(),
+        };
         setTicketOrders(prev => [...prev, fallback]);
         return fallback;
       }
+
       const newOrder = rowToTicketOrder(data);
       setTicketOrders(prev => [...prev, newOrder]);
+      console.log('✅ Ticket order saved:', newOrder);
       return newOrder;
-    } catch (error) {
-      const fallback: TicketOrder = { ...order, id: generatedId, createdAt: new Date().toISOString() };
+    } catch (err) {
+      console.error('❌ addTicketOrder error:', err);
+      const fallback: TicketOrder = {
+        ...order,
+        id: generatedId,
+        createdAt: new Date().toISOString(),
+      };
       setTicketOrders(prev => [...prev, fallback]);
       return fallback;
     }
@@ -588,7 +618,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await supabase.from('contact_messages').insert(msg);
   };
 
-  // ━━━ USERS (Admin) – FIXED: uses RPC function ━━━
+  // ━━━ USERS (Admin) ━━━
   const fetchAllUsers = async (): Promise<UserProfile[]> => {
     if (isDemo) {
       const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
