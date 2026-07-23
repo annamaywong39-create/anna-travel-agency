@@ -3,14 +3,14 @@ import { motion, useScroll, useTransform, useReducedMotion, useWillChange, Anima
 import { useRef, useState, useEffect } from 'react';
 import {
   ArrowRight, Shield, Star, MapPin, Calendar, CreditCard,
-  Building2, Home as HomeIcon, Key, Globe, Headphones, CheckCircle2, Search, Users,
-  Plane, Clock, Headphones as HeadphonesIcon, Hotel, ChevronLeft, ChevronRight
+  Building2, Home as HomeIcon, Key, Globe, CheckCircle2, Search, Users,
+  Headphones as HeadphonesIcon, Hotel, ChevronLeft, ChevronRight, Car
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
 import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
-import { IMAGES, TESTIMONIALS } from '../data/constants';
+import { TESTIMONIALS } from '../data/constants';
 
 // ─── Slideshow Images ──────────────────────────────
 const SLIDESHOW_IMAGES = [

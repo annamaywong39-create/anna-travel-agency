@@ -24,8 +24,27 @@ const typeBadgeColors = {
 };
 
 export default function ListingCard({ listing, index = 0 }: { listing: Listing; index?: number }) {
-  const Icon = typeIcons[listing.type];
+  const normalizedListing = {
+    ...listing,
+    type: listing.type && typeIcons[listing.type] ? listing.type : 'hotel',
+    images: Array.isArray(listing.images) ? listing.images : [],
+    amenities: Array.isArray(listing.amenities) ? listing.amenities : [],
+    title: listing.title || 'Untitled listing',
+    city: listing.city || 'City',
+    price: Number(listing.price) || 0,
+    rating: Number(listing.rating) || 0,
+    reviews: Number(listing.reviews) || 0,
+    maxGuests: Number(listing.maxGuests) || 0,
+    bedrooms: Number(listing.bedrooms) || 0,
+    distanceToStadium: listing.distanceToStadium || 'nearby',
+    nearestStadium: listing.nearestStadium || 'your destination',
+  };
+
+  const Icon = typeIcons[normalizedListing.type];
   const { format } = useCurrency();
+  const badgeClass = typeBadgeColors[normalizedListing.type] || typeBadgeColors.hotel;
+  const gradientClass = typeColors[normalizedListing.type] || typeColors.hotel;
+  const imageSrc = normalizedListing.images[0] || 'https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200';
 
   return (
     <motion.div
@@ -35,12 +54,12 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
       viewport={{ once: true }}
     >
       <Card3D>
-        <Link to={`/listing/${listing.id}`} className="block">
+        <Link to={`/listing/${normalizedListing.id}`} className="block">
           {/* ─── Image ─── */}
           <div className="relative h-52 overflow-hidden">
             <img
-              src={listing.images[0]}
-              alt={listing.title}
+              src={imageSrc}
+              alt={normalizedListing.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               width="400"
               height="208"
@@ -49,66 +68,66 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
             {/* Type badge */}
-            <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold border ${typeBadgeColors[listing.type]} backdrop-blur-sm flex items-center gap-1.5`}>
+            <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold border ${badgeClass} backdrop-blur-sm flex items-center gap-1.5`}>
               <Icon className="w-3 h-3" />
-              {listing.type.charAt(0).toUpperCase() + listing.type.slice(1)}
+              {normalizedListing.type.charAt(0).toUpperCase() + normalizedListing.type.slice(1)}
             </div>
 
             {/* Price */}
             <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-sm border border-white/10">
-              <span className="text-amber-400 font-bold text-lg">{format(listing.price)}</span>
+              <span className="text-amber-400 font-bold text-lg">{format(normalizedListing.price)}</span>
               <span className="text-gray-300 text-xs"> /night</span>
             </div>
           </div>
 
           {/* ─── Content ─── */}
           <div className="p-5">
-            <h3 className="text-white font-semibold text-lg mb-1 line-clamp-1">{listing.title}</h3>
+            <h3 className="text-white font-semibold text-lg mb-1 line-clamp-1">{normalizedListing.title}</h3>
 
             <div className="flex items-center gap-1 text-gray-400 text-sm mb-3">
               <MapPin className="w-3.5 h-3.5 text-amber-400" />
-              <span>{listing.city}</span>
+              <span>{normalizedListing.city}</span>
               <span className="mx-1">·</span>
-              <span className="text-xs">{listing.distanceToStadium} to {listing.nearestStadium}</span>
+              <span className="text-xs">{normalizedListing.distanceToStadium} to {normalizedListing.nearestStadium}</span>
             </div>
 
             {/* Rating */}
             <div className="flex items-center gap-2 mb-3">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                <span className="text-white font-medium">{listing.rating}</span>
+                <span className="text-white font-medium">{normalizedListing.rating}</span>
               </div>
-              <span className="text-gray-500 text-sm">({listing.reviews} reviews)</span>
+              <span className="text-gray-500 text-sm">({normalizedListing.reviews} reviews)</span>
             </div>
 
             {/* Meta */}
             <div className="flex items-center gap-4 text-gray-400 text-sm">
               <div className="flex items-center gap-1">
                 <Users className="w-3.5 h-3.5" />
-                <span>{listing.maxGuests} guests</span>
+                <span>{normalizedListing.maxGuests} guests</span>
               </div>
               <div className="flex items-center gap-1">
                 <BedDouble className="w-3.5 h-3.5" />
-                <span>{listing.bedrooms} bed{listing.bedrooms > 1 ? 's' : ''}</span>
+                <span>{normalizedListing.bedrooms} bed{normalizedListing.bedrooms > 1 ? 's' : ''}</span>
               </div>
             </div>
 
             {/* Amenities preview */}
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {listing.amenities.slice(0, 4).map((a) => (
+              {normalizedListing.amenities.slice(0, 4).map((a) => (
                 <span key={a} className="px-2 py-0.5 rounded-md bg-white/5 text-gray-400 text-xs border border-white/5">
                   {a}
                 </span>
               ))}
-              {listing.amenities.length > 4 && (
+              {normalizedListing.amenities.length > 4 && (
                 <span className="px-2 py-0.5 rounded-md text-amber-400 text-xs">
-                  +{listing.amenities.length - 4} more
+                  +{normalizedListing.amenities.length - 4} more
                 </span>
               )}
             </div>
 
             {/* CTA */}
-            <div className={`mt-4 py-2.5 rounded-xl bg-gradient-to-r ${typeColors[listing.type]} text-white text-center font-semibold text-sm opacity-90 hover:opacity-100 transition-opacity`}>
+            <div className={`mt-4 py-2.5 rounded-xl bg-gradient-to-r ${gradientClass} text-white text-center font-semibold text-sm opacity-90 hover:opacity-100 transition-opacity`}>
               View Details & Book
             </div>
           </div>

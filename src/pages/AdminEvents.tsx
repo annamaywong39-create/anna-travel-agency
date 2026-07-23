@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Plus, Edit2, Trash2, ArrowLeft, X, Calendar, MapPin, Ticket,
-  RefreshCw
+  Plus, Edit2, Trash2, ArrowLeft, X, Calendar, MapPin, Ticket
 } from 'lucide-react';
 import Card3D from '../components/Card3D';
 import { useAuth } from '../contexts/AuthContext';
@@ -66,7 +65,7 @@ export default function AdminEvents() {
     if (data.id) {
       await updateEvent(data.id, data);
     } else {
-      await addEvent(data as Omit<Event, 'id' | 'createdAt'>);
+      await addEvent(data as Omit<Event, 'id' | 'created_at'>);
     }
     await loadEvents();
     setShowForm(false);

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { LISTINGS as DEFAULT_LISTINGS, type Listing } from '../data/constants';
+import { FEATURED_US_EVENTS } from '../data/events';
 
 export interface Booking {
   id: string;
@@ -122,11 +123,11 @@ interface DataContextType {
 
   // Events
   fetchEvents: () => Promise<Event[]>;
-  addEvent: (event: Omit<Event, 'id' | 'createdAt'>) => Promise<Event>;
+  addEvent: (event: Omit<Event, 'id' | 'created_at'>) => Promise<Event>;
   updateEvent: (id: string, data: Partial<Event>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
   fetchEventTickets: (eventId: string) => Promise<EventTicket[]>;
-  addEventTicket: (ticket: Omit<EventTicket, 'id' | 'createdAt'>) => Promise<EventTicket>;
+  addEventTicket: (ticket: Omit<EventTicket, 'id' | 'created_at'>) => Promise<EventTicket>;
   updateEventTicket: (id: string, data: Partial<EventTicket>) => Promise<void>;
   deleteEventTicket: (id: string) => Promise<void>;
 
@@ -162,22 +163,34 @@ function generateTicketId(): string {
 
 // ━━━ Row ↔ App model helpers ━━━
 function rowToListing(r: Record<string, unknown>): Listing {
+  const images = Array.isArray(r.images)
+    ? r.images.filter((img): img is string => typeof img === 'string')
+    : typeof r.images === 'string'
+      ? [r.images]
+      : [];
+
+  const amenities = Array.isArray(r.amenities)
+    ? r.amenities.filter((item): item is string => typeof item === 'string')
+    : typeof r.amenities === 'string'
+      ? [r.amenities]
+      : [];
+
   return {
-    id: r.id as string,
-    title: r.title as string,
-    type: r.type as Listing['type'],
-    city: r.city as string,
-    cityId: r.city_id as string,
-    price: r.price as number,
+    id: String(r.id ?? ''),
+    title: String(r.title ?? 'Untitled listing'),
+    type: (r.type as Listing['type']) || 'hotel',
+    city: String(r.city ?? ''),
+    cityId: String(r.city_id ?? ''),
+    price: Number(r.price) || 0,
     rating: Number(r.rating) || 0,
-    reviews: (r.review_count as number) || 0,
-    images: (r.images as string[]) || [],
-    amenities: (r.amenities as string[]) || [],
-    maxGuests: (r.max_guests as number) || 2,
-    bedrooms: (r.bedrooms as number) || 1,
-    description: (r.description as string) || '',
-    nearestStadium: (r.nearest_stadium as string) || '',
-    distanceToStadium: (r.distance_to_stadium as string) || '',
+    reviews: Number(r.review_count) || 0,
+    images,
+    amenities,
+    maxGuests: Number(r.max_guests) || 2,
+    bedrooms: Number(r.bedrooms) || 1,
+    description: String(r.description ?? ''),
+    nearestStadium: String(r.nearest_stadium ?? ''),
+    distanceToStadium: String(r.distance_to_stadium ?? ''),
     available: r.available !== false,
   };
 }
@@ -271,6 +284,13 @@ function rowToEventTicket(r: Record<string, unknown>): EventTicket {
   };
 }
 
+function getCartItemKey(item: CartItem) {
+  if (item.type === 'ticket') {
+    return `ticket:${item.item?.ticketId || item.id}`;
+  }
+  return `room:${item.item?.listingId || item.id}`;
+}
+
 // ━━━ Provider ━━━
 export function DataProvider({ children }: { children: ReactNode }) {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -278,7 +298,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('ath_cart') || '[]') as CartItem[];
+    } catch {
+      return [];
+    }
+  });
   const isDemo = !isSupabaseConfigured;
 
   // ── Load data on mount ──
@@ -288,12 +314,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const sb = localStorage.getItem('ath_bookings');
       const sr = localStorage.getItem('ath_reviews');
       const sto = localStorage.getItem('ath_ticketOrders');
-      const sc = localStorage.getItem('ath_cart');
       setListings(sl ? JSON.parse(sl) : DEFAULT_LISTINGS);
       setBookings(sb ? JSON.parse(sb) : []);
       setReviews(sr ? JSON.parse(sr) : []);
       setTicketOrders(sto ? JSON.parse(sto) : []);
-      setCartItems(sc ? JSON.parse(sc) : []);
       setIsLoading(false);
     } else {
       loadFromSupabase();
@@ -318,8 +342,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [isDemo, ticketOrders]);
 
   useEffect(() => {
-    if (isDemo) localStorage.setItem('ath_cart', JSON.stringify(cartItems));
-  }, [isDemo, cartItems]);
+    localStorage.setItem('ath_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   // ── Supabase loaders ──
   async function loadFromSupabase() {
@@ -568,7 +592,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       console.error('Failed to fetch ticket orders:', error);
       return [];
     }
-    return data || [];
+    return (data || []).map(rowToTicketOrder);
   };
 
   // ━━━ REVIEWS ━━━
@@ -662,11 +686,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .from('events')
       .select('*')
       .order('date', { ascending: true });
-    if (error) throw error;
-    return data || [];
+    if (error) {
+      console.error('Failed to fetch events:', error);
+      return FEATURED_US_EVENTS;
+    }
+    const databaseEvents = (data || []).map(rowToEvent);
+    const databaseIds = new Set(databaseEvents.map(event => event.id));
+    return [...databaseEvents, ...FEATURED_US_EVENTS.filter(event => !databaseIds.has(event.id))]
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   };
 
-  const addEvent = async (event: Omit<Event, 'id' | 'createdAt'>): Promise<Event> => {
+  const addEvent = async (event: Omit<Event, 'id' | 'created_at'>): Promise<Event> => {
     const { data, error } = await supabase.from('events').insert(event).select().single();
     if (error) throw error;
     return rowToEvent(data);
@@ -692,7 +722,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return data || [];
   };
 
-  const addEventTicket = async (ticket: Omit<EventTicket, 'id' | 'createdAt'>): Promise<EventTicket> => {
+  const addEventTicket = async (ticket: Omit<EventTicket, 'id' | 'created_at'>): Promise<EventTicket> => {
     const { data, error } = await supabase.from('event_tickets').insert(ticket).select().single();
     if (error) throw error;
     return rowToEventTicket(data);
@@ -711,14 +741,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ━━━ UNIFIED CART ━━━
   const addToCart = (item: CartItem) => {
     setCartItems(prev => {
-      const existing = prev.find(i => i.id === item.id && i.type === item.type);
+      const cartKey = getCartItemKey(item);
+      const existing = prev.find(i => getCartItemKey(i) === cartKey);
+
       if (existing) {
         return prev.map(i =>
-          i.id === item.id && i.type === item.type
-            ? { ...i, quantity: i.quantity + item.quantity }
+          getCartItemKey(i) === cartKey
+            ? { ...i, quantity: i.quantity + item.quantity, price: item.price }
             : i
         );
       }
+
       return [...prev, item];
     });
   };

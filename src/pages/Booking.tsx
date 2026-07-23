@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, CreditCard, Shield, CheckCircle2, Calendar, Users, MapPin,
-  Lock, AlertCircle, Sparkles, Clock, Info, Plus, X, Copy, Check, ShoppingCart
+  Lock, AlertCircle, Clock, Plus, X, Copy, Check, ShoppingCart
 } from 'lucide-react';
 import Card3D from '../components/Card3D';
 import { useAuth } from '../contexts/AuthContext';
@@ -51,7 +51,6 @@ export default function Booking() {
 
   const listing = listings.find((l) => l.id === id);
   const [step, setStep] = useState<Step>('details');
-  const [bookingId, setBookingId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bitcoin');
   const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
@@ -62,7 +61,6 @@ export default function Booking() {
   });
 
   const [steamCodes, setSteamCodes] = useState<string[]>(['']);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [cartAdded, setCartAdded] = useState(false);
 
@@ -134,7 +132,6 @@ export default function Booking() {
     });
 
     setCartAdded(true);
-    setBookingId('CART-ADDED');
     setStep('confirmation');
   };
 

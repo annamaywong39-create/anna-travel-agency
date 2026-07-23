@@ -18,7 +18,7 @@ export const EMAIL_TEMPLATES = {
     html: `...`,
   }),
 
-  welcomeEmail: (data: { name: string }) => ({
+  welcomeEmail: (_data: { name: string }) => ({
     subject: `Welcome to Anna Travel Agency! ⚽✈️`,
     html: `...`,
   }),

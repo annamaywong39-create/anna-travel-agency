@@ -60,7 +60,6 @@ export default function Tickets() {
   const [selectedItem, setSelectedItem] = useState<DisplayItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('category_1');
   const [quantity, setQuantity] = useState(1);
-  const [showSuccess, setShowSuccess] = useState(false);
   const { addToCart } = useData();
   const navigate = useNavigate();
 
@@ -153,12 +152,10 @@ export default function Tickets() {
       setSelectedCategory(item.tickets[0].id);
     }
     setQuantity(1);
-    setShowSuccess(false);
   };
 
   const closeModal = () => {
     setSelectedItem(null);
-    setShowSuccess(false);
   };
 
   // ─── Unified: Add to Cart ───
@@ -168,11 +165,11 @@ export default function Tickets() {
     if (selectedItem.type === 'match') {
       const price = getCategoryPrice(selectedItem as MatchTicket, selectedCategory);
       addToCart({
-        id: selectedItem.id,
+        id: `${selectedItem.id}-${selectedCategory}`,
         type: 'ticket',
         item: {
           eventName: `${(selectedItem as MatchTicket).home_team} vs ${(selectedItem as MatchTicket).away_team}`,
-          ticketId: selectedItem.id,
+          ticketId: `${selectedItem.id}-${selectedCategory}`,
           unitPrice: price,
           quantity: quantity,
         },
@@ -183,7 +180,7 @@ export default function Tickets() {
       const ticket = (selectedItem as EventItem).tickets.find(t => t.id === selectedCategory);
       if (ticket) {
         addToCart({
-          id: selectedItem.id,
+          id: `${selectedItem.id}-${ticket.id}`,
           type: 'ticket',
           item: {
             eventName: selectedItem.title,
@@ -197,10 +194,6 @@ export default function Tickets() {
       }
     }
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      closeModal();
-    }, 2000);
   };
 
   // ─── Unified: Add to Cart + Go to Checkout ───
@@ -208,7 +201,7 @@ export default function Tickets() {
     handleAddToCart();
     setTimeout(() => {
       navigate('/checkout');
-    }, 300);
+    }, 150);
   };
 
   return (
@@ -324,7 +317,7 @@ export default function Tickets() {
       </div>
 
       {/* ─── Purchase Modal ─── */}
-      {selectedItem && !showSuccess && (
+      {selectedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={closeModal}>
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -447,55 +440,22 @@ export default function Tickets() {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
-                onClick={handleAddToCart}
-                className="flex-1 py-3 rounded-xl bg-[#C49B55]/20 text-[#C49B55] font-bold hover:bg-[#C49B55]/30 transition-all border border-[#C49B55]/30"
+                onClick={closeModal}
+                className="flex-1 py-3 rounded-xl bg-white/10 text-gray-300 font-bold hover:bg-white/20 transition-all border border-white/10"
               >
-                <ShoppingCart className="w-4 h-4 inline mr-2" />
-                Add to Cart
+                Continue Browsing
               </button>
               <button
                 onClick={handleBuyNow}
                 className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all shadow-lg shadow-[#DB8293]/25"
               >
-                Buy Now
+                <ShoppingCart className="w-4 h-4 inline mr-2" />
+                Pay Now
               </button>
             </div>
-            <p className="text-gray-500 text-xs text-center mt-4">🔒 Secure checkout.</p>
-          </motion.div>
-        </div>
-      )}
-
-      {/* ─── Success Toast ─── */}
-      {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-[#131C2E] rounded-2xl border border-green-500/30 max-w-md w-full p-8 text-center shadow-2xl"
-          >
-            <div className="w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Added to Cart! 🎉</h3>
-            <p className="text-gray-400 mb-4">
-              {quantity} ticket{quantity > 1 ? 's' : ''} added to your cart.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={closeModal}
-                className="px-6 py-2 rounded-xl bg-white/10 text-gray-300 hover:bg-white/20 transition-all"
-              >
-                Continue Shopping
-              </button>
-              <button
-                onClick={() => { closeModal(); navigate('/checkout'); }}
-                className="px-6 py-2 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all"
-              >
-                Go to Checkout
-              </button>
-            </div>
+            <p className="text-gray-500 text-xs text-center mt-4">🔒 Secure checkout. One payment gateway for your whole cart.</p>
           </motion.div>
         </div>
       )}

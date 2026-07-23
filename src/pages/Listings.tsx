@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, Building2, Home, Key, SlidersHorizontal, X, Calendar, Map, Grid3X3 } from 'lucide-react';
+import { Search, Filter, Building2, Home, Key, SlidersHorizontal, Calendar, Grid3X3 } from 'lucide-react';
 import SEO from '../components/SEO';
 import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
@@ -295,7 +295,7 @@ export default function Listings() {
         {viewMode === 'list' && (
           <div className="space-y-4">
             {paginatedListings.map((listing, i) => (
-              <ListingCard key={listing.id} listing={listing} index={i} variant="list" />
+              <ListingCard key={listing.id} listing={listing} index={i} />
             ))}
             {paginatedListings.length === 0 && (
               <div className="py-20 text-center">

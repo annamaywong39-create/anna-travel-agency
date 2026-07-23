@@ -19,12 +19,14 @@ export default function ListingDetail() {
   const { id } = useParams();
   const { listings, getListingReviews, getListingAverageRating } = useData();
   const { format } = useCurrency();
-  
+
   const listing = listings.find((l) => l.id === id);
   const reviews = id ? getListingReviews(id) : [];
   const avgRating = id ? getListingAverageRating(id) : 0;
   const displayRating = reviews.length > 0 ? avgRating : listing?.rating || 0;
   const displayReviews = reviews.length > 0 ? reviews.length : listing?.reviews || 0;
+  const safeImages = listing?.images?.length ? listing.images : ['https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'];
+  const safeAmenities = listing?.amenities?.length ? listing.amenities : [];
 
   if (!listing) {
     return (
@@ -52,7 +54,7 @@ export default function ListingDetail() {
           {/* Main content */}
           <div className="lg:col-span-2">
             {/* Image Gallery */}
-            <ImageGallery images={listing.images} title={listing.title} />
+            <ImageGallery images={safeImages} title={listing.title} />
 
             {/* Title & meta */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
@@ -95,15 +97,21 @@ export default function ListingDetail() {
               {/* Amenities */}
               <h3 className="text-xl font-bold text-white mb-4">Amenities</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
-                {listing.amenities.map((a) => {
-                  const Icon = amenityIcons[a] || CheckCircle2;
-                  return (
-                    <div key={a} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-300">
-                      <Icon className="w-4 h-4 text-[#DB8293]" />
-                      {a}
-                    </div>
-                  );
-                })}
+                {safeAmenities.length > 0 ? (
+                  safeAmenities.map((a) => {
+                    const Icon = amenityIcons[a] || CheckCircle2;
+                    return (
+                      <div key={a} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-300">
+                        <Icon className="w-4 h-4 text-[#DB8293]" />
+                        {a}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="col-span-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400">
+                    Amenities information is being updated.
+                  </div>
+                )}
               </div>
 
               {/* Stadium info */}

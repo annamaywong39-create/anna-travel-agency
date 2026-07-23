@@ -22,7 +22,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthReady } = useAuth();
   const { cartItems } = useData();
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -118,7 +118,12 @@ export default function Navbar() {
               </div>
 
               {/* ─── User Menu ─── */}
-              {user ? (
+              {!isAuthReady ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-20 rounded-xl bg-white/5 animate-pulse" />
+                  <div className="h-9 w-20 rounded-xl bg-white/5 animate-pulse" />
+                </div>
+              ) : user ? (
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -238,7 +243,12 @@ export default function Navbar() {
               </Link>
 
               <div className="mt-4 pt-4 border-t border-white/10">
-                {user ? (
+                {!isAuthReady ? (
+                  <div className="space-y-2">
+                    <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
+                    <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
+                  </div>
+                ) : user ? (
                   <>
                     <Link
                       to="/dashboard"

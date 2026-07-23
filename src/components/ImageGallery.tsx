@@ -7,12 +7,15 @@ interface ImageGalleryProps {
   title: string;
 }
 
+const FALLBACK_IMAGE = 'https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200';
+
 export default function ImageGallery({ images, title }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const safeImages = Array.isArray(images) && images.length > 0 ? images : [FALLBACK_IMAGE];
 
-  const goNext = () => setActiveIndex((prev) => (prev + 1) % images.length);
-  const goPrev = () => setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+  const goNext = () => setActiveIndex((prev) => (prev + 1) % safeImages.length);
+  const goPrev = () => setActiveIndex((prev) => (prev - 1 + safeImages.length) % safeImages.length);
 
   return (
     <>
@@ -23,16 +26,17 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
         className="mb-8"
       >
         {/* Main Image */}
-        <div className="relative rounded-2xl overflow-hidden group cursor-pointer" onClick={() => setLightboxOpen(true)}>
+        <div className="relative rounded-2xl overflow-hidden group cursor-pointer aspect-[16/10]" onClick={() => setLightboxOpen(true)}>
           <AnimatePresence mode="wait">
             <motion.img
               key={activeIndex}
-              src={images[activeIndex]}
+              src={safeImages[activeIndex]}
               alt={`${title} - Photo ${activeIndex + 1}`}
-              className="w-full h-64 md:h-[420px] object-cover"
+              className="w-full h-full object-cover"
               width="800"
-              height="420"
+              height="500"
               loading="eager"
+              decoding="async"
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -50,11 +54,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
           {/* Photo counter */}
           <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-sm font-medium">
-            {activeIndex + 1} / {images.length}
+            {activeIndex + 1} / {safeImages.length}
           </div>
 
           {/* Nav arrows (desktop) */}
-          {images.length > 1 && (
+          {safeImages.length > 1 && (
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); goPrev(); }}
@@ -73,9 +77,9 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
         </div>
 
         {/* Thumbnails */}
-        {images.length > 1 && (
+        {safeImages.length > 1 && (
           <div className="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-hide">
-            {images.map((img, i) => (
+            {safeImages.map((img, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
@@ -92,6 +96,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                   width="96"
                   height="64"
                   loading="lazy"
+                  decoding="async"
                 />
               </button>
             ))}
@@ -122,7 +127,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               <AnimatePresence mode="wait">
                 <motion.img
                   key={activeIndex}
-                  src={images[activeIndex]}
+                  src={safeImages[activeIndex]}
                   alt={`${title} - Full view`}
                   className="max-w-full max-h-[80vh] object-contain rounded-lg"
                   width="1200"
@@ -135,7 +140,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               </AnimatePresence>
 
               {/* Lightbox nav */}
-              {images.length > 1 && (
+              {safeImages.length > 1 && (
                 <>
                   <button
                     onClick={(e) => { e.stopPropagation(); goPrev(); }}
@@ -155,7 +160,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
             {/* Lightbox thumbnails */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-              {images.map((img, i) => (
+              {safeImages.map((img, i) => (
                 <button
                   key={i}
                   onClick={(e) => { e.stopPropagation(); setActiveIndex(i); }}
@@ -163,14 +168,14 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     i === activeIndex ? 'ring-2 ring-amber-500' : 'opacity-50 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" width="48" height="32" loading="lazy" />
+                  <img src={img} alt="" className="w-full h-full object-cover" width="48" height="32" loading="lazy" decoding="async" />
                 </button>
               ))}
             </div>
 
             {/* Counter */}
             <div className="absolute top-4 left-4 px-4 py-2 rounded-full bg-white/10 text-white text-sm font-medium">
-              {activeIndex + 1} / {images.length}
+              {activeIndex + 1} / {safeImages.length}
             </div>
           </motion.div>
         )}

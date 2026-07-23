@@ -3,8 +3,8 @@ import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Building2, Calendar, Users, Plus, Edit2, Trash2,
-  Eye, DollarSign, TrendingUp, ArrowLeft, Search, Filter, CheckCircle2,
-  Ticket, Save, RefreshCw, Calendar as CalendarIcon, MapPin, X, Home, CreditCard
+  Eye, DollarSign, ArrowLeft, Search, Filter,
+  Ticket, RefreshCw, Calendar as CalendarIcon, MapPin, X, Home
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData, type Booking, type Event, type EventTicket, type TicketOrder } from '../contexts/DataContext';
@@ -16,7 +16,7 @@ type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events';
 export default function Admin() {
   const { user } = useAuth();
   const {
-    listings, bookings, ticketOrders, deleteListing, updateBooking, isDemo,
+    listings, bookings, deleteListing, updateBooking, isDemo,
     fetchAllUsers, updateTicketOrder, fetchAllTicketOrders,
     fetchEvents, addEvent, updateEvent, deleteEvent,
     fetchEventTickets, addEventTicket, updateEventTicket, deleteEventTicket
@@ -25,8 +25,6 @@ export default function Admin() {
 
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [emailStatus, setEmailStatus] = useState<{ id: string; status: 'sending' | 'sent' | 'error' } | null>(null);
-
   // Users
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -92,7 +90,7 @@ export default function Admin() {
     if (data.id) {
       await updateEvent(data.id, data);
     } else {
-      await addEvent(data as Omit<Event, 'id' | 'createdAt'>);
+      await addEvent(data as Omit<Event, 'id' | 'created_at'>);
     }
     await loadEvents();
     setShowEventForm(false);
@@ -170,6 +168,13 @@ export default function Admin() {
   };
 
   // ─── Render ─────────────────────────────────────────────
+
+  const getPaymentBadge = (method?: string) => {
+    const display = getPaymentMethodDisplay(method);
+    return typeof display === 'string'
+      ? { label: display, color: 'bg-gray-500/20 text-gray-400' }
+      : display;
+  };
 
   return (
     <main className="pt-24 pb-20 min-h-screen">
@@ -271,7 +276,7 @@ export default function Admin() {
                   <tbody>
                     {/* Hotel Bookings */}
                     {bookings.slice(0, 3).map((booking) => {
-                      const pm = getPaymentMethodDisplay(booking.paymentMethod);
+                      const pm = getPaymentBadge(booking.paymentMethod);
                       return (
                         <tr key={booking.id} className="border-b border-white/5">
                           <td className="p-4"><span className="px-2 py-1 rounded text-xs bg-green-500/20 text-green-400">🏨 Hotel</span></td>
@@ -294,7 +299,7 @@ export default function Admin() {
                     })}
                     {/* Ticket Orders */}
                     {allTicketOrders.slice(0, 3).map((order) => {
-                      const pm = getPaymentMethodDisplay(order.paymentMethod);
+                      const pm = getPaymentBadge(order.paymentMethod);
                       return (
                         <tr key={order.id} className="border-b border-white/5">
                           <td className="p-4"><span className="px-2 py-1 rounded text-xs bg-purple-500/20 text-purple-400">🎟️ Ticket</span></td>
@@ -410,7 +415,7 @@ export default function Admin() {
                           </thead>
                           <tbody>
                             {bookings.map((booking) => {
-                              const pm = getPaymentMethodDisplay(booking.paymentMethod);
+                              const pm = getPaymentBadge(booking.paymentMethod);
                               return (
                                 <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
                                   <td className="p-4 text-white text-sm font-mono"><span className="text-amber-400 font-bold">{booking.id.slice(-8).toUpperCase()}</span></td>
@@ -472,7 +477,7 @@ export default function Admin() {
                           </thead>
                           <tbody>
                             {allTicketOrders.map((order) => {
-                              const pm = getPaymentMethodDisplay(order.paymentMethod);
+                              const pm = getPaymentBadge(order.paymentMethod);
                               return (
                                 <tr key={order.id} className="border-b border-white/5 hover:bg-white/5">
                                   <td className="p-4 text-white text-sm font-mono"><span className="text-amber-400 font-bold">{order.id.slice(-8).toUpperCase()}</span></td>

@@ -1,242 +1,192 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+﻿import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-export interface User {
+type UserRole = 'user' | 'admin';
+
+export interface AuthUser {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
+  role: UserRole;
   phone?: string;
   country?: string;
-  role: 'user' | 'admin';
   createdAt: string;
+  password?: string;
 }
 
 interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
+  user: AuthUser | null;
+  isAuthReady: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
+  signup: (data: { email: string; password: string; firstName: string; lastName: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  updateProfile: (data: Partial<User>) => void;
-  isDemo: boolean;
-}
-
-interface SignupData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  updateProfile: (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+const DEMO_USERS_KEY = 'ath_users';
+const DEMO_SESSION_KEY = 'ath_session';
+
+function safeParseUsers(): AuthUser[] {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const saved = window.localStorage.getItem(DEMO_USERS_KEY);
+    if (!saved) return [];
+    const parsed = JSON.parse(saved) as AuthUser[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function createDemoAdmin(): AuthUser {
+  return {
+    id: 'demo-admin',
+    email: 'admin@annatravelagency.com',
+    password: 'admin123',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'admin',
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function bootUsers() {
+  if (typeof window === 'undefined') return;
+
+  const currentUsers = safeParseUsers();
+  if (currentUsers.length === 0) {
+    window.localStorage.setItem(DEMO_USERS_KEY, JSON.stringify([createDemoAdmin()]));
+  }
+}
+
+function sanitizeUser(user: Partial<AuthUser> | null): AuthUser | null {
+  if (!user || !user.id || !user.email || !user.firstName || !user.lastName) return null;
+  return {
+    id: String(user.id),
+    email: String(user.email),
+    firstName: String(user.firstName),
+    lastName: String(user.lastName),
+    role: user.role === 'admin' ? 'admin' : 'user',
+    phone: user.phone ? String(user.phone) : undefined,
+    country: user.country ? String(user.country) : undefined,
+    createdAt: user.createdAt ? String(user.createdAt) : new Date().toISOString(),
+  };
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+
+  useEffect(() => {
+    bootUsers();
+
+    const session = window.localStorage.getItem(DEMO_SESSION_KEY);
+    if (session) {
+      try {
+        const parsedSession = JSON.parse(session) as Partial<AuthUser>;
+        const hydratedUser = sanitizeUser(parsedSession);
+        if (hydratedUser) {
+          setUser(hydratedUser);
+        }
+      } catch {
+        window.localStorage.removeItem(DEMO_SESSION_KEY);
+      }
+    }
+
+    setIsAuthReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthReady) return;
+
+    if (user) {
+      window.localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(user));
+    } else {
+      window.localStorage.removeItem(DEMO_SESSION_KEY);
+    }
+  }, [isAuthReady, user]);
+
+  const login = async (email: string, password: string) => {
+    const users = safeParseUsers();
+    const match = users.find((entry) => entry.email.toLowerCase() === email.toLowerCase() && entry.password === password);
+
+    if (!match) {
+      return { success: false, error: 'Invalid email or password' };
+    }
+
+    const sessionUser = sanitizeUser(match);
+    if (!sessionUser) {
+      return { success: false, error: 'Unable to restore account data' };
+    }
+
+    setUser(sessionUser);
+    return { success: true };
+  };
+
+  const signup = async (data: { email: string; password: string; firstName: string; lastName: string }) => {
+    const users = safeParseUsers();
+    const email = data.email.trim().toLowerCase();
+
+    if (users.some((entry) => entry.email.toLowerCase() === email)) {
+      return { success: false, error: 'An account with this email already exists' };
+    }
+
+    const nextUser: AuthUser = {
+      id: `user-${Date.now()}`,
+      email,
+      password: data.password,
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      role: 'user',
+      createdAt: new Date().toISOString(),
+    };
+
+    const nextUsers = [...users, nextUser];
+    window.localStorage.setItem(DEMO_USERS_KEY, JSON.stringify(nextUsers));
+    setUser(nextUser);
+    return { success: true };
+  };
+
+  const logout = () => {
+    setUser(null);
+    window.localStorage.removeItem(DEMO_SESSION_KEY);
+  };
+
+  const updateProfile = (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => {
+    if (!user) return;
+
+    const nextUser: AuthUser = {
+      ...user,
+      firstName: data.firstName ?? user.firstName,
+      lastName: data.lastName ?? user.lastName,
+      phone: data.phone ?? user.phone,
+      country: data.country ?? user.country,
+    };
+
+    setUser(nextUser);
+
+    const users = safeParseUsers();
+    const nextUsers = users.map((entry) => (entry.id === user.id ? nextUser : entry));
+    window.localStorage.setItem(DEMO_USERS_KEY, JSON.stringify(nextUsers));
+  };
+
+  const value = useMemo<AuthContextType>(() => ({
+    user,
+    isAuthReady,
+    login,
+    signup,
+    logout,
+    updateProfile,
+  }), [user, isAuthReady]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
-}
-
-// ━━━ Demo-mode admin user ━━━
-const DEMO_ADMIN: User = {
-  id: 'admin-001',
-  email: 'admin@annatravelagency.com',
-  firstName: 'Anna',
-  lastName: 'Admin',
-  role: 'admin',
-  createdAt: '2024-01-01',
-};
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  LOCAL-STORAGE helpers (demo mode)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function localLogin(email: string, password: string): { success: boolean; user?: User; error?: string } {
-  if (email === 'admin@annatravelagency.com' && password === 'admin123') {
-    return { success: true, user: DEMO_ADMIN };
-  }
-  const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
-  const found = users.find((u: User & { password: string }) => u.email === email && u.password === password);
-  if (found) {
-    const { password: _, ...userData } = found;
-    return { success: true, user: userData as User };
-  }
-  return { success: false, error: 'Invalid email or password' };
-}
-
-function localSignup(data: SignupData): { success: boolean; user?: User; error?: string } {
-  const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
-  if (users.some((u: User) => u.email === data.email)) {
-    return { success: false, error: 'Email already registered' };
-  }
-  const newUser = {
-    id: `user-${Date.now()}`,
-    email: data.email,
-    password: data.password,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    role: 'user' as const,
-    createdAt: new Date().toISOString(),
-  };
-  users.push(newUser);
-  localStorage.setItem('ath_users', JSON.stringify(users));
-  const { password: _, ...userData } = newUser;
-  return { success: true, user: userData as User };
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  PROVIDER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const isDemo = !isSupabaseConfigured;
-
-  // ── Initialise session ──
-  useEffect(() => {
-    if (isDemo) {
-      // Demo: restore from localStorage
-      const stored = localStorage.getItem('ath_user');
-      if (stored) setUser(JSON.parse(stored));
-      setIsLoading(false);
-    } else {
-      // Production: check Supabase session
-      supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
-          setUser(profile);
-        }
-        setIsLoading(false);
-      });
-
-      // Listen for auth changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-        if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
-          setUser(profile);
-        } else {
-          setUser(null);
-        }
-      });
-
-      return () => subscription.unsubscribe();
-    }
-  }, [isDemo]);
-
-  // ── Fetch Supabase profile ──
-  async function fetchProfile(userId: string): Promise<User | null> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error || !data) return null;
-
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-
-    return {
-      id: data.id,
-      email: authUser?.email || '',
-      firstName: data.first_name,
-      lastName: data.last_name,
-      phone: data.phone || undefined,
-      country: data.country || undefined,
-      role: data.role,
-      createdAt: data.created_at,
-    };
-  }
-
-  // ── Login ──
-  const login = async (email: string, password: string) => {
-    if (isDemo) {
-      await new Promise(r => setTimeout(r, 800));
-      const result = localLogin(email, password);
-      if (result.success && result.user) {
-        setUser(result.user);
-        localStorage.setItem('ath_user', JSON.stringify(result.user));
-      }
-      return { success: result.success, error: result.error };
-    }
-
-    // Supabase auth
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { success: false, error: error.message };
-
-    const profile = await fetchProfile(data.user.id);
-    if (profile) setUser(profile);
-    return { success: true };
-  };
-
-  // ── Signup ──
-  const signup = async (signupData: SignupData) => {
-    if (isDemo) {
-      await new Promise(r => setTimeout(r, 800));
-      const result = localSignup(signupData);
-      if (result.success && result.user) {
-        setUser(result.user);
-        localStorage.setItem('ath_user', JSON.stringify(result.user));
-      }
-      return { success: result.success, error: result.error };
-    }
-
-    // Supabase auth
-    const { data, error } = await supabase.auth.signUp({
-      email: signupData.email,
-      password: signupData.password,
-      options: {
-        data: {
-          first_name: signupData.firstName,
-          last_name: signupData.lastName,
-        },
-      },
-    });
-
-    if (error) return { success: false, error: error.message };
-    if (data.user) {
-      const profile = await fetchProfile(data.user.id);
-      if (profile) setUser(profile);
-    }
-    return { success: true };
-  };
-
-  // ── Logout ──
-  const logout = () => {
-    if (isDemo) {
-      setUser(null);
-      localStorage.removeItem('ath_user');
-    } else {
-      supabase.auth.signOut();
-      setUser(null);
-    }
-  };
-
-  // ── Update profile ──
-  const updateProfile = async (data: Partial<User>) => {
-    if (!user) return;
-    const updated = { ...user, ...data };
-    setUser(updated);
-
-    if (isDemo) {
-      localStorage.setItem('ath_user', JSON.stringify(updated));
-      const users = JSON.parse(localStorage.getItem('ath_users') || '[]');
-      const idx = users.findIndex((u: User) => u.id === user.id);
-      if (idx !== -1) {
-        users[idx] = { ...users[idx], ...data };
-        localStorage.setItem('ath_users', JSON.stringify(users));
-      }
-    } else {
-      await supabase.from('profiles').update({
-        first_name: updated.firstName,
-        last_name: updated.lastName,
-        phone: updated.phone,
-        country: updated.country,
-      }).eq('id', user.id);
-    }
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateProfile, isDemo }}>
-      {children}
-    </AuthContext.Provider>
-  );
 }

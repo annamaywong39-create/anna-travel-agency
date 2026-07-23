@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Ticket, Search, X, Globe } from 'lucide-react';
+import { Calendar, MapPin, Search, X, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';

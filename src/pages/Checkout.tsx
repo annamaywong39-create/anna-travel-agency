@@ -2,10 +2,14 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, CreditCard, Calendar, Ticket, CheckCircle2 } from 'lucide-react';
 import Card3D from '../components/Card3D';
-import { useData, type CartItem } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+}
 
 export default function Checkout() {
   const { cartItems, removeFromCart, clearCart, getCartTotal, addBooking, addTicketOrder } = useData();
@@ -59,7 +63,7 @@ export default function Checkout() {
             }
           } catch (err) {
             console.error('❌ Room booking failed:', err);
-            errors.push(`Room booking failed: ${err.message}`);
+            errors.push(`Room booking failed: ${getErrorMessage(err)}`);
           }
         } else if (item.type === 'ticket') {
           try {
@@ -85,7 +89,7 @@ export default function Checkout() {
             }
           } catch (err) {
             console.error('❌ Ticket order failed:', err);
-            errors.push(`Ticket order failed: ${err.message}`);
+            errors.push(`Ticket order failed: ${getErrorMessage(err)}`);
           }
         }
       }
@@ -105,7 +109,7 @@ export default function Checkout() {
       }, 3000);
     } catch (err) {
       console.error('❌ Checkout failed:', err);
-      setError(err.message || 'Something went wrong. Please try again.');
+      setError(getErrorMessage(err));
       setIsProcessing(false);
     }
   };
