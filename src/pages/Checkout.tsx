@@ -126,8 +126,8 @@ export default function Checkout() {
             <div className="w-20 h-20 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-green-400" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Payment Successful! 🎉</h2>
-            <p className="text-gray-400 mb-6">Your booking and tickets have been confirmed.</p>
+            <h2 className="text-3xl font-bold text-white mb-2">Booking request received</h2>
+            <p className="text-gray-400 mb-6">Your order is awaiting availability and PayPal payment confirmation. We will contact you with the next step.</p>
             <Link
               to="/dashboard"
               className="inline-block px-8 py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all"

@@ -65,7 +65,66 @@ export interface Listing {
 }
 
 export const LISTINGS: Listing[] = [
-  // Your listings here...
+  {
+    id: '4791c4c6-6a34-47b9-8f0b-4c82cfde1fed', title: 'Miami Group Villa', type: 'shortlet', city: 'Miami', cityId: 'miami', price: 157, rating: 4.8, reviews: 45,
+    images: ['/images/apartment.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Pool', 'Kitchen', 'BBQ'], maxGuests: 10, bedrooms: 5,
+    description: 'A spacious group villa with a private pool and easy access to Miami event venues.', nearestStadium: 'Hard Rock Stadium', distanceToStadium: '7 miles', available: true,
+  },
+  {
+    id: '48652394-2f74-4647-9f63-21a00337cbc4', title: 'NYC Group Shortlet', type: 'shortlet', city: 'New York', cityId: 'nyc', price: 450, rating: 4.9, reviews: 34,
+    images: ['/images/city.jpg', '/images/apartment-2.jpg'], amenities: ['WiFi', 'Kitchen', 'Washer', 'TV'], maxGuests: 8, bedrooms: 4,
+    description: 'A comfortable group stay for visitors attending major events in the New York area.', nearestStadium: 'MetLife Stadium', distanceToStadium: '12 miles', available: true,
+  },
+  {
+    id: '7d8e4286-fad1-48de-a59b-434f130645fd', title: 'Dallas Ranch House', type: 'shortlet', city: 'Dallas', cityId: 'dallas', price: 320, rating: 4.4, reviews: 12,
+    images: ['/images/hero.jpg', '/images/apartment.jpg'], amenities: ['WiFi', 'Pool', 'Kitchen', 'BBQ'], maxGuests: 8, bedrooms: 4,
+    description: 'A relaxed ranch-style home for families and groups visiting Arlington events.', nearestStadium: 'AT&T Stadium', distanceToStadium: '10 miles', available: true,
+  },
+  {
+    id: '5024d93e-b493-4934-bdc7-fa35cf347883', title: 'Atlanta Fan House', type: 'shortlet', city: 'Atlanta', cityId: 'atlanta', price: 340, rating: 4.6, reviews: 18,
+    images: ['/images/hotel-room.jpg', '/images/apartment-2.jpg'], amenities: ['WiFi', 'Kitchen', 'BBQ', 'Parking'], maxGuests: 8, bedrooms: 4,
+    description: 'A group-friendly home close to Atlanta sporting and entertainment venues.', nearestStadium: 'Mercedes-Benz Stadium', distanceToStadium: '4 miles', available: true,
+  },
+  {
+    id: '2f358854-e88b-4583-b94a-012e12d138d7', title: 'CDMX Rooftop Shortlet', type: 'shortlet', city: 'Mexico City', cityId: 'mexico', price: 200, rating: 4.7, reviews: 34,
+    images: ['/images/city.jpg', '/images/apartment.jpg'], amenities: ['WiFi', 'Kitchen', 'Rooftop', 'BBQ'], maxGuests: 6, bedrooms: 3,
+    description: 'A bright rooftop stay for travellers exploring Mexico City and major events.', nearestStadium: 'Estadio Azteca', distanceToStadium: '6 miles', available: true,
+  },
+  {
+    id: '0bd4fc07-26c7-450b-86ed-451a25a283c1', title: 'Toronto Group Loft', type: 'shortlet', city: 'Toronto', cityId: 'toronto', price: 380, rating: 4.8, reviews: 28,
+    images: ['/images/apartment-2.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Kitchen', 'Washer', 'TV'], maxGuests: 8, bedrooms: 4,
+    description: 'A modern Toronto loft for groups attending concerts, football, and city events.', nearestStadium: 'BMO Field', distanceToStadium: '1 mile', available: true,
+  },
+  {
+    id: 'ad9eb6c4-36fe-49a3-b70a-fdbb3590a541', title: 'Vancouver Mountain View', type: 'apartment', city: 'Vancouver', cityId: 'vancouver', price: 360, rating: 4.7, reviews: 19,
+    images: ['/images/city.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Kitchen', 'Balcony', 'Washer'], maxGuests: 6, bedrooms: 3,
+    description: 'A calm mountain-view apartment for visitors planning a Vancouver event trip.', nearestStadium: 'BC Place', distanceToStadium: '2 miles', available: true,
+  },
+  {
+    id: '9b4d5dcf-ef55-486d-ad28-020b92c88352', title: 'Brickell Luxury Apartment', type: 'apartment', city: 'Miami', cityId: 'miami', price: 340, rating: 4.7, reviews: 89,
+    images: ['/images/hotel-luxury.jpg', '/images/apartment.jpg'], amenities: ['WiFi', 'Pool', 'Kitchen', 'Gym'], maxGuests: 4, bedrooms: 2,
+    description: 'A polished Brickell apartment for couples and small groups who want a central base.', nearestStadium: 'Hard Rock Stadium', distanceToStadium: '9 miles', available: true,
+  },
+  {
+    id: 'bd563210-6f59-4a5f-8065-d33dbfceaeb7', title: 'Downtown Dallas Loft', type: 'apartment', city: 'Dallas', cityId: 'dallas', price: 200, rating: 4.3, reviews: 34,
+    images: ['/images/apartment.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Kitchen', 'Pool', 'Gym'], maxGuests: 4, bedrooms: 2,
+    description: 'A convenient downtown loft with easy access to restaurants and city transport.', nearestStadium: 'AT&T Stadium', distanceToStadium: '15 miles', available: true,
+  },
+  {
+    id: '96d44de2-076e-4235-bd9b-f5e3014fd16e', title: 'Polanco Luxury Apartment', type: 'apartment', city: 'Mexico City', cityId: 'mexico', price: 150, rating: 4.9, reviews: 203,
+    images: ['/images/apartment-2.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Kitchen', 'Rooftop', 'Gym'], maxGuests: 4, bedrooms: 2,
+    description: 'A well-reviewed Polanco apartment with a refined neighbourhood feel.', nearestStadium: 'Estadio Azteca', distanceToStadium: '9 miles', available: true,
+  },
+  {
+    id: '0d8ae3e4-7f15-4a16-966b-086efea9ce96', title: 'Roma Norte Retreat', type: 'apartment', city: 'Mexico City', cityId: 'mexico', price: 120, rating: 4.4, reviews: 56,
+    images: ['/images/apartment.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Kitchen', 'Garden', 'Washer'], maxGuests: 2, bedrooms: 1,
+    description: 'A cosy retreat in Roma Norte for solo travellers and couples.', nearestStadium: 'Estadio Azteca', distanceToStadium: '7 miles', available: true,
+  },
+  {
+    id: 'bc0bba89-bce7-4e77-883c-d2aecc05fb34', title: 'Queen West Suite', type: 'apartment', city: 'Toronto', cityId: 'toronto', price: 210, rating: 4.4, reviews: 45,
+    images: ['/images/hotel-room.jpg', '/images/apartment-2.jpg'], amenities: ['WiFi', 'Kitchen', 'Washer', 'TV'], maxGuests: 2, bedrooms: 1,
+    description: 'A bright Queen West suite close to dining, culture, and event transport.', nearestStadium: 'BMO Field', distanceToStadium: '3 miles', available: true,
+  },
 ];
 
 

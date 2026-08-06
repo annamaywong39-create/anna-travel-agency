@@ -1,464 +1,216 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, MapPin, Ticket, X, Check, ShoppingCart } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Calendar, Filter, MapPin, Search, Ticket as TicketIcon, X, ShoppingCart, Hotel } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
-import { supabase } from '../lib/supabase';
 import { useData } from '../contexts/DataContext';
+import { FEATURED_US_EVENTS } from '../data/events';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
-interface MatchTicket {
-  id: string;
-  match_date: string;
-  home_team: string;
-  away_team: string;
-  venue: string;
-  city: string;
-  category_1_price: number;
-  category_2_price: number;
-  category_3_price: number;
-  category_4_price: number;
-  supporter_entry_price: number;
-  status: string;
-  type: 'match';
-}
-
-interface EventTicketItem {
-  id: string;
-  event_id: string;
-  category_name: string;
-  price: number;
-  quantity_available: number;
-}
-
-interface EventItem {
+type TicketOption = { id: string; name: string; price: number; quantity_available: number };
+type EventItem = {
   id: string;
   title: string;
-  description: string;
   date: string;
   venue: string;
   city: string;
-  image_url: string;
+  country: string;
+  category: string;
+  description?: string;
+  image_url?: string;
   status: string;
-  type: 'event';
-  tickets: EventTicketItem[];
-}
+  tickets: TicketOption[];
+};
 
-type DisplayItem = (MatchTicket | EventItem) & { type: 'match' | 'event' };
-
-const TICKET_CATEGORIES = [
-  { id: 'category_1', name: 'Category 1', description: 'Premium lower-tier seating', icon: '🌟', color: 'from-[#DB8293] to-[#e8a3b0]' },
-  { id: 'category_2', name: 'Category 2', description: 'Lower and upper tier seating', icon: '💎', color: 'from-[#C49B55] to-[#dcb16f]' },
-  { id: 'category_3', name: 'Category 3', description: 'Upper tier seating', icon: '🎯', color: 'from-[#DB8293] to-[#C49B55]' },
-  { id: 'category_4', name: 'Category 4', description: 'Most affordable seating', icon: '🎫', color: 'from-[#C49B55] to-[#dcb16f]' },
-  { id: 'supporter_entry', name: 'Supporter Entry', description: 'Fixed-price for fans (USD 60)', icon: '🏴', color: 'from-[#DB8293] to-[#e8a3b0]' },
+const FALLBACK_IMAGE = '/images/event-sport.jpg';
+const dateFilters = [
+  { id: 'all', label: 'All dates' },
+  { id: '7', label: 'Next 7 days' },
+  { id: '30', label: 'Next 30 days' },
+  { id: '90', label: 'Next 90 days' },
 ];
 
+function eventStatus(date: string, currentStatus?: string) {
+  if (currentStatus === 'cancelled') return 'cancelled';
+  const time = new Date(date).getTime();
+  if (Number.isNaN(time)) return currentStatus || 'upcoming';
+  return time < Date.now() ? 'finished' : currentStatus === 'live' ? 'live' : 'upcoming';
+}
+
+function countryFromCity(city: string) {
+  if (/canada|toronto|vancouver/i.test(city)) return 'Canada';
+  if (/mexico|guadalajara|monterrey/i.test(city)) return 'Mexico';
+  if (/brazil|rio|são|sao|brasília|brasilia/i.test(city)) return 'Brazil';
+  if (/australia|sydney|melbourne|perth|brisbane|adelaide|newcastle|townsville/i.test(city)) return 'Australia';
+  return 'United States';
+}
+
+function fallbackEvents(): EventItem[] {
+  return FEATURED_US_EVENTS.map((event) => ({
+    id: event.id,
+    title: event.title,
+    date: event.date,
+    venue: event.venue,
+    city: event.city,
+    country: countryFromCity(event.city),
+    category: event.category || 'Event',
+    description: event.description,
+    image_url: event.image_url,
+    status: eventStatus(event.date, event.status),
+    tickets: (event.tickets || []).map((ticket) => ({
+      id: ticket.id,
+      name: ticket.category_name,
+      price: ticket.price,
+      quantity_available: ticket.quantity_available,
+    })),
+  }));
+}
+
 export default function Tickets() {
-  const [items, setItems] = useState<DisplayItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<DisplayItem | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('category_1');
-  const [quantity, setQuantity] = useState(1);
   const { addToCart } = useData();
   const navigate = useNavigate();
+  const [items, setItems] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('all');
+  const [country, setCountry] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [selected, setSelected] = useState<EventItem | null>(null);
+  const [ticketId, setTicketId] = useState('');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    fetchAll();
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      try {
+        if (!isSupabaseConfigured) {
+          if (!cancelled) setItems(fallbackEvents());
+          return;
+        }
+        const [{ data: matches, error: matchError }, { data: events, error: eventError }] = await Promise.all([
+          supabase.from('matches').select('*').gte('match_date', new Date().toISOString()).order('match_date'),
+          supabase.from('events').select('*').order('date'),
+        ]);
+        if (matchError || eventError) throw matchError || eventError;
+
+        const eventRows = events || [];
+        const ids = eventRows.map((event) => event.id);
+        const { data: ticketRows } = ids.length
+          ? await supabase.from('event_tickets').select('*').in('event_id', ids).order('price')
+          : { data: [] as any[] };
+        const eventItems: EventItem[] = eventRows.map((event) => ({
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          venue: event.venue,
+          city: event.city,
+          country: countryFromCity(event.city),
+          category: event.category || 'Event',
+          description: event.description,
+          image_url: event.image_url,
+          status: eventStatus(event.date, event.status),
+          tickets: (ticketRows || []).filter((ticket) => ticket.event_id === event.id).map((ticket) => ({
+            id: ticket.id,
+            name: ticket.category_name,
+            price: Number(ticket.price) || 0,
+            quantity_available: Number(ticket.quantity_available) || 0,
+          })),
+        }));
+        const matchItems: EventItem[] = (matches || []).map((match) => ({
+          id: match.id,
+          title: `${match.home_team} vs ${match.away_team}`,
+          date: match.match_date,
+          venue: match.venue,
+          city: match.city,
+          country: countryFromCity(match.city),
+          category: 'Football',
+          description: 'Match tickets with verified inventory subject to availability.',
+          image_url: '/images/event-sport.jpg',
+          status: eventStatus(match.match_date, match.status),
+          tickets: [
+            ['category_1', 'Category 1', match.category_1_price],
+            ['category_2', 'Category 2', match.category_2_price],
+            ['category_3', 'Category 3', match.category_3_price],
+            ['category_4', 'Category 4', match.category_4_price],
+          ].filter(([, , price]) => Number(price) > 0).map(([id, name, price]) => ({ id: `${match.id}-${id}`, name: String(name), price: Number(price), quantity_available: 10 })),
+        }));
+        if (!cancelled) setItems([...matchItems, ...eventItems].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+      } catch (error) {
+        console.error('Unable to load tickets:', error);
+        if (!cancelled) setItems(fallbackEvents());
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
   }, []);
 
-  const fetchAll = async () => {
-    setLoading(true);
-    try {
-      const { data: matches, error: matchError } = await supabase
-        .from('matches')
-        .select('*')
-        .gte('match_date', '2026-07-01')
-        .order('match_date', { ascending: true });
-      if (matchError) throw matchError;
-
-      const { data: events, error: eventError } = await supabase
-        .from('events')
-        .select('*')
-        .order('date', { ascending: true });
-      if (eventError) throw eventError;
-
-      const eventIds = events?.map(e => e.id) || [];
-      let eventTickets: EventTicketItem[] = [];
-      if (eventIds.length) {
-        const { data: tickets, error: ticketError } = await supabase
-          .from('event_tickets')
-          .select('*')
-          .in('event_id', eventIds);
-        if (!ticketError) eventTickets = tickets;
-      }
-
-      const matchItems: DisplayItem[] = (matches || []).map(m => ({ ...m, type: 'match' }));
-      const eventItems: DisplayItem[] = (events || []).map(e => ({
-        ...e,
-        type: 'event',
-        tickets: eventTickets.filter(t => t.event_id === e.id),
-      }));
-
-      setItems([...matchItems, ...eventItems]);
-    } catch (err) {
-      console.error('Error fetching data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getCategoryPrice = (match: MatchTicket, categoryId: string): number => {
-    const map: Record<string, number> = {
-      category_1: match.category_1_price || 0,
-      category_2: match.category_2_price || 0,
-      category_3: match.category_3_price || 0,
-      category_4: match.category_4_price || 0,
-      supporter_entry: match.supporter_entry_price || 0,
-    };
-    return map[categoryId] || 0;
-  };
-
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+  const categories = useMemo(() => ['all', ...Array.from(new Set(items.map((item) => item.category))).sort()], [items]);
+  const countries = useMemo(() => ['all', ...Array.from(new Set(items.map((item) => item.country))).sort()], [items]);
+  const filtered = useMemo(() => {
+    const now = Date.now();
+    const maxDays = dateFilter === 'all' ? Infinity : Number(dateFilter);
+    return items.filter((item) => {
+      const q = query.trim().toLowerCase();
+      const matchesQuery = !q || `${item.title} ${item.city} ${item.venue}`.toLowerCase().includes(q);
+      const matchesCategory = category === 'all' || item.category === category;
+      const matchesCountry = country === 'all' || item.country === country;
+      const diff = (new Date(item.date).getTime() - now) / 86400000;
+      const matchesDate = dateFilter === 'all' || (diff >= 0 && diff <= maxDays);
+      return matchesQuery && matchesCategory && matchesCountry && matchesDate;
     });
-  };
+  }, [items, query, category, country, dateFilter]);
 
-  const getStageLabel = (dateStr: string): string => {
-    if (!dateStr) return 'Knockout';
-    const date = new Date(dateStr);
-    const month = date.getMonth();
-    const day = date.getDate();
-    if (month === 6 && day >= 28) return 'Round of 32';
-    if (month === 7 && day >= 1 && day <= 3) return 'Round of 32';
-    if (month === 7 && day >= 4 && day <= 7) return 'Round of 16';
-    if (month === 7 && day >= 9 && day <= 11) return 'Quarter-finals';
-    if (month === 7 && day >= 14 && day <= 15) return 'Semi-finals';
-    if (month === 7 && day === 18) return 'Third Place';
-    if (month === 7 && day === 19) return '🏆 FINAL';
-    return 'Knockout';
-  };
-
-  const handleBuy = (item: DisplayItem) => {
-    setSelectedItem(item);
-    if (item.type === 'match') {
-      setSelectedCategory('category_1');
-    } else if (item.tickets.length > 0) {
-      setSelectedCategory(item.tickets[0].id);
-    }
+  const openPurchase = (item: EventItem) => {
+    setSelected(item);
+    setTicketId(item.tickets.find((ticket) => ticket.quantity_available > 0)?.id || '');
     setQuantity(1);
   };
 
-  const closeModal = () => {
-    setSelectedItem(null);
-  };
-
-  // ─── Unified: Add to Cart ───
-  const handleAddToCart = () => {
-    if (!selectedItem) return;
-
-    if (selectedItem.type === 'match') {
-      const price = getCategoryPrice(selectedItem as MatchTicket, selectedCategory);
-      addToCart({
-        id: `${selectedItem.id}-${selectedCategory}`,
-        type: 'ticket',
-        item: {
-          eventName: `${(selectedItem as MatchTicket).home_team} vs ${(selectedItem as MatchTicket).away_team}`,
-          ticketId: `${selectedItem.id}-${selectedCategory}`,
-          unitPrice: price,
-          quantity: quantity,
-        },
-        quantity: quantity,
-        price: price,
-      });
-    } else {
-      const ticket = (selectedItem as EventItem).tickets.find(t => t.id === selectedCategory);
-      if (ticket) {
-        addToCart({
-          id: `${selectedItem.id}-${ticket.id}`,
-          type: 'ticket',
-          item: {
-            eventName: selectedItem.title,
-            ticketId: ticket.id,
-            unitPrice: ticket.price,
-            quantity: quantity,
-          },
-          quantity: quantity,
-          price: ticket.price,
-        });
-      }
-    }
-
-  };
-
-  // ─── Unified: Add to Cart + Go to Checkout ───
-  const handleBuyNow = () => {
-    handleAddToCart();
-    setTimeout(() => {
-      navigate('/checkout');
-    }, 150);
+  const selectedTicket = selected?.tickets.find((ticket) => ticket.id === ticketId);
+  const addTicket = () => {
+    if (!selected || !selectedTicket) return;
+    addToCart({
+      id: `${selected.id}-${selectedTicket.id}`,
+      type: 'ticket',
+      item: { eventName: selected.title, ticketId: selectedTicket.id, venue: selected.venue, city: selected.city },
+      quantity,
+      price: selectedTicket.price,
+    });
+    setSelected(null);
+    navigate('/checkout');
   };
 
   return (
-    <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
-      <SEO title="Tickets" description="Buy tickets for events worldwide." path="/tickets" />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#071A36] pt-24 pb-20">
+      <SEO title="Curated Events & Tickets" description="Explore high-demand events and verified ticket access with accommodation options." path="/tickets" />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header className="mb-10 max-w-3xl">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#DB8293]">Curated access</p>
+          <h1 className="text-4xl font-black tracking-tight text-white md:text-6xl">The moments worth travelling for.</h1>
+          <p className="mt-4 text-lg leading-relaxed text-[#A7B0C0]">A considered selection of major sporting, music, and cultural events — with a stay to match.</p>
+        </header>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#DB8293]/10 border border-[#DB8293]/20 text-[#DB8293] text-sm mb-6">
-            <Ticket className="w-4 h-4" /> Tickets & Events
+        <section className="mb-8 rounded-2xl border border-white/10 bg-white/[0.04] p-4" aria-label="Event filters">
+          <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+            <label className="relative block">
+              <span className="sr-only">Search events</span>
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A7B0C0]" />
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search event, city or venue" className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition focus:border-[#DB8293]" />
+            </label>
+            <label><span className="sr-only">Event genre</span><select value={category} onChange={(event) => setCategory(event.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0B1220] px-4 py-3 text-sm text-white outline-none focus:border-[#DB8293]"><option value="all">All genres</option>{categories.slice(1).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label><span className="sr-only">Country</span><select value={country} onChange={(event) => setCountry(event.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0B1220] px-4 py-3 text-sm text-white outline-none focus:border-[#DB8293]"><option value="all">All countries</option>{countries.slice(1).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label><span className="sr-only">Date range</span><select value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0B1220] px-4 py-3 text-sm text-white outline-none focus:border-[#DB8293]">{dateFilters.map((value) => <option key={value.id} value={value.id}>{value.label}</option>)}</select></label>
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-4">
-            World Cup 2026 <br />
-            <span className="bg-gradient-to-r from-[#DB8293] to-[#C49B55] bg-clip-text text-transparent">Tickets & Events</span>
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Secure your seat for matches and special events.
-          </p>
-        </motion.div>
+          <div className="mt-3 flex items-center gap-2 text-xs text-[#A7B0C0]"><Filter className="h-3.5 w-3.5" /> {filtered.length} curated event{filtered.length === 1 ? '' : 's'}</div>
+        </section>
 
-        {loading ? (
-          <div className="py-20 text-center">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-[#DB8293] border-t-transparent" />
-            <p className="text-gray-400 mt-4">Loading tickets...</p>
-          </div>
-        ) : items.length === 0 ? (
-          <div className="py-20 text-center">
-            <div className="text-5xl mb-4">🎟️</div>
-            <p className="text-gray-400">No tickets available at the moment.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {items.map((item) => {
-              const isMatch = item.type === 'match';
-              const stage = isMatch ? getStageLabel((item as MatchTicket).match_date) : 'Event';
-              const isFinal = stage.includes('FINAL');
-              const availCats = isMatch
-                ? TICKET_CATEGORIES.filter(c => getCategoryPrice(item as MatchTicket, c.id) > 0)
-                : (item as EventItem).tickets.map(t => ({
-                    id: t.id,
-                    name: t.category_name,
-                    price: t.price,
-                    icon: '🎫',
-                    color: 'from-[#C49B55] to-[#dcb16f]',
-                    quantity_available: t.quantity_available,
-                  }));
-
-              return (
-                <motion.div key={`${item.type}-${item.id}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                  <Card3D glowColor={isFinal ? 'rgba(219, 130, 147, 0.2)' : 'rgba(196, 155, 85, 0.1)'}>
-                    <div className={`p-6 bg-[#131C2E] rounded-2xl border border-white/5 ${isFinal ? 'border-b-2 border-[#DB8293]/30' : ''}`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${isFinal ? 'bg-[#DB8293]/20 text-[#DB8293] border border-[#DB8293]/30' : 'bg-white/5 text-gray-400 border border-white/10'}`}>
-                          {isMatch ? stage : '🎉 Event'}
-                        </span>
-                        <span className={`px-3 py-1 rounded-full text-xs border ${
-                          item.status === 'live' ? 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse' :
-                          item.status === 'finished' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
-                          'bg-green-500/20 text-green-400 border-green-500/30'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </div>
-
-                      <div className="mb-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <Calendar className="w-4 h-4 text-[#C49B55]" />
-                          <span>{formatDate(isMatch ? (item as MatchTicket).match_date : (item as EventItem).date)}</span>
-                          <span className="w-1 h-1 rounded-full bg-gray-600" />
-                          <MapPin className="w-4 h-4 text-[#DB8293]" />
-                          <span>{item.city}</span>
-                        </div>
-                        <h3 className="text-xl font-bold text-white mt-2">
-                          {isMatch ? `${(item as MatchTicket).home_team} vs ${(item as MatchTicket).away_team}` : (item as EventItem).title}
-                        </h3>
-                        <p className="text-gray-400 text-sm">{item.venue}</p>
-                      </div>
-
-                      <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {(availCats || []).map((cat: any) => {
-                          const isSoldOut = cat.quantity_available === 0;
-                          return (
-                            <div
-                              key={cat.id}
-                              className={`text-center p-2 rounded-lg bg-gradient-to-br ${cat.color} bg-opacity-10 border border-white/10 ${isSoldOut ? 'opacity-50' : ''}`}
-                            >
-                              <span className="text-xs">{cat.icon}</span>
-                              <p className="text-white font-bold text-sm">{isSoldOut ? 'Sold Out' : `$${cat.price}`}</p>
-                              <p className="text-gray-400 text-[10px]">{cat.name}</p>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <button
-                        onClick={() => handleBuy(item)}
-                        className={`mt-4 w-full py-3 rounded-xl font-bold hover:scale-105 transition-all shadow-lg ${
-                          item.status === 'finished'
-                            ? 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white shadow-[#DB8293]/25'
-                        }`}
-                        disabled={item.status === 'finished'}
-                      >
-                        {item.status === 'finished' ? 'Finished' : 'Buy Tickets'}
-                      </button>
-                    </div>
-                  </Card3D>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
+        {loading ? <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="h-96 animate-pulse rounded-2xl bg-white/[0.06]" />)}</div> : filtered.length === 0 ? <div className="rounded-2xl border border-white/10 bg-white/[0.04] py-20 text-center"><TicketIcon className="mx-auto mb-3 h-10 w-10 text-[#DB8293]" /><h2 className="text-xl font-bold text-white">No events match those filters</h2><p className="mt-2 text-[#A7B0C0]">Try another date, country, or genre.</p></div> : <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{filtered.map((item) => { const available = item.tickets.filter((ticket) => ticket.quantity_available > 0); return <Card3D key={item.id}><article className="overflow-hidden rounded-2xl border border-white/10 bg-[#0B1220]"><img src={item.image_url || FALLBACK_IMAGE} alt="" className="h-52 w-full object-cover" loading="lazy" /><div className="p-5"><div className="mb-3 flex items-center justify-between gap-3"><span className="rounded-full border border-[#DB8293]/30 bg-[#DB8293]/10 px-3 py-1 text-xs font-semibold text-[#DB8293]">{item.category}</span><span className="text-xs text-[#A7B0C0]">{available.length ? 'Tickets available' : 'Request access'}</span></div><h2 className="line-clamp-2 text-xl font-bold text-white">{item.title}</h2><div className="mt-3 space-y-2 text-sm text-[#A7B0C0]"><p className="flex items-center gap-2"><Calendar className="h-4 w-4 text-[#C49B55]" />{new Date(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</p><p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-[#DB8293]" />{item.venue}, {item.city}</p></div><div className="mt-5 grid grid-cols-2 gap-2"><button onClick={() => openPurchase(item)} className="rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] px-3 py-3 text-sm font-bold text-white transition hover:brightness-110">{available.length ? 'View tickets' : 'Request access'}</button><button onClick={() => navigate(`/listings?city=${encodeURIComponent(item.city)}`)} className="flex items-center justify-center gap-1 rounded-xl border border-white/10 px-3 py-3 text-sm font-semibold text-[#A7B0C0] transition hover:border-[#DB8293] hover:text-white"><Hotel className="h-4 w-4" />Find a stay</button></div></div></article></Card3D>; })}</div>}
       </div>
 
-      {/* ─── Purchase Modal ─── */}
-      {selectedItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={closeModal}>
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-[#131C2E] rounded-2xl border border-white/10 max-w-md w-full p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold text-white">
-                {selectedItem.type === 'match'
-                  ? `${(selectedItem as MatchTicket).home_team} vs ${(selectedItem as MatchTicket).away_team}`
-                  : (selectedItem as EventItem).title}
-              </h3>
-              <button onClick={closeModal} className="text-gray-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-gray-400 text-sm mb-4">{selectedItem.venue}, {selectedItem.city}</p>
-
-            <div className="space-y-3 mb-6">
-              <label className="text-gray-400 text-sm block">Select Ticket Category</label>
-              {selectedItem.type === 'match'
-                ? TICKET_CATEGORIES.filter(c => getCategoryPrice(selectedItem as MatchTicket, c.id) > 0).map((cat) => {
-                    const price = getCategoryPrice(selectedItem as MatchTicket, cat.id);
-                    const isSelected = selectedCategory === cat.id;
-                    return (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id)}
-                        className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border ${
-                          isSelected
-                            ? 'bg-[#DB8293]/20 border-[#DB8293]/40 ring-1 ring-[#DB8293]/20'
-                            : 'bg-white/5 border-white/10 hover:bg-white/10'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">{cat.icon}</span>
-                          <div className="text-left">
-                            <p className={`text-sm font-medium ${isSelected ? 'text-[#DB8293]' : 'text-white'}`}>{cat.name}</p>
-                            <p className="text-gray-500 text-xs">{cat.description}</p>
-                          </div>
-                        </div>
-                        <span className={`font-bold ${isSelected ? 'text-[#DB8293]' : 'text-white'}`}>${price}</span>
-                      </button>
-                    );
-                  })
-                : (selectedItem as EventItem).tickets.map((t) => {
-                    const isSelected = selectedCategory === t.id;
-                    const isSoldOut = t.quantity_available === 0;
-                    return (
-                      <button
-                        key={t.id}
-                        onClick={() => setSelectedCategory(t.id)}
-                        disabled={isSoldOut}
-                        className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border ${
-                          isSelected
-                            ? 'bg-[#DB8293]/20 border-[#DB8293]/40 ring-1 ring-[#DB8293]/20'
-                            : 'bg-white/5 border-white/10 hover:bg-white/10'
-                        } ${isSoldOut ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">🎫</span>
-                          <div className="text-left">
-                            <p className={`text-sm font-medium ${isSelected ? 'text-[#DB8293]' : 'text-white'}`}>{t.category_name}</p>
-                            <p className="text-gray-500 text-xs">{isSoldOut ? 'Sold Out' : `${t.quantity_available} available`}</p>
-                          </div>
-                        </div>
-                        <span className={`font-bold ${isSelected ? 'text-[#DB8293]' : 'text-white'}`}>${t.price}</span>
-                      </button>
-                    );
-                  })}
-            </div>
-
-            <div className="flex items-center gap-3 mb-6">
-              <label className="text-gray-400 text-sm">Quantity</label>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-8 h-8 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all"
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.min(10, Math.max(1, parseInt(e.target.value) || 1)))}
-                  className="w-16 px-3 py-2 text-center rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
-                />
-                <button
-                  onClick={() => setQuantity(Math.min(10, quantity + 1))}
-                  className="w-8 h-8 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-all"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-gradient-to-r from-[#DB8293]/10 to-[#C49B55]/10 border border-[#DB8293]/20 mb-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Subtotal</span>
-                <span className="text-white font-bold">
-                  ${(() => {
-                    let price = 0;
-                    if (selectedItem.type === 'match') {
-                      price = getCategoryPrice(selectedItem as MatchTicket, selectedCategory);
-                    } else {
-                      const ticket = (selectedItem as EventItem).tickets.find(t => t.id === selectedCategory);
-                      price = ticket?.price || 0;
-                    }
-                    return (price * quantity).toLocaleString();
-                  })()}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm text-gray-500 mt-1">
-                <span>Service fee</span>
-                <span>Included</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={closeModal}
-                className="flex-1 py-3 rounded-xl bg-white/10 text-gray-300 font-bold hover:bg-white/20 transition-all border border-white/10"
-              >
-                Continue Browsing
-              </button>
-              <button
-                onClick={handleBuyNow}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-105 transition-all shadow-lg shadow-[#DB8293]/25"
-              >
-                <ShoppingCart className="w-4 h-4 inline mr-2" />
-                Pay Now
-              </button>
-            </div>
-            <p className="text-gray-500 text-xs text-center mt-4">🔒 Secure checkout. One payment gateway for your whole cart.</p>
-          </motion.div>
-        </div>
-      )}
+      {selected && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onClick={() => setSelected(null)}><div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#0B1220] p-6" onClick={(event) => event.stopPropagation()}><div className="mb-5 flex items-start justify-between gap-4"><div><p className="text-sm text-[#DB8293]">{selected.category}</p><h2 className="mt-1 text-2xl font-bold text-white">{selected.title}</h2><p className="mt-1 text-sm text-[#A7B0C0]">{selected.venue}, {selected.city}</p></div><button onClick={() => setSelected(null)} aria-label="Close" className="rounded-lg p-2 text-[#A7B0C0] hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button></div>{selected.tickets.length ? <><label className="mb-2 block text-sm text-[#A7B0C0]">Ticket category</label><div className="space-y-2">{selected.tickets.map((ticket) => <button key={ticket.id} disabled={ticket.quantity_available === 0} onClick={() => setTicketId(ticket.id)} className={`flex w-full items-center justify-between rounded-xl border p-3 text-left ${ticketId === ticket.id ? 'border-[#DB8293] bg-[#DB8293]/10' : 'border-white/10 bg-white/[0.03]'} ${ticket.quantity_available === 0 ? 'cursor-not-allowed opacity-40' : ''}`}><span className="text-sm text-white">{ticket.name}<small className="ml-2 text-[#A7B0C0]">{ticket.quantity_available} available</small></span><strong className="text-[#C49B55]">${ticket.price.toLocaleString()}</strong></button>)}</div><div className="mt-5 flex items-center justify-between"><label className="text-sm text-[#A7B0C0]" htmlFor="quantity">Quantity</label><input id="quantity" type="number" min="1" max="10" value={quantity} onChange={(event) => setQuantity(Math.max(1, Math.min(10, Number(event.target.value) || 1)))} className="w-20 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-center text-white" /></div>{selectedTicket && <button onClick={addTicket} className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] py-4 font-bold text-white"><ShoppingCart className="h-4 w-4" />Add to checkout</button>}</> : <div className="rounded-xl border border-[#C49B55]/30 bg-[#C49B55]/10 p-4"><p className="font-semibold text-[#C49B55]">Request access to this event</p><p className="mt-1 text-sm leading-relaxed text-[#A7B0C0]">Tell us how many tickets and what seating level you want. We will verify availability before requesting payment.</p><button onClick={() => navigate('/contact')} className="mt-4 w-full rounded-xl bg-[#C49B55] py-3 font-bold text-[#071A36]">Contact Anna Travel Agency</button></div>}</div></div>}
     </main>
   );
 }

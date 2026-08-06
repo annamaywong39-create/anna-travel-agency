@@ -15,28 +15,12 @@ type PaymentMethod = 'bitcoin' | 'paypal' | 'steam';
 
 const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; time: string; timeColor: string; warning: string }[] = [
   {
-    id: 'bitcoin',
-    label: 'Bitcoin (BTC)',
-    icon: '₿',
-    time: '~10-30 minutes',
-    timeColor: 'text-[#DB8293]',
-    warning: '⚡ Bitcoin payments require blockchain confirmations. Your booking will be confirmed once the transaction is verified on the network (typically 10-30 minutes).',
-  },
-  {
     id: 'paypal',
-    label: 'PayPal',
+    label: 'PayPal request',
     icon: '🅿️',
-    time: 'Instant',
+    time: 'After availability check',
     timeColor: 'text-[#C49B55]',
-    warning: '💳 PayPal payments are processed instantly. You will be redirected to PayPal to complete your payment, then returned to confirm your booking.',
-  },
-  {
-    id: 'steam',
-    label: 'Steam Card',
-    icon: '🎮',
-    time: '~2 hours',
-    timeColor: 'text-[#DB8293]',
-    warning: '🎮 Steam card payments take approximately 2 hours to verify. Our team manually confirms the card codes. You will receive email confirmation once validated.',
+    warning: 'We will verify the room or ticket availability first, then send you a secure PayPal payment request. Your booking is not confirmed until payment is received and verified.',
   },
 ];
 
@@ -51,7 +35,7 @@ export default function Booking() {
 
   const listing = listings.find((l) => l.id === id);
   const [step, setStep] = useState<Step>('details');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bitcoin');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('paypal');
   const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '', lastName: user?.lastName || '',
@@ -414,26 +398,16 @@ export default function Booking() {
 
                       {paymentMethod === 'paypal' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                          <div className="p-6 rounded-xl bg-[#C49B55]/10 border border-[#C49B55]/30">
-                            <div className="flex items-center gap-3 mb-4">
-                              <span className="text-3xl">⚠️</span>
-                              <h3 className="text-[#C49B55] font-bold text-lg">PayPal Temporarily Unavailable</h3>
+                          <div className="rounded-xl border border-[#C49B55]/30 bg-[#C49B55]/10 p-6">
+                            <div className="mb-3 flex items-center gap-3">
+                              <span className="text-3xl">🅿️</span>
+                              <h3 className="text-lg font-bold text-[#C49B55]">PayPal payment request</h3>
                             </div>
-                            <p className="text-gray-300 text-sm mb-4">
-                              We're experiencing a temporary issue with PayPal. Please choose an alternative payment method.
+                            <p className="text-sm leading-relaxed text-gray-300">
+                              Select this option and submit your booking request. We will first verify the room or ticket availability, then send a secure PayPal payment request to your email.
                             </p>
-                            <div className="bg-white/5 rounded-lg p-4 mb-4">
-                              <p className="text-gray-400 text-sm">
-                                <strong className="text-white">Alternative Payment Options:</strong>
-                              </p>
-                              <ul className="text-gray-400 text-sm list-disc list-inside mt-2 space-y-1">
-                                <li>Pay with <strong className="text-[#DB8293]">Bitcoin (BTC)</strong></li>
-                                <li>Pay with <strong className="text-[#DB8293]">Steam Card</strong></li>
-                                <li><strong className="text-[#C49B55]">PayPal invoice</strong> will be emailed within 24 hours</li>
-                              </ul>
-                            </div>
-                            <p className="text-gray-500 text-xs">
-                              Questions? Email <a href="mailto:hello@annatravelagency.com" className="text-[#DB8293] hover:underline">hello@annatravelagency.com</a>
+                            <p className="mt-3 text-xs text-gray-500">
+                              Your booking is only confirmed after PayPal payment has been received and verified.
                             </p>
                           </div>
                         </motion.div>
