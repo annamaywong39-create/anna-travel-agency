@@ -4,42 +4,46 @@ const createdAt = '2026-07-23T00:00:00.000Z';
 
 type FeaturedEvent = Event & { tickets: EventTicket[] };
 
-function tickets(eventId: string, generalPrice: number): EventTicket[] {
-  return [
-    { id: `${eventId}-general`, event_id: eventId, category_name: 'General Admission', price: generalPrice, quantity_available: 250, created_at: createdAt },
-    { id: `${eventId}-premium`, event_id: eventId, category_name: 'Premium', price: generalPrice + 120, quantity_available: 80, created_at: createdAt },
-    { id: `${eventId}-vip`, event_id: eventId, category_name: 'VIP', price: generalPrice + 300, quantity_available: 25, created_at: createdAt },
-  ];
-}
-
 const images = {
   music: '/images/event-music.jpg',
   sport: '/images/event-sport.jpg',
   tech: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
   festival: 'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
+  bts: '/images/events/bts/bts-giveaway-light.png',
 };
 
 function event(id: string, title: string, date: string, venue: string, city: string, category: string, imageUrl: string, price: number, description: string): FeaturedEvent {
-  return { id, title, date, venue, city, category, description, image_url: imageUrl, status: 'upcoming', created_at: createdAt, tickets: tickets(id, price) };
+  // Price is retained in the seed signature for future verified inventory imports.
+  void price;
+  return { id, title, date, venue, city, category, description, image_url: imageUrl, status: 'upcoming', created_at: createdAt, tickets: [] };
 }
 
 // BTS ARIRANG North America dates still ahead as of 6 August 2026.
 // Tickets are intentionally empty until Anna verifies and acquires inventory.
 // The UI should present these as request-access events, not guaranteed stock.
 const BTS_REMAINING_2026: FeaturedEvent[] = [
-  event('bts-arirang-baltimore-2026-08-10', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-10T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
-  event('bts-arirang-baltimore-2026-08-11', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-11T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
-  event('bts-arirang-arlington-2026-08-15', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-15T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
-  event('bts-arirang-arlington-2026-08-16', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-16T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
-  event('bts-arirang-toronto-2026-08-22', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-22T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
-  event('bts-arirang-toronto-2026-08-23', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-23T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
-  event('bts-arirang-chicago-2026-08-27', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-27T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
-  event('bts-arirang-chicago-2026-08-28', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-28T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
-  event('bts-arirang-los-angeles-2026-09-01', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-01T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
-  event('bts-arirang-los-angeles-2026-09-02', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-02T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
-  event('bts-arirang-los-angeles-2026-09-05', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-05T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
-  event('bts-arirang-los-angeles-2026-09-06', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-06T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
-].map((item) => ({ ...item, tickets: [] }));
+  event('bts-arirang-baltimore-2026-08-10', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-10T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
+  event('bts-arirang-baltimore-2026-08-11', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-11T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
+  event('bts-arirang-arlington-2026-08-15', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-15T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
+  event('bts-arirang-arlington-2026-08-16', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-16T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
+  event('bts-arirang-toronto-2026-08-22', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-22T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
+  event('bts-arirang-toronto-2026-08-23', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-23T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
+  event('bts-arirang-chicago-2026-08-27', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-27T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
+  event('bts-arirang-chicago-2026-08-28', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-28T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
+  event('bts-arirang-los-angeles-2026-09-01', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-01T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-02', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-02T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-05', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-05T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-06', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-06T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+].map((item) => item.id === 'bts-arirang-baltimore-2026-08-10'
+  ? {
+      ...item,
+      tickets: [
+        { id: 'bts-baltimore-532-r16', event_id: item.id, category_name: 'Five Hundreds Level 532', section: '532', row: '16', seat_details: '2 mobile tickets', price: 149, quantity_available: 2, delivery_method: 'Mobile transfer', delivery_timing: 'Evening before event', created_at: createdAt },
+        { id: 'bts-baltimore-field-r13', event_id: item.id, category_name: 'Field R', section: 'Field R', row: '13', seat_details: '2 tickets', price: 973, quantity_available: 2, delivery_method: 'Mobile transfer', delivery_timing: 'Evening before event', created_at: createdAt },
+        { id: 'bts-baltimore-133-r32', event_id: item.id, category_name: 'Hundreds Level 133', section: '133', row: '32', seat_details: '2 tickets', price: 371, quantity_available: 2, delivery_method: 'Mobile transfer', delivery_timing: 'Evening before event', created_at: createdAt },
+      ],
+    }
+  : { ...item, tickets: [] });
 
 export const FEATURED_US_EVENTS: FeaturedEvent[] = [
   ...BTS_REMAINING_2026,

@@ -125,6 +125,21 @@ export const LISTINGS: Listing[] = [
     images: ['/images/hotel-room.jpg', '/images/apartment-2.jpg'], amenities: ['WiFi', 'Kitchen', 'Washer', 'TV'], maxGuests: 2, bedrooms: 1,
     description: 'A bright Queen West suite close to dining, culture, and event transport.', nearestStadium: 'BMO Field', distanceToStadium: '3 miles', available: true,
   },
+  {
+    id: 'hotel-miami-001', title: 'Brickell Palm Hotel', type: 'hotel', city: 'Miami', cityId: 'miami', price: 245, rating: 4.6, reviews: 38,
+    images: ['/images/hotel-luxury.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Front desk', 'Pool', 'Breakfast'], maxGuests: 2, bedrooms: 1,
+    description: 'A polished hotel base for Miami event weekends. Availability is confirmed with the hotel after your request.', nearestStadium: 'Hard Rock Stadium', distanceToStadium: '9 miles', available: true,
+  },
+  {
+    id: 'hotel-nyc-001', title: 'Midtown Grand Hotel', type: 'hotel', city: 'New York', cityId: 'nyc', price: 295, rating: 4.5, reviews: 52,
+    images: ['/images/hotel-room.jpg', '/images/city.jpg'], amenities: ['WiFi', '24/7 front desk', 'Gym', 'Concierge'], maxGuests: 2, bedrooms: 1,
+    description: 'A central hotel option for travellers attending events across New York and New Jersey.', nearestStadium: 'MetLife Stadium', distanceToStadium: '13 miles', available: true,
+  },
+  {
+    id: 'hotel-la-001', title: 'SoFi City Hotel', type: 'hotel', city: 'Los Angeles', cityId: 'la', price: 275, rating: 4.7, reviews: 44,
+    images: ['/images/hotel-luxury.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Pool', 'Parking', 'Concierge'], maxGuests: 2, bedrooms: 1,
+    description: 'A comfortable Los Angeles hotel option for major stadium events and concert weekends.', nearestStadium: 'SoFi Stadium', distanceToStadium: '4 miles', available: true,
+  },
 ];
 
 

@@ -76,6 +76,11 @@ export interface EventTicket {
   id: string;
   event_id: string;
   category_name: string;
+  section?: string;
+  row?: string;
+  seat_details?: string;
+  delivery_method?: string;
+  delivery_timing?: string;
   price: number;
   quantity_available: number;
   created_at: string;
@@ -278,6 +283,11 @@ function rowToEventTicket(r: Record<string, unknown>): EventTicket {
     id: r.id as string,
     event_id: r.event_id as string,
     category_name: r.category_name as string,
+    section: r.section ? String(r.section) : undefined,
+    row: r.row ? String(r.row) : undefined,
+    seat_details: r.seat_details ? String(r.seat_details) : undefined,
+    delivery_method: r.delivery_method ? String(r.delivery_method) : undefined,
+    delivery_timing: r.delivery_timing ? String(r.delivery_timing) : undefined,
     price: r.price as number,
     quantity_available: r.quantity_available as number,
     created_at: r.created_at as string,
