@@ -43,15 +43,15 @@ export default function Admin() {
   const [allTicketOrders, setAllTicketOrders] = useState<TicketOrder[]>([]);
   const [loadingTicketOrders, setLoadingTicketOrders] = useState(false);
 
-  if (!user || user.role !== 'admin') {
-    return <Navigate to="/login" replace />;
-  }
-
   useEffect(() => {
     if (activeTab === 'users') loadUsers();
     if (activeTab === 'events') loadEvents();
     if (activeTab === 'bookings' || activeTab === 'overview') loadTicketOrders();
   }, [activeTab]);
+
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/login" replace />;
+  }
 
   const loadUsers = async () => {
     setLoadingUsers(true);

@@ -7,7 +7,7 @@ interface ImageGalleryProps {
   title: string;
 }
 
-const FALLBACK_IMAGE = 'https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200';
+const FALLBACK_IMAGE = '/images/hotel-luxury.jpg';
 
 export default function ImageGallery({ images, title }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);

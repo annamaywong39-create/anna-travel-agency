@@ -44,7 +44,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
   const { format } = useCurrency();
   const badgeClass = typeBadgeColors[normalizedListing.type] || typeBadgeColors.hotel;
   const gradientClass = typeColors[normalizedListing.type] || typeColors.hotel;
-  const imageSrc = normalizedListing.images[0] || 'https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200';
+  const imageSrc = normalizedListing.images[0] || '/images/hotel-luxury.jpg';
 
   return (
     <motion.div

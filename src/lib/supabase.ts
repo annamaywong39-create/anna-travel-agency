@@ -1,17 +1,15 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-// 🔥 HARDCODED — guaranteed to work regardless of Vercel env vars
-const supabaseUrl = 'https://wtktniphfzeltvajpbhb.supabase.co';
-const supabaseAnon = 'sb_publishable_4E748vUDiLSXThheSvniYA_ICB97paN';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-/**
- * Always true because we hardcoded real keys.
- */
-export const isSupabaseConfigured =
-  supabaseUrl.length > 0 &&
-  supabaseAnon.length > 0 &&
-  !supabaseUrl.includes('your-project');
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnon);
+// Keep the app buildable without local secrets. Data operations must be disabled
+// until these variables are supplied in Vercel or a local .env file.
+export const supabase: SupabaseClient = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key',
+);
 
 export default supabase;

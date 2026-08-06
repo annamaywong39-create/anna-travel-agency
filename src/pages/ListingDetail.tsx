@@ -25,7 +25,7 @@ export default function ListingDetail() {
   const avgRating = id ? getListingAverageRating(id) : 0;
   const displayRating = reviews.length > 0 ? avgRating : listing?.rating || 0;
   const displayReviews = reviews.length > 0 ? reviews.length : listing?.reviews || 0;
-  const safeImages = listing?.images?.length ? listing.images : ['https://images.pexels.com/photos/6434592/pexels-photo-6434592.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'];
+  const safeImages = listing?.images?.length ? listing.images : ['/images/hotel-luxury.jpg'];
   const safeAmenities = listing?.amenities?.length ? listing.amenities : [];
 
   if (!listing) {

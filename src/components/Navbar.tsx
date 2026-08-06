@@ -54,22 +54,28 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20">
             {/* ─── LOGO ─── */}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="relative w-12 h-12">
+              <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-xl bg-white/5">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#DB8293]/20 to-[#C49B55]/20" />
                 <img
                   src="/logo.png"
                   alt="Anna Travel Agency"
-                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  width={48}
+                  height={48}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  className="absolute inset-0 z-10 w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const fallback = document.getElementById('nav-fallback');
                     if (fallback) fallback.classList.remove('hidden');
                   }}
                 />
-                <div id="nav-fallback" className="hidden flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center shadow-lg shadow-[#DB8293]/30">
+                <div id="nav-fallback" className="absolute inset-0 z-20 hidden items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center shadow-lg shadow-[#DB8293]/30 shrink-0">
                     <span className="text-white font-bold text-xl">A</span>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-xl font-bold text-white">Anna</span>
                     <span className="block text-[10px] tracking-[0.3em] text-[#C49B55] uppercase font-medium">
                       TRAVEL AGENCY

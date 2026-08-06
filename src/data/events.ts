@@ -13,8 +13,8 @@ function tickets(eventId: string, generalPrice: number): EventTicket[] {
 }
 
 const images = {
-  music: 'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
-  sport: 'https://images.pexels.com/photos/1432039/pexels-photo-1432039.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
+  music: '/images/event-music.jpg',
+  sport: '/images/event-sport.jpg',
   tech: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
   festival: 'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
 };
@@ -23,7 +23,26 @@ function event(id: string, title: string, date: string, venue: string, city: str
   return { id, title, date, venue, city, category, description, image_url: imageUrl, status: 'upcoming', created_at: createdAt, tickets: tickets(id, price) };
 }
 
+// BTS ARIRANG North America dates still ahead as of 6 August 2026.
+// Tickets are intentionally empty until Anna verifies and acquires inventory.
+// The UI should present these as request-access events, not guaranteed stock.
+const BTS_REMAINING_2026: FeaturedEvent[] = [
+  event('bts-arirang-baltimore-2026-08-10', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-10T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
+  event('bts-arirang-baltimore-2026-08-11', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-11T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
+  event('bts-arirang-arlington-2026-08-15', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-15T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
+  event('bts-arirang-arlington-2026-08-16', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-16T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
+  event('bts-arirang-toronto-2026-08-22', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-22T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
+  event('bts-arirang-toronto-2026-08-23', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-23T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
+  event('bts-arirang-chicago-2026-08-27', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-27T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
+  event('bts-arirang-chicago-2026-08-28', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-28T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
+  event('bts-arirang-los-angeles-2026-09-01', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-01T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-02', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-02T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-05', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-05T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-06', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-06T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+].map((item) => ({ ...item, tickets: [] }));
+
 export const FEATURED_US_EVENTS: FeaturedEvent[] = [
+  ...BTS_REMAINING_2026,
   event('lollapalooza-2026', 'Lollapalooza 2026', '2026-07-30T12:00:00', 'Grant Park', 'Chicago, IL', 'Music', images.music, 179, 'Chicago\'s four-day lakefront music festival.'),
   event('us-open-fan-week-2026', 'US Open Fan Week', '2026-08-23T09:30:00', 'USTA Billie Jean King National Tennis Center', 'Queens, NY', 'Tennis', images.sport, 65, 'The opening week of tennis, fan activities, and qualifying matches.'),
   event('us-open-opening-2026', 'US Open Opening Week', '2026-08-30T12:00:00', 'Arthur Ashe Stadium', 'Queens, NY', 'Tennis', images.sport, 160, 'Opening-round sessions at the season\'s final Grand Slam.'),

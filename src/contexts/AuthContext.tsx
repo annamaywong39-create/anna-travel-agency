@@ -1,4 +1,5 @@
-﻿import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 type UserRole = 'user' | 'admin';
 
@@ -11,7 +12,6 @@ export interface AuthUser {
   phone?: string;
   country?: string;
   createdAt: string;
-  password?: string;
 }
 
 interface AuthContextType {
@@ -19,61 +19,30 @@ interface AuthContextType {
   isAuthReady: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (data: { email: string; password: string; firstName: string; lastName: string }) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-  updateProfile: (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => void;
+  logout: () => Promise<void>;
+  updateProfile: (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const DEMO_USERS_KEY = 'ath_users';
-const DEMO_SESSION_KEY = 'ath_session';
-
-function safeParseUsers(): AuthUser[] {
-  if (typeof window === 'undefined') return [];
-
-  try {
-    const saved = window.localStorage.getItem(DEMO_USERS_KEY);
-    if (!saved) return [];
-    const parsed = JSON.parse(saved) as AuthUser[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function createDemoAdmin(): AuthUser {
+function fromAuthUser(authUser: { id: string; email?: string | null; created_at?: string; user_metadata?: Record<string, unknown> }, profile?: Record<string, unknown> | null): AuthUser {
+  const metadata = authUser.user_metadata || {};
   return {
-    id: 'demo-admin',
-    email: 'admin@annatravelagency.com',
-    password: 'admin123',
-    firstName: 'Admin',
-    lastName: 'User',
-    role: 'admin',
-    createdAt: new Date().toISOString(),
+    id: authUser.id,
+    email: authUser.email || String(profile?.email || ''),
+    firstName: String(profile?.first_name || metadata.firstName || metadata.first_name || 'Traveler'),
+    lastName: String(profile?.last_name || metadata.lastName || metadata.last_name || ''),
+    role: profile?.role === 'admin' ? 'admin' : 'user',
+    phone: profile?.phone ? String(profile.phone) : authUser.user_metadata?.phone ? String(authUser.user_metadata.phone) : undefined,
+    country: profile?.country ? String(profile.country) : undefined,
+    createdAt: String(profile?.created_at || authUser.created_at || new Date().toISOString()),
   };
 }
 
-function bootUsers() {
-  if (typeof window === 'undefined') return;
-
-  const currentUsers = safeParseUsers();
-  if (currentUsers.length === 0) {
-    window.localStorage.setItem(DEMO_USERS_KEY, JSON.stringify([createDemoAdmin()]));
-  }
-}
-
-function sanitizeUser(user: Partial<AuthUser> | null): AuthUser | null {
-  if (!user || !user.id || !user.email || !user.firstName || !user.lastName) return null;
-  return {
-    id: String(user.id),
-    email: String(user.email),
-    firstName: String(user.firstName),
-    lastName: String(user.lastName),
-    role: user.role === 'admin' ? 'admin' : 'user',
-    phone: user.phone ? String(user.phone) : undefined,
-    country: user.country ? String(user.country) : undefined,
-    createdAt: user.createdAt ? String(user.createdAt) : new Date().toISOString(),
-  };
+async function loadProfile(authUser: { id: string; email?: string | null; created_at?: string; user_metadata?: Record<string, unknown> }) {
+  if (!isSupabaseConfigured) return null;
+  const { data } = await supabase.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
+  return fromAuthUser(authUser, data);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -81,107 +50,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    bootUsers();
-
-    const session = window.localStorage.getItem(DEMO_SESSION_KEY);
-    if (session) {
-      try {
-        const parsedSession = JSON.parse(session) as Partial<AuthUser>;
-        const hydratedUser = sanitizeUser(parsedSession);
-        if (hydratedUser) {
-          setUser(hydratedUser);
-        }
-      } catch {
-        window.localStorage.removeItem(DEMO_SESSION_KEY);
-      }
+    if (!isSupabaseConfigured) {
+      setIsAuthReady(true);
+      return;
     }
 
-    setIsAuthReady(true);
+    let mounted = true;
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!mounted) return;
+      if (data.session?.user) setUser(await loadProfile(data.session.user));
+      setIsAuthReady(true);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      if (!session?.user) {
+        setUser(null);
+        return;
+      }
+      // Avoid awaiting Supabase calls inside the auth callback.
+      void loadProfile(session.user).then((profile) => mounted && setUser(profile));
+    });
+
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
-  useEffect(() => {
-    if (!isAuthReady) return;
-
-    if (user) {
-      window.localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(user));
-    } else {
-      window.localStorage.removeItem(DEMO_SESSION_KEY);
-    }
-  }, [isAuthReady, user]);
-
   const login = async (email: string, password: string) => {
-    const users = safeParseUsers();
-    const match = users.find((entry) => entry.email.toLowerCase() === email.toLowerCase() && entry.password === password);
-
-    if (!match) {
-      return { success: false, error: 'Invalid email or password' };
-    }
-
-    const sessionUser = sanitizeUser(match);
-    if (!sessionUser) {
-      return { success: false, error: 'Unable to restore account data' };
-    }
-
-    setUser(sessionUser);
-    return { success: true };
+    if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    return error ? { success: false, error: error.message } : { success: true };
   };
 
   const signup = async (data: { email: string; password: string; firstName: string; lastName: string }) => {
-    const users = safeParseUsers();
-    const email = data.email.trim().toLowerCase();
-
-    if (users.some((entry) => entry.email.toLowerCase() === email)) {
-      return { success: false, error: 'An account with this email already exists' };
-    }
-
-    const nextUser: AuthUser = {
-      id: `user-${Date.now()}`,
-      email,
+    if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
+    const { error } = await supabase.auth.signUp({
+      email: data.email.trim().toLowerCase(),
       password: data.password,
-      firstName: data.firstName.trim(),
-      lastName: data.lastName.trim(),
-      role: 'user',
-      createdAt: new Date().toISOString(),
-    };
-
-    const nextUsers = [...users, nextUser];
-    window.localStorage.setItem(DEMO_USERS_KEY, JSON.stringify(nextUsers));
-    setUser(nextUser);
-    return { success: true };
+      options: { data: { firstName: data.firstName.trim(), lastName: data.lastName.trim() } },
+    });
+    return error ? { success: false, error: error.message } : { success: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (isSupabaseConfigured) await supabase.auth.signOut();
     setUser(null);
-    window.localStorage.removeItem(DEMO_SESSION_KEY);
   };
 
-  const updateProfile = (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => {
-    if (!user) return;
-
-    const nextUser: AuthUser = {
-      ...user,
-      firstName: data.firstName ?? user.firstName,
-      lastName: data.lastName ?? user.lastName,
-      phone: data.phone ?? user.phone,
-      country: data.country ?? user.country,
+  const updateProfile = async (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => {
+    if (!user || !isSupabaseConfigured) return;
+    const patch = {
+      ...(data.firstName !== undefined ? { first_name: data.firstName } : {}),
+      ...(data.lastName !== undefined ? { last_name: data.lastName } : {}),
+      ...(data.phone !== undefined ? { phone: data.phone } : {}),
+      ...(data.country !== undefined ? { country: data.country } : {}),
     };
-
-    setUser(nextUser);
-
-    const users = safeParseUsers();
-    const nextUsers = users.map((entry) => (entry.id === user.id ? nextUser : entry));
-    window.localStorage.setItem(DEMO_USERS_KEY, JSON.stringify(nextUsers));
+    const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
+    if (error) throw error;
+    setUser((current) => current ? { ...current, firstName: data.firstName ?? current.firstName, lastName: data.lastName ?? current.lastName, phone: data.phone ?? current.phone, country: data.country ?? current.country } : current);
   };
 
-  const value = useMemo<AuthContextType>(() => ({
-    user,
-    isAuthReady,
-    login,
-    signup,
-    logout,
-    updateProfile,
-  }), [user, isAuthReady]);
-
+  const value = useMemo(() => ({ user, isAuthReady, login, signup, logout, updateProfile }), [user, isAuthReady]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

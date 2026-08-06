@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, AlertCircle, Eye, EyeOff, UserPlus, CheckCircle2 } from 'lucide-react';
@@ -18,10 +18,11 @@ export default function Signup() {
   const { signup, user } = useAuth();
   const navigate = useNavigate();
 
-  if (user) {
-    navigate('/dashboard', { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (user) navigate('/dashboard', { replace: true });
+  }, [user, navigate]);
+
+  if (user) return null;
 
   const passwordStrength = () => {
     const p = formData.password;

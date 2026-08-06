@@ -4,7 +4,7 @@ import { FaTiktok, FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa';
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#0B1220] border-t border-white/5">
+    <footer className="relative bg-[#0B1220] border-t border-white/5 overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#DB8293]/50 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -12,11 +12,17 @@ export default function Footer() {
           {/* ─── Brand with Logo ─── */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12">
+              <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-xl bg-white/5">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#DB8293]/20 to-[#C49B55]/20" />
                 <img
                   src="/logo.png"
                   alt="Anna Travel Agency"
-                  className="w-full h-full object-contain"
+                  width={48}
+                  height={48}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  className="absolute inset-0 z-10 w-full h-full object-contain"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const fallback = document.getElementById('footer-fallback');
@@ -24,11 +30,11 @@ export default function Footer() {
                   }}
                 />
                 {/* Fallback text logo */}
-                <div id="footer-fallback" className="hidden flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center">
+                <div id="footer-fallback" className="absolute inset-0 z-20 hidden items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DB8293] to-[#C49B55] flex items-center justify-center shrink-0">
                     <span className="text-white font-bold text-xl">A</span>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-lg font-bold text-white">Anna</span>
                     <div className="flex items-center gap-1 text-[10px] text-[#C49B55] tracking-wider">
                       TRAVEL AGENCY

@@ -92,10 +92,10 @@ export default function LiveChat() {
   return (
     <>
       {/* Chat button */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {!isOpen && (
           <motion.button
-            initial={{ scale: 0 }}
+            initial={false}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
             whileHover={{ scale: 1.1 }}
