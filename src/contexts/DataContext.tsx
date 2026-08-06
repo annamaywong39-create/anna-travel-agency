@@ -430,47 +430,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
       await sendAdminNotification(newBooking);
       return newBooking;
     }
-    try {
-      const { data, error } = await supabase.from('bookings').insert({
-        listing_id: booking.listingId,
-        user_id: booking.userId,
-        user_email: booking.userEmail,
-        user_name: booking.userName,
-        check_in: booking.checkIn,
-        check_out: booking.checkOut,
-        guests: booking.guests,
-        total_price: booking.totalPrice,
-        status: booking.status,
-        special_requests: booking.specialRequests,
-        payment_method: booking.paymentMethod || null,
-      }).select().single();
+    const { data, error } = await supabase.from('bookings').insert({
+      listing_id: booking.listingId,
+      user_id: booking.userId,
+      user_email: booking.userEmail,
+      user_name: booking.userName,
+      check_in: booking.checkIn,
+      check_out: booking.checkOut,
+      guests: booking.guests,
+      total_price: booking.totalPrice,
+      status: booking.status,
+      special_requests: booking.specialRequests,
+      payment_method: booking.paymentMethod || null,
+    }).select().single();
 
-      if (error || !data) {
-        const fallbackBooking: Booking = {
-          ...booking,
-          id: generatedId,
-          paymentMethod: booking.paymentMethod,
-          createdAt: new Date().toISOString(),
-        };
-        setBookings(prev => [...prev, fallbackBooking]);
-        await sendAdminNotification(fallbackBooking);
-        return fallbackBooking;
-      }
-      const newBooking = rowToBooking(data);
-      setBookings(prev => [...prev, newBooking]);
-      await sendAdminNotification(newBooking);
-      return newBooking;
-    } catch (error) {
-      const fallbackBooking: Booking = {
-        ...booking,
-        id: generatedId,
-        paymentMethod: booking.paymentMethod,
-        createdAt: new Date().toISOString(),
-      };
-      setBookings(prev => [...prev, fallbackBooking]);
-      await sendAdminNotification(fallbackBooking);
-      return fallbackBooking;
+    if (error || !data) {
+      throw new Error(error?.message || 'Booking could not be saved. Please try again.');
     }
+
+    const newBooking = rowToBooking(data);
+    setBookings(prev => [...prev, newBooking]);
+    await sendAdminNotification(newBooking);
+    return newBooking;
   };
 
   const sendAdminNotification = async (booking: Booking) => {
@@ -538,45 +519,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
       return newOrder;
     }
 
-    try {
-      // Ensure ticket_id is always a string
-      const ticketId = String(order.ticketId || 'ticket-' + generatedId);
-      
-      const { data, error } = await supabase.from('ticket_orders').insert({
-        user_id: order.userId,
-        ticket_id: ticketId,
-        quantity: order.quantity,
-        total_price: order.totalPrice,
-        payment_method: order.paymentMethod || 'pending',
-        status: order.status || 'pending',
-      }).select().single();
+    // Ticket IDs can be composite strings when inventory comes from a resale source.
+    const ticketId = String(order.ticketId || 'ticket-' + generatedId);
+    const { data, error } = await supabase.from('ticket_orders').insert({
+      user_id: order.userId,
+      ticket_id: ticketId,
+      quantity: order.quantity,
+      total_price: order.totalPrice,
+      payment_method: order.paymentMethod || 'pending',
+      status: order.status || 'pending',
+    }).select().single();
 
-      if (error) {
-        console.error('❌ Supabase insert error:', error);
-        // Fallback - save locally
-        const fallback: TicketOrder = {
-          ...order,
-          id: generatedId,
-          createdAt: new Date().toISOString(),
-        };
-        setTicketOrders(prev => [...prev, fallback]);
-        return fallback;
-      }
-
-      const newOrder = rowToTicketOrder(data);
-      setTicketOrders(prev => [...prev, newOrder]);
-      console.log('✅ Ticket order saved:', newOrder);
-      return newOrder;
-    } catch (err) {
-      console.error('❌ addTicketOrder error:', err);
-      const fallback: TicketOrder = {
-        ...order,
-        id: generatedId,
-        createdAt: new Date().toISOString(),
-      };
-      setTicketOrders(prev => [...prev, fallback]);
-      return fallback;
+    if (error || !data) {
+      throw new Error(error?.message || 'Ticket order could not be saved. Please try again.');
     }
+
+    const newOrder = rowToTicketOrder(data);
+    setTicketOrders(prev => [...prev, newOrder]);
+    return newOrder;
   };
 
   const updateTicketOrder = async (id: string, data: Partial<TicketOrder>) => {
