@@ -128,7 +128,7 @@ export default function Events() {
                 transition={{ delay: i * 0.05 }}
               >
                 <Card3D glowColor={event.status === 'live' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.1)'}>
-                  <div className="relative overflow-hidden rounded-t-2xl">
+                  <div className="relative event-media rounded-t-2xl">
                     <img
                       src={event.image_url || 'https://images.pexels.com/photos/31514419/pexels-photo-31514419.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=500'}
                       alt={event.title}

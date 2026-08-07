@@ -39,6 +39,13 @@ export default function Navbar() {
     setCartOpen(false);
   }, [location]);
 
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   return (
     <>
       <motion.nav
@@ -200,6 +207,9 @@ export default function Navbar() {
             {/* Mobile toggle */}
             <button
               onClick={() => setIsOpen(!isOpen)}
+              aria-expanded={isOpen}
+              aria-controls="mobile-navigation"
+              aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
               className="lg:hidden p-2 rounded-lg bg-white/10 text-white"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -215,7 +225,8 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-[#0B1220]/98 backdrop-blur-xl pt-24 px-6 lg:hidden"
+            id="mobile-navigation"
+            className="fixed inset-0 z-40 h-[100dvh] overflow-y-auto overscroll-contain bg-[#0B1220]/98 px-6 pb-10 pt-24 backdrop-blur-xl lg:hidden"
           >
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => (

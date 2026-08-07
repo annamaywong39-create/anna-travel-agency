@@ -56,7 +56,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
       <Card3D>
         <Link to={`/listing/${normalizedListing.id}`} className="block">
           {/* ─── Image ─── */}
-          <div className="relative h-52 overflow-hidden">
+          <div className="relative property-media h-52">
             <img
               src={imageSrc}
               alt={normalizedListing.title}

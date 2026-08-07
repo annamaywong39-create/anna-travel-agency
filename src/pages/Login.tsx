@@ -10,6 +10,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockSeconds, setLockSeconds] = useState(0);
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
@@ -19,8 +21,15 @@ export default function Login() {
     navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
   }, [user, navigate]);
 
+  useEffect(() => {
+    if (lockSeconds <= 0) return;
+    const timer = window.setInterval(() => setLockSeconds((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [lockSeconds]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (lockSeconds > 0) return;
     setError('');
     setIsLoading(true);
 
@@ -28,7 +37,17 @@ export default function Login() {
       const result = await login(email.trim(), password);
 
       if (!result.success) {
-        setError(result.error || 'Login failed. Please check your details.');
+        const nextAttempts = failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
+        const rateLimited = /too many|rate limit|rate_limit/i.test(result.error || '');
+        if (rateLimited || nextAttempts >= 5) {
+          setLockSeconds(60);
+          setError('Too many unsuccessful attempts. Please wait 60 seconds before trying again.');
+        } else {
+          setError(result.error || 'Login failed. Please check your details.');
+        }
+      } else {
+        setFailedAttempts(0);
       }
     } catch {
       setError('Something went wrong. Please try again.');
@@ -120,7 +139,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || lockSeconds > 0}
               className="w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
@@ -136,6 +155,12 @@ export default function Login() {
               )}
             </button>
           </form>
+
+          <div className="mt-4 text-center">
+            <Link to="/forgot-password" className="text-sm text-[#DB8293] hover:text-[#C49B55] focus:outline-none focus:ring-2 focus:ring-[#DB8293] rounded">
+              Forgot your password?
+            </Link>
+          </div>
 
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">

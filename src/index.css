@@ -13,7 +13,28 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0a0a1a;
+  background: #F8F5F0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Reserve media space before images arrive to prevent layout shifts. */
+.event-media,
+.property-media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Scrollbar */

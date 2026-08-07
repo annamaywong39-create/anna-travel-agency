@@ -118,6 +118,11 @@ export default function Tickets() {
           tickets: (ticketRows || []).filter((ticket) => ticket.event_id === event.id).map((ticket) => ({
             id: ticket.id,
             name: ticket.category_name,
+            section: ticket.section ? String(ticket.section) : undefined,
+            row: ticket.row ? String(ticket.row) : undefined,
+            seat_details: ticket.seat_details ? String(ticket.seat_details) : undefined,
+            delivery_method: ticket.delivery_method ? String(ticket.delivery_method) : undefined,
+            delivery_timing: ticket.delivery_timing ? String(ticket.delivery_timing) : undefined,
             price: Number(ticket.price) || 0,
             quantity_available: Number(ticket.quantity_available) || 0,
           })),

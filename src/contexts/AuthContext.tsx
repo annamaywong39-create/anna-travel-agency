@@ -19,6 +19,8 @@ interface AuthContextType {
   isAuthReady: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (data: { email: string; password: string; firstName: string; lastName: string }) => Promise<{ success: boolean; error?: string }>;
+  requestPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateProfile: (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => Promise<void>;
 }
@@ -94,6 +96,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error ? { success: false, error: error.message } : { success: true };
   };
 
+  const requestPasswordReset = async (email: string) => {
+    if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
+    const redirectTo = `${window.location.origin}/#/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    return error ? { success: false, error: error.message } : { success: true };
+  };
+
+  const updatePassword = async (password: string) => {
+    if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
+    const { error } = await supabase.auth.updateUser({ password });
+    return error ? { success: false, error: error.message } : { success: true };
+  };
+
   const logout = async () => {
     if (isSupabaseConfigured) await supabase.auth.signOut();
     setUser(null);
@@ -112,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser((current) => current ? { ...current, firstName: data.firstName ?? current.firstName, lastName: data.lastName ?? current.lastName, phone: data.phone ?? current.phone, country: data.country ?? current.country } : current);
   };
 
-  const value = useMemo(() => ({ user, isAuthReady, login, signup, logout, updateProfile }), [user, isAuthReady]);
+  const value = useMemo(() => ({ user, isAuthReady, login, signup, requestPasswordReset, updatePassword, logout, updateProfile }), [user, isAuthReady]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

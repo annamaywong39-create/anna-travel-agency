@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, CreditCard, Shield, CheckCircle2, Calendar, Users, MapPin,
-  Lock, AlertCircle, Clock, Plus, X, Copy, Check, ShoppingCart
+  Lock, AlertCircle, Clock, ShoppingCart
 } from 'lucide-react';
 import Card3D from '../components/Card3D';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,7 +11,7 @@ import { useData } from '../contexts/DataContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 
 type Step = 'details' | 'payment' | 'confirmation';
-type PaymentMethod = 'bitcoin' | 'paypal' | 'steam';
+type PaymentMethod = 'paypal';
 
 const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; time: string; timeColor: string; warning: string }[] = [
   {
@@ -24,7 +24,6 @@ const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; time: s
   },
 ];
 
-const BITCOIN_WALLET = 'bc1q246ztlqc0gltax4dt77p50gxdzzqy67zg8aez4';
 
 export default function Booking() {
   const { id } = useParams();
@@ -36,7 +35,6 @@ export default function Booking() {
   const listing = listings.find((l) => l.id === id);
   const [step, setStep] = useState<Step>('details');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('paypal');
-  const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '', lastName: user?.lastName || '',
     email: user?.email || '', phone: user?.phone || '',
@@ -44,7 +42,6 @@ export default function Booking() {
     checkOut: '2026-06-18', guests: '2', specialRequests: '',
   });
 
-  const [steamCodes, setSteamCodes] = useState<string[]>(['']);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [cartAdded, setCartAdded] = useState(false);
 
@@ -74,17 +71,7 @@ export default function Booking() {
     return Object.keys(e).length === 0;
   };
 
-  const validatePayment = () => {
-    const e: Record<string, string> = {};
-    if (paymentMethod === 'steam') {
-      const validCodes = steamCodes.filter(c => c.trim().length > 0);
-      if (validCodes.length === 0) {
-        e.steam = 'At least one Steam card code is required';
-      }
-    }
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+  const validatePayment = () => true;
 
   const handleDetailsSubmit = () => {
     if (validateDetails()) setStep('payment');
@@ -145,32 +132,6 @@ export default function Booking() {
     });
 
     navigate('/checkout');
-  };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(BITCOIN_WALLET);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    } catch (err) {
-      alert('Please copy the address manually: ' + BITCOIN_WALLET);
-    }
-  };
-
-  const addSteamCode = () => {
-    setSteamCodes([...steamCodes, '']);
-  };
-
-  const removeSteamCode = (index: number) => {
-    if (steamCodes.length > 1) {
-      setSteamCodes(steamCodes.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateSteamCode = (index: number, value: string) => {
-    const newCodes = [...steamCodes];
-    newCodes[index] = value.toUpperCase();
-    setSteamCodes(newCodes);
   };
 
   const inputCls = (field: string) =>
@@ -339,9 +300,7 @@ export default function Booking() {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         className={`mb-6 p-4 rounded-xl border flex items-start gap-3 ${
-                          paymentMethod === 'bitcoin' ? 'bg-[#DB8293]/10 border-[#DB8293]/20' :
-                          paymentMethod === 'paypal' ? 'bg-[#C49B55]/10 border-[#C49B55]/20' :
-                          'bg-[#DB8293]/10 border-[#DB8293]/20'
+                          'bg-[#C49B55]/10 border-[#C49B55]/20'
                         }`}
                       >
                         <Clock className={`w-5 h-5 shrink-0 mt-0.5 ${selectedMethod.timeColor}`} />
@@ -352,49 +311,6 @@ export default function Booking() {
                           <p className="text-gray-400 text-xs mt-1 leading-relaxed">{selectedMethod.warning}</p>
                         </div>
                       </motion.div>
-
-                      {paymentMethod === 'bitcoin' && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                          <div className="p-4 rounded-xl bg-[#DB8293]/5 border border-[#DB8293]/20">
-                            <p className="text-gray-400 text-xs mb-2 text-center">
-                              Send <strong className="text-white">{format(total)}</strong> in Bitcoin (BTC) to:
-                            </p>
-                            <div className="flex justify-center my-3">
-                              <img
-                                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${BITCOIN_WALLET}&bgcolor=131C2E&color=DB8293&margin=10`}
-                                alt="Bitcoin QR Code"
-                                className="rounded-lg border border-[#DB8293]/20"
-                              />
-                            </div>
-                            <p className="text-center text-gray-400 text-xs mb-3">Scan with Trust Wallet or any Bitcoin wallet</p>
-                            <div className="flex items-center gap-2 bg-black/30 rounded-lg p-3 border border-[#DB8293]/20">
-                              <code className="text-sm text-[#DB8293] break-all flex-1 font-mono">
-                                {BITCOIN_WALLET}
-                              </code>
-                              <button
-                                type="button"
-                                onClick={copyToClipboard}
-                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#DB8293]/20 hover:bg-[#DB8293]/30 transition-all text-[#DB8293] text-sm whitespace-nowrap"
-                              >
-                                {copied ? (
-                                  <><Check className="w-4 h-4" /> Copied!</>
-                                ) : (
-                                  <><Copy className="w-4 h-4" /> Copy</>
-                                )}
-                              </button>
-                            </div>
-                            <p className="text-gray-500 text-[10px] mt-2 text-center">
-                              ⚠️ Send the exact amount. Your booking will be confirmed once the transaction has 3+ confirmations.
-                            </p>
-                          </div>
-                          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
-                            <p className="text-yellow-400 text-xs flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4" />
-                              Bitcoin network fees apply. Please check current network fees before sending.
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
 
                       {paymentMethod === 'paypal' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
@@ -410,50 +326,6 @@ export default function Booking() {
                               Your booking is only confirmed after PayPal payment has been received and verified.
                             </p>
                           </div>
-                        </motion.div>
-                      )}
-
-                      {paymentMethod === 'steam' && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                          <div className="p-4 rounded-xl bg-[#DB8293]/10 border border-[#DB8293]/20">
-                            <p className="text-[#DB8293] text-sm font-medium mb-1">🎮 Steam Card Payment</p>
-                            <p className="text-gray-400 text-xs">
-                              Purchase Steam wallet cards totaling <strong className="text-white">{format(total)}</strong> and enter the codes below.
-                              You may use multiple cards. Our team will verify the codes within ~2 hours.
-                            </p>
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-sm text-gray-400 block">Steam Card Codes</label>
-                            {steamCodes.map((code, index) => (
-                              <div key={index} className="flex gap-2">
-                                <input
-                                  type="text"
-                                  placeholder={`Code #${index + 1}`}
-                                  value={code}
-                                  onChange={(e) => updateSteamCode(index, e.target.value)}
-                                  className={`${inputCls('steam')} font-mono tracking-wider flex-1`}
-                                />
-                                {steamCodes.length > 1 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => removeSteamCode(index)}
-                                    className="px-3 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all"
-                                  >
-                                    <X className="w-5 h-5" />
-                                  </button>
-                                )}
-                              </div>
-                            ))}
-                            {errors.steam && <p className="text-red-400 text-xs">{errors.steam}</p>}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={addSteamCode}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#DB8293]/20 text-[#DB8293] hover:bg-[#DB8293]/30 transition-all border border-[#DB8293]/30"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Add Another Code
-                          </button>
                         </motion.div>
                       )}
 
@@ -556,9 +428,7 @@ export default function Booking() {
                   </div>
                   {step === 'payment' && (
                     <div className={`mt-4 p-3 rounded-lg border ${
-                      paymentMethod === 'bitcoin' ? 'bg-[#DB8293]/10 border-[#DB8293]/20' :
-                      paymentMethod === 'paypal' ? 'bg-[#C49B55]/10 border-[#C49B55]/20' :
-                      'bg-[#DB8293]/10 border-[#DB8293]/20'
+                      'bg-[#C49B55]/10 border-[#C49B55]/20'
                     }`}>
                       <p className={`text-xs flex items-center justify-center gap-1 ${selectedMethod.timeColor}`}>
                         <Clock className="w-3 h-3" /> {selectedMethod.icon} {selectedMethod.label} · {selectedMethod.time}

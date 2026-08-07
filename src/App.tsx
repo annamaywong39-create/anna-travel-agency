@@ -19,6 +19,8 @@ const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Admin = lazy(() => import('./pages/Admin'));
 const AdminListingForm = lazy(() => import('./pages/AdminListingForm'));
@@ -62,6 +64,8 @@ export default function App() {
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/admin/listing/:id" element={<AdminListingForm />} />
