@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import CaptchaBox from '../components/CaptchaBox';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockSeconds, setLockSeconds] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState('');
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
@@ -34,7 +36,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const result = await login(email.trim(), password);
+      const result = await login(email.trim(), password, captchaToken);
 
       if (!result.success) {
         const nextAttempts = failedAttempts + 1;
@@ -136,6 +138,8 @@ export default function Login() {
                 </button>
               </div>
             </div>
+
+            <CaptchaBox value={captchaToken} onChange={setCaptchaToken} />
 
             <button
               type="submit"

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, AlertCircle, Eye, EyeOff, UserPlus, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import CaptchaBox from '../components/CaptchaBox';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,8 @@ export default function Signup() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signup, user } = useAuth();
   const navigate = useNavigate();
@@ -38,6 +41,7 @@ export default function Signup() {
     e.preventDefault();
     e.stopPropagation();
     setError('');
+    setMessage('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -57,13 +61,13 @@ export default function Signup() {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-      });
+      }, captchaToken);
       setIsLoading(false);
 
-      if (result.success) {
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 100);
+      if (result.success && result.requiresVerification) {
+        setMessage('Account created. Please check your email and click the verification link before signing in.');
+      } else if (result.success) {
+        navigate('/dashboard', { replace: true });
       } else {
         setError(result.error || 'Signup failed');
       }
@@ -92,6 +96,17 @@ export default function Signup() {
             <h1 className="text-3xl font-black text-white mb-2">Create Account</h1>
             <p className="text-gray-400">Join us for your next adventure!</p>
           </div>
+
+          {message && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              role="status"
+              className="mb-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-300"
+            >
+              {message}
+            </motion.div>
+          )}
 
           {error && (
             <motion.div
@@ -224,6 +239,8 @@ export default function Signup() {
                 )}
               </div>
             </div>
+
+            <CaptchaBox value={captchaToken} onChange={setCaptchaToken} />
 
             <button
               type="submit"

@@ -62,6 +62,9 @@ export interface Listing {
   nearestStadium: string;
   distanceToStadium: string;
   available: boolean;
+  priceIsFrom?: boolean;
+  sourceUrl?: string;
+  imageIsIllustrative?: boolean;
 }
 
 export const LISTINGS: Listing[] = [
@@ -126,19 +129,59 @@ export const LISTINGS: Listing[] = [
     description: 'A bright Queen West suite close to dining, culture, and event transport.', nearestStadium: 'BMO Field', distanceToStadium: '3 miles', available: true,
   },
   {
-    id: 'hotel-miami-001', title: 'Brickell Palm Hotel', type: 'hotel', city: 'Miami', cityId: 'miami', price: 245, rating: 4.6, reviews: 38,
-    images: ['/images/hotel-luxury.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Front desk', 'Pool', 'Breakfast'], maxGuests: 2, bedrooms: 1,
-    description: 'A polished hotel base for Miami event weekends. Availability is confirmed with the hotel after your request.', nearestStadium: 'Hard Rock Stadium', distanceToStadium: '9 miles', available: true,
+    id: 'hotel-baltimore-001', title: 'Hampton Inn Baltimore-Downtown-Convention Center', type: 'hotel', city: 'Baltimore', cityId: 'baltimore', price: 117, rating: 4.5, reviews: 0,
+    images: ['/images/hotel-luxury.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Front desk', 'Breakfast', 'Parking'], maxGuests: 2, bedrooms: 1,
+    description: 'A practical event-stay candidate near M&T Bank Stadium. Representative room image; final room type and price are confirmed before payment.', nearestStadium: 'M&T Bank Stadium', distanceToStadium: '0.8 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/maryland/baltimore/m-and-t-bank-stadium/',
   },
   {
-    id: 'hotel-nyc-001', title: 'Midtown Grand Hotel', type: 'hotel', city: 'New York', cityId: 'nyc', price: 295, rating: 4.5, reviews: 52,
-    images: ['/images/hotel-room.jpg', '/images/city.jpg'], amenities: ['WiFi', '24/7 front desk', 'Gym', 'Concierge'], maxGuests: 2, bedrooms: 1,
-    description: 'A central hotel option for travellers attending events across New York and New Jersey.', nearestStadium: 'MetLife Stadium', distanceToStadium: '13 miles', available: true,
+    id: 'hotel-arlington-001', title: 'Hampton Inn & Suites Dallas-Arlington North', type: 'hotel', city: 'Arlington', cityId: 'dallas', price: 91, rating: 4.5, reviews: 0,
+    images: ['/images/hotel-room.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Breakfast', 'Parking', 'Indoor pool'], maxGuests: 4, bedrooms: 2,
+    description: 'A group-friendly Arlington event-stay candidate near AT&T Stadium. Representative room image; final room type and price are confirmed before payment.', nearestStadium: 'AT&T Stadium', distanceToStadium: '1.7 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/texas/arlington/att-stadium/',
   },
   {
-    id: 'hotel-la-001', title: 'SoFi City Hotel', type: 'hotel', city: 'Los Angeles', cityId: 'la', price: 275, rating: 4.7, reviews: 44,
-    images: ['/images/hotel-luxury.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Pool', 'Parking', 'Concierge'], maxGuests: 2, bedrooms: 1,
-    description: 'A comfortable Los Angeles hotel option for major stadium events and concert weekends.', nearestStadium: 'SoFi Stadium', distanceToStadium: '4 miles', available: true,
+    id: 'hotel-la-001', title: 'The Anthem Los Angeles Stadium District', type: 'hotel', city: 'Inglewood', cityId: 'la', price: 131, rating: 4.5, reviews: 0,
+    images: ['/images/hotel-luxury.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Pool', 'Airport access', 'Gym'], maxGuests: 2, bedrooms: 1,
+    description: 'A stadium-district hotel candidate for BTS and major SoFi events. Representative room image; final room type and price are confirmed before payment.', nearestStadium: 'SoFi Stadium', distanceToStadium: '0.6 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/california/inglewood/sofi-stadium/',
+  },
+  {
+    id: 'hotel-baltimore-002', title: 'Hilton Baltimore Inner Harbor', type: 'hotel', city: 'Baltimore', cityId: 'baltimore', price: 175, rating: 4.6, reviews: 0,
+    images: ['/images/hotel-room.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Pool', 'Gym', 'Connecting rooms'], maxGuests: 4, bedrooms: 2,
+    description: 'An Inner Harbor hotel candidate for M&T Bank Stadium event trips. Representative room image; final room type and price are confirmed before payment.', nearestStadium: 'M&T Bank Stadium', distanceToStadium: '0.9 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/maryland/baltimore/m-and-t-bank-stadium/',
+  },
+  {
+    id: 'hotel-baltimore-003', title: 'Canopy by Hilton Baltimore Harbor Point', type: 'hotel', city: 'Baltimore', cityId: 'baltimore', price: 200, rating: 4.6, reviews: 0,
+    images: ['/images/city.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Harbor views', 'Gym', 'Restaurant'], maxGuests: 2, bedrooms: 1,
+    description: 'A premium Baltimore candidate for travellers who want the Inner Harbor experience near the stadium.', nearestStadium: 'M&T Bank Stadium', distanceToStadium: '1.4 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/maryland/baltimore/m-and-t-bank-stadium/',
+  },
+  {
+    id: 'hotel-arlington-002', title: 'Homewood Suites Dallas-Arlington', type: 'hotel', city: 'Arlington', cityId: 'dallas', price: 103, rating: 4.5, reviews: 0,
+    images: ['/images/apartment-2.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Breakfast', 'Kitchenette', 'Pool'], maxGuests: 4, bedrooms: 2,
+    description: 'A suite-style Arlington candidate for families and event groups attending AT&T Stadium.', nearestStadium: 'AT&T Stadium', distanceToStadium: '1.8 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/texas/arlington/att-stadium/',
+  },
+  {
+    id: 'hotel-arlington-003', title: 'Loews Arlington Hotel', type: 'hotel', city: 'Arlington', cityId: 'dallas', price: 289, rating: 4.8, reviews: 0,
+    images: ['/images/hotel-luxury.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Pool', 'Spa', 'Concierge'], maxGuests: 2, bedrooms: 1,
+    description: 'A premium Arlington candidate for customers seeking a higher-end event weekend.', nearestStadium: 'AT&T Stadium', distanceToStadium: '0.6 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.loewshotels.com/loews-arlington-hotel',
+  },
+  {
+    id: 'hotel-chicago-001', title: 'Hilton Chicago', type: 'hotel', city: 'Chicago', cityId: 'chicago', price: 250, rating: 4.6, reviews: 0,
+    images: ['/images/hotel-luxury.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Gym', 'Pool', 'Restaurant'], maxGuests: 2, bedrooms: 1,
+    description: 'A downtown Chicago candidate for Soldier Field event weekends. Representative room image; final room type and price are confirmed before payment.', nearestStadium: 'Soldier Field', distanceToStadium: '1.3 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/illinois/chicago/soldier-field/',
+  },
+  {
+    id: 'hotel-chicago-002', title: 'Homewood Suites Chicago Downtown South Loop', type: 'hotel', city: 'Chicago', cityId: 'chicago', price: 169, rating: 4.5, reviews: 0,
+    images: ['/images/apartment-2.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Kitchenette', 'Breakfast', 'Connecting rooms'], maxGuests: 4, bedrooms: 2,
+    description: 'A practical suite option for groups attending Soldier Field events.', nearestStadium: 'Soldier Field', distanceToStadium: '1.0 mile', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/illinois/chicago/soldier-field/',
+  },
+  {
+    id: 'hotel-la-002', title: 'Hilton Garden Inn LAX/El Segundo', type: 'hotel', city: 'Inglewood', cityId: 'la', price: 134, rating: 4.4, reviews: 0,
+    images: ['/images/hotel-room.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Pool', 'Airport access', 'Gym'], maxGuests: 2, bedrooms: 1,
+    description: 'A practical airport-area hotel candidate for SoFi Stadium visitors.', nearestStadium: 'SoFi Stadium', distanceToStadium: '3.5 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/california/inglewood/sofi-stadium/',
+  },
+  {
+    id: 'hotel-la-003', title: 'Homewood Suites by Hilton Los Angeles International Airport', type: 'hotel', city: 'Inglewood', cityId: 'la', price: 162, rating: 4.5, reviews: 0,
+    images: ['/images/apartment.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Breakfast', 'Kitchenette', 'Pool'], maxGuests: 4, bedrooms: 2,
+    description: 'A suite-style option for families and groups travelling to SoFi Stadium.', nearestStadium: 'SoFi Stadium', distanceToStadium: '3.1 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/california/inglewood/sofi-stadium/',
   },
 ];
 

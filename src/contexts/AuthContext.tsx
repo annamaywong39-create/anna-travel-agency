@@ -17,9 +17,9 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   isAuthReady: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (data: { email: string; password: string; firstName: string; lastName: string }) => Promise<{ success: boolean; error?: string }>;
-  requestPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string, captchaToken?: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (data: { email: string; password: string; firstName: string; lastName: string }, captchaToken?: string) => Promise<{ success: boolean; error?: string; requiresVerification?: boolean }>;
+  requestPasswordReset: (email: string, captchaToken?: string) => Promise<{ success: boolean; error?: string }>;
   updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateProfile: (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => Promise<void>;
@@ -80,26 +80,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, captchaToken?: string) => {
     if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password, options: captchaToken ? { captchaToken } : undefined });
     return error ? { success: false, error: error.message } : { success: true };
   };
 
-  const signup = async (data: { email: string; password: string; firstName: string; lastName: string }) => {
+  const signup = async (data: { email: string; password: string; firstName: string; lastName: string }, captchaToken?: string) => {
     if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
-    const { error } = await supabase.auth.signUp({
+    const { data: result, error } = await supabase.auth.signUp({
       email: data.email.trim().toLowerCase(),
       password: data.password,
-      options: { data: { firstName: data.firstName.trim(), lastName: data.lastName.trim() } },
+      options: { data: { firstName: data.firstName.trim(), lastName: data.lastName.trim() }, ...(captchaToken ? { captchaToken } : {}) },
     });
-    return error ? { success: false, error: error.message } : { success: true };
+    if (error) return { success: false, error: error.message };
+    return { success: true, requiresVerification: !result.session };
   };
 
-  const requestPasswordReset = async (email: string) => {
+  const requestPasswordReset = async (email: string, captchaToken?: string) => {
     if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
     const redirectTo = `${window.location.origin}/#/reset-password`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo, ...(captchaToken ? { captchaToken } : {}) });
     return error ? { success: false, error: error.message } : { success: true };
   };
 

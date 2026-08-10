@@ -75,7 +75,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
 
             {/* Price */}
             <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-sm border border-white/10">
-              <span className="text-amber-400 font-bold text-lg">{format(normalizedListing.price)}</span>
+              <span className="text-amber-400 font-bold text-lg">{listing.priceIsFrom ? 'From ' : ''}{format(normalizedListing.price)}</span>
               <span className="text-gray-300 text-xs"> /night</span>
             </div>
           </div>

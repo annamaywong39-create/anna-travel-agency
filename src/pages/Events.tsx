@@ -43,6 +43,7 @@ export default function Events() {
       case 'upcoming': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
       case 'live': return 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse';
       case 'finished': return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'sold_out': return 'bg-[#C49B55]/20 text-[#C49B55] border-[#C49B55]/30';
       default: return 'bg-gray-500/20 text-gray-400';
     }
   };
