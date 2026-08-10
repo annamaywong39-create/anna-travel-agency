@@ -10,16 +10,16 @@ interface Message {
 }
 
 const BOT_RESPONSES: Record<string, string> = {
-  hello: "Hello! 👋 Welcome to Anna Travel Agency. How can I help you with your World Cup 2026 accommodation?",
-  hi: "Hi there! 👋 Ready to help you find the perfect place for the World Cup!",
-  booking: "To make a booking, browse our listings at /listings and click 'Book Now' on any property. Need help finding something specific?",
-  price: "Our prices range from $150-$500/night depending on location and property type. Early bookings get the best rates! 🏷️",
-  refund: "We offer free cancellation up to 7 days before check-in. For cancellations within 7 days, a partial refund may apply.",
-  stadium: "All our properties are within easy reach of World Cup venues. Each listing shows the distance to the nearest stadium!",
-  payment: "We accept all major credit cards, PayPal, and Apple Pay. Payments are processed securely through Stripe. 💳",
-  contact: "You can reach us at hello@annatravelagency.com or +1 (800) 123-4567. We're available 24/7!",
-  cities: "We have accommodations in all 16 host cities across USA 🇺🇸, Mexico 🇲🇽, and Canada 🇨🇦!",
-  default: "Thanks for your message! For specific inquiries, please email hello@annatravelagency.com or call +1 (800) 123-4567. Is there anything else I can help with?",
+  hello: "Hello! 👋 Welcome to Anna Travel Agency. How can I help you plan an event trip, find a stay, or request a ticket?",
+  hi: "Hi there! 👋 Ready to help you find a great event and a comfortable stay.",
+  booking: "To make a booking, browse our accommodations at /listings or explore tickets at /tickets. We verify availability before sending a PayPal payment request.",
+  price: "Accommodation prices are shown as from-prices until the supplier confirms the dates and room. Ticket prices and any offer are shown before you request payment.",
+  refund: "Please see our Refund Policy for accommodation and ticket terms. If you need help with a specific booking, contact our concierge.",
+  stadium: "Many of our stays are selected around major event venues. Each listing shows its nearest stadium and approximate distance.",
+  payment: "Anna first verifies availability, then sends a secure PayPal payment request. Your booking is not confirmed until payment is received and verified.",
+  contact: "You can reach us at hello@annatravelagency.com or use our Contact page. Our concierge team will help with your request.",
+  cities: "We curate stays and event access in selected destinations across the United States and internationally. Browse the current events and listings for what is available now.", 
+  default: "Thanks for your message! For a specific ticket, stay, or booking request, please contact our concierge team. Is there anything else I can help with?", 
 };
 
 function getBotResponse(message: string): string {
@@ -41,7 +41,7 @@ export default function LiveChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! 👋 I'm the Anna Travel Agency assistant. Ask me about bookings, prices, or World Cup cities!",
+      text: "Hi! 👋 I'm the Anna Travel Agency assistant. Ask me about event tickets, stays, prices, or booking requests!", 
       sender: 'bot',
       timestamp: new Date(),
     },

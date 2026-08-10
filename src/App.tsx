@@ -52,7 +52,7 @@ export default function App() {
               <ScrollToTop />
               <div className="min-h-screen bg-[#0a0a1a] text-white overflow-x-hidden">
                 <Navbar />
-                <div className="pt-20">
+                <div className="sticky top-20 z-40">
                   <BtsSupporterBanner />
                 </div>
                 <Suspense fallback={pageFallback}>

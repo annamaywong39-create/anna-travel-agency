@@ -5,6 +5,11 @@ import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
 import { useData, type Event } from '../contexts/DataContext';
+import { eventImageFor } from '../lib/eventImages';
+
+function hasEventEnded(event: Pick<Event, 'date' | 'status'>) {
+  return event.status === 'finished' || new Date(event.date).getTime() < Date.now();
+}
 
 export default function Events() {
   const { fetchEvents } = useData();
@@ -21,7 +26,7 @@ export default function Events() {
   const loadEvents = async () => {
     setLoading(true);
     const data = await fetchEvents();
-    setEvents(data || []);
+    setEvents((data || []).map((event) => hasEventEnded(event) ? { ...event, status: 'finished' } : event));
     setLoading(false);
   };
 
@@ -131,17 +136,21 @@ export default function Events() {
                 <Card3D glowColor={event.status === 'live' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.1)'}>
                   <div className="relative event-media rounded-t-2xl">
                     <img
-                      src={event.image_url || 'https://images.pexels.com/photos/31514419/pexels-photo-31514419.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=500'}
+                      src={eventImageFor(event)}
                       alt={event.title}
+                      width={500}
+                      height={300}
+                      decoding="async"
                       className="w-full h-48 object-cover"
                       loading="lazy"
                     />
                     <div className="absolute top-3 right-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(event.status)}`}>
-                        {event.status}
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${hasEventEnded(event) ? 'bg-slate-700/80 text-slate-200 border-slate-500/60' : getStatusColor(event.status)}`}>
+                        {hasEventEnded(event) ? 'Event ended' : event.status}
                       </span>
                     </div>
                   </div>
+                  {hasEventEnded(event) && <div className="border-y border-slate-500/40 bg-slate-700/70 px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-slate-100">This event has passed</div>}
                   <div className="p-5">
                     <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{event.title}</h3>
                     <div className="space-y-1 text-sm text-gray-400 mb-3">
@@ -156,10 +165,11 @@ export default function Events() {
                     </div>
                     <p className="text-gray-400 text-sm line-clamp-2 mb-4">{event.description}</p>
                     <button
+                      disabled={hasEventEnded(event)}
                       onClick={() => setSelectedEvent(event)}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-105 transition-all shadow-lg shadow-amber-500/25"
+                      className={`w-full py-3 rounded-xl text-white font-bold transition-all shadow-lg ${hasEventEnded(event) ? 'cursor-not-allowed bg-slate-700 text-slate-300 shadow-none' : 'bg-gradient-to-r from-amber-500 to-red-500 hover:scale-105 shadow-amber-500/25'}`}
                     >
-                      View Tickets
+                      {hasEventEnded(event) ? 'Event ended' : 'View Tickets'}
                     </button>
                   </div>
                 </Card3D>
@@ -186,8 +196,11 @@ export default function Events() {
             </div>
             <div className="relative rounded-xl overflow-hidden mb-4">
               <img
-                src={selectedEvent.image_url || 'https://images.pexels.com/photos/31514419/pexels-photo-31514419.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=800'}
+                src={eventImageFor(selectedEvent)}
                 alt={selectedEvent.title}
+                width={800}
+                height={400}
+                decoding="async"
                 className="w-full h-64 object-cover"
               />
             </div>

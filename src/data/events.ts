@@ -10,6 +10,9 @@ const images = {
   tech: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
   festival: 'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
   bts: '/images/events/bts/bts-giveaway-light.png',
+  btsAlt: '/images/events/bts/bts-metlife-promo.png',
+  stadium: '/images/stadium.jpg',
+  fans: '/images/fans.jpg',
 };
 
 function event(id: string, title: string, date: string, venue: string, city: string, category: string, imageUrl: string, price: number, description: string): FeaturedEvent {
@@ -24,16 +27,16 @@ function event(id: string, title: string, date: string, venue: string, city: str
 const BTS_REMAINING_2026: FeaturedEvent[] = [
   event('bts-arirang-baltimore-2026-08-10', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-10T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
   event('bts-arirang-baltimore-2026-08-11', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-11T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
-  event('bts-arirang-arlington-2026-08-15', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-15T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
-  event('bts-arirang-arlington-2026-08-16', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-16T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
-  event('bts-arirang-toronto-2026-08-22', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-22T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
-  event('bts-arirang-toronto-2026-08-23', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-23T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
-  event('bts-arirang-chicago-2026-08-27', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-27T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
-  event('bts-arirang-chicago-2026-08-28', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-28T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
-  event('bts-arirang-los-angeles-2026-09-01', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-01T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
-  event('bts-arirang-los-angeles-2026-09-02', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-02T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
-  event('bts-arirang-los-angeles-2026-09-05', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-05T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
-  event('bts-arirang-los-angeles-2026-09-06', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-06T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-arlington-2026-08-15', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-15T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.btsAlt, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
+  event('bts-arirang-arlington-2026-08-16', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-16T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.btsAlt, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
+  event('bts-arirang-toronto-2026-08-22', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-22T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.stadium, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
+  event('bts-arirang-toronto-2026-08-23', "BTS WORLD TOUR 'ARIRANG' — Toronto", '2026-08-23T20:00:00-04:00', 'Rogers Stadium', 'Toronto, ON, Canada', 'Music', images.stadium, 0, 'Request access for the remaining BTS ARIRANG show in Toronto.'),
+  event('bts-arirang-chicago-2026-08-27', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-27T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.fans, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
+  event('bts-arirang-chicago-2026-08-28', "BTS WORLD TOUR 'ARIRANG' — Chicago", '2026-08-28T20:00:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.fans, 0, 'Request access for the remaining BTS ARIRANG show in Chicago.'),
+  event('bts-arirang-los-angeles-2026-09-01', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-01T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.stadium, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-02', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-02T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.stadium, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-05', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-05T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.stadium, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
+  event('bts-arirang-los-angeles-2026-09-06', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-06T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.stadium, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles.'),
 ].map((item) => item.id === 'bts-arirang-baltimore-2026-08-10'
   ? {
       ...item,

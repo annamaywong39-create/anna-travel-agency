@@ -28,6 +28,8 @@ main {
 
 footer {
   min-height: 360px;
+  contain: layout paint;
+  contain-intrinsic-size: 360px;
 }
 
 /* Reserve media space before images arrive to prevent layout shifts. */
