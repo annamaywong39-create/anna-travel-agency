@@ -6,7 +6,6 @@ import Card3D from '../components/Card3D';
 import { useData } from '../contexts/DataContext';
 import { FEATURED_US_EVENTS } from '../data/events';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import BtsSupporterBanner from '../components/BtsSupporterBanner';
 
 type TicketOption = { id: string; name: string; section?: string; row?: string; seat_details?: string; delivery_method?: string; delivery_timing?: string; price: number; quantity_available: number };
 type EventItem = {
@@ -231,7 +230,6 @@ export default function Tickets() {
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#DB8293]">Curated access</p>
           <h1 className="text-4xl font-black tracking-tight text-white md:text-6xl">The moments worth travelling for.</h1>
           <p className="mt-4 text-lg leading-relaxed text-[#A7B0C0]">A considered selection of major sporting, music, and cultural events — with a stay to match.</p>
-          <div className="mt-6"><BtsSupporterBanner /></div>
         </header>
 
         <section className="mb-8 rounded-2xl border border-white/10 bg-white/[0.04] p-4" aria-label="Event filters">

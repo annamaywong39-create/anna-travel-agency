@@ -3,7 +3,6 @@ import { ArrowRight, ChevronRight, Globe2, Headphones, MapPin, ShieldCheck, Spar
 import { useData } from '../contexts/DataContext';
 import SEO from '../components/SEO';
 import ListingCard from '../components/ListingCard';
-import BtsSupporterBanner from '../components/BtsSupporterBanner';
 import { FEATURED_US_EVENTS } from '../data/events';
 
 const services = [
@@ -36,7 +35,6 @@ export default function Home() {
               <Link to="/tickets" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#D98C9B] px-6 py-3.5 font-semibold text-white transition hover:bg-[#c97888]"><Ticket className="h-4 w-4" />Explore events</Link>
               <Link to="/listings" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 font-semibold text-white transition hover:border-[#E6C98E] hover:text-[#E6C98E]">Find a stay <ArrowRight className="h-4 w-4" /></Link>
             </div>
-            <div className="mt-8 max-w-2xl"><BtsSupporterBanner /></div>
             <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/65"><span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[#E6C98E]" />Supplier checked</span><span className="flex items-center gap-2"><Globe2 className="h-4 w-4 text-[#D98C9B]" />International support</span><span className="flex items-center gap-2"><Headphones className="h-4 w-4 text-[#E6C98E]" />Personal assistance</span></div>
           </div>
           <div className="relative mx-auto w-full max-w-xl lg:ml-auto">

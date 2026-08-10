@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import BtsSupporterOfferModal from './components/BtsSupporterOfferModal';
+import BtsSupporterBanner from './components/BtsSupporterBanner';
 
 const LiveChat = lazy(() => import('./components/LiveChat'));
 const Home = lazy(() => import('./pages/Home'));
@@ -51,6 +52,9 @@ export default function App() {
               <ScrollToTop />
               <div className="min-h-screen bg-[#0a0a1a] text-white overflow-x-hidden">
                 <Navbar />
+                <div className="pt-20">
+                  <BtsSupporterBanner />
+                </div>
                 <Suspense fallback={pageFallback}>
                   <Routes>
                     <Route path="/" element={<Home />} />
