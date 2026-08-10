@@ -16,10 +16,6 @@ export default function ForgotPassword() {
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(''); setMessage('');
-    if (import.meta.env.VITE_TURNSTILE_SITE_KEY && !captchaToken) {
-      setError('Please complete the security check before requesting a reset link.');
-      return;
-    }
     setLoading(true);
     const result = await requestPasswordReset(email.trim(), captchaToken);
     setLoading(false);

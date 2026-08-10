@@ -42,11 +42,6 @@ export default function Signup() {
     e.stopPropagation();
     setError('');
     setMessage('');
-    if (import.meta.env.VITE_TURNSTILE_SITE_KEY && !captchaToken) {
-      setError('Please complete the security check before creating your account.');
-      return;
-    }
-
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
