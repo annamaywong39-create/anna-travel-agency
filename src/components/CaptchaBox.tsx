@@ -1,24 +1,11 @@
-import { Turnstile } from '@marsidev/react-turnstile';
-
 interface CaptchaBoxProps {
   value: string;
   onChange: (token: string) => void;
 }
 
-export default function CaptchaBox({ value, onChange }: CaptchaBoxProps) {
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
-  if (!siteKey) return null;
-
-  return (
-    <div className="my-4 min-h-[65px]" aria-label="Security verification">
-      <Turnstile
-        siteKey={siteKey}
-        options={{ theme: 'auto', size: 'normal', appearance: 'always' }}
-        onSuccess={onChange}
-        onExpire={() => onChange('')}
-        onError={() => onChange('')}
-      />
-      {!value && <p className="mt-1 text-xs text-gray-500">Complete the security check to continue.</p>}
-    </div>
-  );
+// CAPTCHA is currently disabled while the project uses email verification,
+// Supabase rate limits, and the login cooldown. Keep this component so CAPTCHA
+// can be enabled later without changing the auth forms again.
+export default function CaptchaBox(_props: CaptchaBoxProps) {
+  return null;
 }
