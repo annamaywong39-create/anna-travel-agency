@@ -303,7 +303,8 @@ function getCartItemKey(item: CartItem) {
 
 // ━━━ Provider ━━━
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [listings, setListings] = useState<Listing[]>([]);
+  // Render the curated portfolio immediately so the page does not collapse while Supabase loads.
+  const [listings, setListings] = useState<Listing[]>(DEFAULT_LISTINGS);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
@@ -365,7 +366,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       supabase.from('ticket_orders').select('*').order('created_at', { ascending: false }),
     ]);
 
-    if (listRes.data) setListings(listRes.data.map(rowToListing));
+    if (listRes.data && listRes.data.length > 0) setListings(listRes.data.map(rowToListing));
     if (bookRes.data) setBookings(bookRes.data.map(rowToBooking));
     if (revRes.data) setReviews(revRes.data.map(rowToReview));
     if (ticketRes.data) setTicketOrders(ticketRes.data.map(rowToTicketOrder));

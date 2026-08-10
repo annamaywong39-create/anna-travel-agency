@@ -7,6 +7,7 @@ import { CurrencyProvider } from './contexts/CurrencyContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import BtsSupporterOfferModal from './components/BtsSupporterOfferModal';
 
 const LiveChat = lazy(() => import('./components/LiveChat'));
 const Home = lazy(() => import('./pages/Home'));
@@ -76,6 +77,7 @@ export default function App() {
                   </Routes>
                 </Suspense>
                 <Footer />
+                <BtsSupporterOfferModal />
                 <Suspense fallback={null}>
                   <LiveChat />
                 </Suspense>

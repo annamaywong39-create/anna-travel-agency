@@ -12,38 +12,42 @@ const sections = [
   },
   {
     title: '3. Booking & Payments',
-    content: `All bookings are subject to availability. Prices are listed in USD and can be viewed in other currencies for convenience; the final charge is in USD. Payment is processed securely through Stripe. By completing a booking, you authorize us to charge the provided payment method. A confirmation email will be sent upon successful payment. All prices include applicable service fees unless stated otherwise.`,
+    content: `All bookings are subject to availability. Prices are listed in USD and can be viewed in other currencies for convenience; the final charge is in USD. Anna first verifies availability and then sends a secure PayPal payment request. A booking is not confirmed until payment is received and verified.`,
   },
   {
-    title: '4. Cancellation & Refund Policy',
+    title: '4. BTS Supporter Discount',
+    content: `The supporter promotion applies to eligible tickets for the remaining BTS show in the United States. Each eligible ticket listing has its own discount, ranging from 30% to 70%, and the exact percentage and discounted price are shown before checkout. The promotion applies to ticket prices only, not accommodation, service charges, delivery charges, or other fees unless expressly stated. Discounts are subject to availability, cannot be exchanged for cash or combined with another promotion, and may end when the secured inventory is sold or withdrawn. Ticket requests remain subject to supplier verification, and no booking is confirmed until Anna Travel Agency confirms availability and payment is received and verified.`,
+  },
+  {
+    title: '5. Cancellation & Refund Policy',
     content: `Free cancellation is available up to 7 days before the scheduled check-in date for a full refund. Cancellations made 3–7 days before check-in receive a 50% refund. Cancellations made less than 3 days before check-in are non-refundable. No-shows are non-refundable. In cases of force majeure (including but not limited to natural disasters, pandemics, or event cancellation by FIFA), full refunds will be issued within 14 business days.`,
   },
   {
-    title: '5. User Accounts',
+    title: '6. User Accounts',
     content: `You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate, current, and complete information during registration. You must notify us immediately of any unauthorized use of your account. We reserve the right to suspend or terminate accounts that violate these terms.`,
   },
   {
-    title: '6. Property Listings',
+    title: '7. Property Listings',
     content: `While we verify all listings on our platform, Anna Travel Agency does not own or operate the accommodation properties. We make reasonable efforts to ensure listing accuracy, but cannot guarantee that all information (photos, amenities, descriptions) is entirely accurate at the time of your stay. Any disputes regarding property conditions should be reported within 24 hours of check-in.`,
   },
   {
-    title: '7. User Conduct',
+    title: '8. User Conduct',
     content: `You agree not to: use the service for any unlawful purpose; submit false reviews or ratings; attempt to access other users' accounts; scrape, copy, or redistribute content from the platform; use the platform to harass, abuse, or harm others; violate any local, state, national, or international laws.`,
   },
   {
-    title: '8. Reviews & Content',
+    title: '9. Reviews & Content',
     content: `By submitting reviews, photos, or other content, you grant Anna Travel Agency a non-exclusive, worldwide, royalty-free license to use, reproduce, and display such content. Reviews must be honest, factual, and based on genuine experiences. We reserve the right to remove content that is misleading, offensive, or violates these terms.`,
   },
   {
-    title: '9. Limitation of Liability',
+    title: '10. Limitation of Liability',
     content: `Anna Travel Agency shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the service. Our total liability shall not exceed the amount paid by you for the specific booking in question. We are not responsible for actions of property owners, third-party service providers, or events beyond our control.`,
   },
   {
-    title: '10. Changes to Terms',
+    title: '11. Changes to Terms',
     content: `We reserve the right to modify these terms at any time. Significant changes will be communicated via email or a notice on our website. Continued use of the service after changes constitutes acceptance of the new terms. The latest version of these terms will always be available on our website.`,
   },
   {
-    title: '11. Contact Information',
+    title: '12. Contact Information',
     content: `For questions regarding these terms, please contact us at:\n\nAnna Travel Agency\nEmail: hello@annatravelagency.com\nPhone: +1 (800) 123-4567\nAddress: New York, NY, USA`,
   },
 ];

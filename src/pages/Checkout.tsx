@@ -173,9 +173,9 @@ export default function Checkout() {
                         {isRoom ? item.item.userName : item.item.eventName}
                       </p>
                       <p className="text-gray-400 text-xs">
-                        {isRoom 
+                        {isRoom
                           ? `${item.item.checkIn} → ${item.item.checkOut} · ${item.item.guests} guests`
-                          : `${item.quantity} × ${item.item.ticketId?.slice(0, 8) || 'Ticket'}`}
+                          : `${item.quantity} × ${item.item.ticketId?.slice(0, 8) || 'Ticket'}${item.item.supporterOffer ? ` · ${item.item.discountPercent}% supporter discount applied` : ''}`}
                       </p>
                     </div>
                   </div>

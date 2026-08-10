@@ -21,6 +21,15 @@ img {
   max-width: 100%;
 }
 
+/* Keep the footer below a stable viewport-sized page shell. */
+main {
+  min-height: 100dvh;
+}
+
+footer {
+  min-height: 360px;
+}
+
 /* Reserve media space before images arrive to prevent layout shifts. */
 .event-media,
 .property-media {
