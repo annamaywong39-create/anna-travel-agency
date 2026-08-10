@@ -181,6 +181,9 @@ export default function Tickets() {
     const now = Date.now();
     const maxDays = dateFilter === 'all' ? Infinity : Number(dateFilter);
     return items.filter((item) => {
+      // Past events remain available on the Events page as historical records,
+      // but they must never appear as ticket inventory.
+      if (item.status === 'finished' || new Date(item.date).getTime() < Date.now()) return false;
       const q = query.trim().toLowerCase();
       const matchesQuery = !q || `${item.title} ${item.city} ${item.venue}`.toLowerCase().includes(q);
       const matchesCategory = category === 'all' || item.category === category;

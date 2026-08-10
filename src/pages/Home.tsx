@@ -91,6 +91,10 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/65"><span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[#E6C98E]" />Supplier checked</span><span className="flex items-center gap-2"><Globe2 className="h-4 w-4 text-[#D98C9B]" />International support</span><span className="flex items-center gap-2"><Headphones className="h-4 w-4 text-[#E6C98E]" />Personal assistance</span></div>
           </div>
           <div className="relative mx-auto w-full max-w-xl lg:ml-auto">
+            <div className="absolute -inset-6 overflow-hidden rounded-[2.5rem]" aria-hidden="true">
+              <img src={heroSlides[heroImageIndex].src} alt="" width="900" height="600" className="h-full w-full scale-110 object-cover opacity-45 blur-2xl transition-opacity duration-700" />
+              <div className="absolute inset-0 bg-[#0B1F3A]/45" />
+            </div>
             <div className="absolute -inset-4 rounded-[2rem] border border-[#D98C9B]/25 rotate-3" />
             <div className="relative overflow-hidden rounded-[2rem] bg-[#132A46] shadow-2xl shadow-black/30">
               <div className="relative h-[430px] w-full overflow-hidden">
