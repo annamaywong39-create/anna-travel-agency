@@ -13,7 +13,7 @@ export default function CaptchaBox({ value, onChange }: CaptchaBoxProps) {
     <div className="my-4 min-h-[65px]" aria-label="Security verification">
       <Turnstile
         siteKey={siteKey}
-        options={{ theme: 'auto', size: 'flexible' }}
+        options={{ theme: 'auto', size: 'normal', appearance: 'always' }}
         onSuccess={onChange}
         onExpire={() => onChange('')}
         onError={() => onChange('')}

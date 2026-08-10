@@ -32,6 +32,10 @@ export default function Login() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (lockSeconds > 0) return;
+    if (import.meta.env.VITE_TURNSTILE_SITE_KEY && !captchaToken) {
+      setError('Please complete the security check before signing in.');
+      return;
+    }
     setError('');
     setIsLoading(true);
 
