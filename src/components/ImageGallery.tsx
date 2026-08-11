@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 
@@ -13,6 +13,10 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const safeImages = Array.isArray(images) && images.length > 0 ? images : [FALLBACK_IMAGE];
+  const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
+    if (event.currentTarget.src.endsWith(FALLBACK_IMAGE)) return;
+    event.currentTarget.src = FALLBACK_IMAGE;
+  };
 
   const goNext = () => setActiveIndex((prev) => (prev + 1) % safeImages.length);
   const goPrev = () => setActiveIndex((prev) => (prev - 1 + safeImages.length) % safeImages.length);
@@ -37,6 +41,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               height="500"
               loading="eager"
               decoding="async"
+              onError={handleImageError}
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -97,6 +102,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                   height="64"
                   loading="lazy"
                   decoding="async"
+                  onError={handleImageError}
                 />
               </button>
             ))}
@@ -132,6 +138,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                   className="max-w-full max-h-[80vh] object-contain rounded-lg"
                   width="1200"
                   height="800"
+                  onError={handleImageError}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
@@ -168,7 +175,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     i === activeIndex ? 'ring-2 ring-amber-500' : 'opacity-50 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" width="48" height="32" loading="lazy" decoding="async" />
+                  <img src={img} alt="" className="w-full h-full object-cover" width="48" height="32" loading="lazy" decoding="async" onError={handleImageError} />
                 </button>
               ))}
             </div>

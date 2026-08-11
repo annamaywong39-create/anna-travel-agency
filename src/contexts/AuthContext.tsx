@@ -27,6 +27,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function readableAuthError(error: unknown) {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  if (error && typeof error === 'object') {
+    const candidate = error as { message?: unknown; error_description?: unknown; details?: unknown; hint?: unknown };
+    const message = [candidate.message, candidate.error_description, candidate.details, candidate.hint]
+      .find((value) => typeof value === 'string' && value.trim());
+    if (typeof message === 'string') return message;
+  }
+  return 'Registration could not be completed. Please check your details and try again.';
+}
+
 function fromAuthUser(authUser: { id: string; email?: string | null; created_at?: string; user_metadata?: Record<string, unknown> }, profile?: Record<string, unknown> | null): AuthUser {
   const metadata = authUser.user_metadata || {};
   return {
@@ -93,13 +105,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password: data.password,
       options: { data: { firstName: data.firstName.trim(), lastName: data.lastName.trim() }, ...(captchaToken ? { captchaToken } : {}) },
     });
-    if (error) return { success: false, error: error.message };
+    if (error) {
+      console.error('Supabase signup failed:', error);
+      return { success: false, error: readableAuthError(error) };
+    }
     return { success: true, requiresVerification: !result.session };
   };
 
   const requestPasswordReset = async (email: string, captchaToken?: string) => {
     if (!isSupabaseConfigured) return { success: false, error: 'Authentication is not configured yet.' };
-    const redirectTo = `${window.location.origin}/#/reset-password`;
+    const redirectTo = `${window.location.origin}/reset-password`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo, ...(captchaToken ? { captchaToken } : {}) });
     return error ? { success: false, error: error.message } : { success: true };
   };

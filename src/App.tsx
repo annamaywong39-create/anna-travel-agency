@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
@@ -8,7 +8,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import BtsSupporterOfferModal from './components/BtsSupporterOfferModal';
-import BtsSupporterBanner from './components/BtsSupporterBanner';
 
 const LiveChat = lazy(() => import('./components/LiveChat'));
 const Home = lazy(() => import('./pages/Home'));
@@ -52,10 +51,6 @@ export default function App() {
               <ScrollToTop />
               <div className="min-h-screen bg-[#0a0a1a] text-white overflow-x-hidden">
                 <Navbar />
-                <div className="fixed left-0 right-0 top-20 z-40">
-                  <BtsSupporterBanner />
-                </div>
-                <div className="h-[190px] sm:h-[150px] lg:h-[112px]" aria-hidden="true" />
                 <Suspense fallback={pageFallback}>
                   <Routes>
                     <Route path="/" element={<Home />} />

@@ -16,7 +16,7 @@ export default function BtsSupporterBanner() {
             <p className="mt-1 text-xs font-medium text-[#E7D9FF]">Each eligible ticket has its own discount, ranging from 30% to 70%. Terms and conditions apply. Final availability and confirmation are required.</p>
           </div>
         </div>
-        <a href="#/tickets" className="inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#F2C94C] to-[#FF9F68] px-5 py-3 text-sm font-black text-[#21103F] shadow-lg shadow-[#F2C94C]/20 transition hover:scale-[1.02]">See BTS tickets</a>
+        <a href="/tickets" className="inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#F2C94C] to-[#FF9F68] px-5 py-3 text-sm font-black text-[#21103F] shadow-lg shadow-[#F2C94C]/20 transition hover:scale-[1.02]">See BTS tickets</a>
       </div>
     </aside>
   );

@@ -6,6 +6,7 @@ import SEO from '../components/SEO';
 import ListingCard from '../components/ListingCard';
 import { FEATURED_US_EVENTS } from '../data/events';
 import { eventImageFor } from '../lib/eventImages';
+import BtsSupporterBanner from '../components/BtsSupporterBanner';
 
 const services = [
   { title: 'Stays secured around your plans', body: 'Hotels, apartments, and shortlets selected around the places you are going.', icon: MapPin },
@@ -75,6 +76,10 @@ export default function Home() {
 
   return (
     <main className="overflow-hidden bg-[#F8F5F0] text-[#0B1F3A]">
+      <div className="fixed left-0 right-0 top-20 z-40">
+        <BtsSupporterBanner />
+      </div>
+      <div className="h-[190px] sm:h-[150px] lg:h-[112px]" aria-hidden="true" />
       <SEO title="Curated event travel and stays" description="Plan the trip around the moment. Curated event access, accommodation, and travel support from Anna Travel Agency." />
 
       <section className="relative isolate overflow-hidden bg-[#0B1F3A] text-white">

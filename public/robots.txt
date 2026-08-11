@@ -1,7 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /reset-password
+Disallow: /forgot-password
 
-Sitemap: https://annatravelagency.com/sitemap.xml
-
-Disallow: /admin/
-Disallow: /dashboard/
+Sitemap: https://www.annatravelagency.com/sitemap.xml

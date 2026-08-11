@@ -64,6 +64,9 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
               width="400"
               height="208"
               loading="lazy"
+              onError={(event) => {
+                if (!event.currentTarget.src.endsWith('/images/hotel-luxury.jpg')) event.currentTarget.src = '/images/hotel-luxury.jpg';
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 

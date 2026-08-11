@@ -72,7 +72,10 @@ export default function Signup() {
       }
     } catch (err) {
       setIsLoading(false);
-      setError('Something went wrong. Please try again.');
+      const message = err instanceof Error && err.message
+        ? err.message
+        : 'Registration could not be completed. Please check your Supabase settings and try again.';
+      setError(message);
     }
   };
 
