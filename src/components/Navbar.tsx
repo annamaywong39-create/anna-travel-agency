@@ -52,8 +52,8 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? 'bg-[#0B1220]/90 backdrop-blur-xl border-b border-white/10 shadow-2xl'
+          scrolled || location.pathname === '/'
+            ? 'bg-[#0B1F3A]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl'
             : 'bg-transparent'
         }`}
       >

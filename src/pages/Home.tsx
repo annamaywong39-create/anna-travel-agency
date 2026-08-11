@@ -83,6 +83,10 @@ export default function Home() {
       <SEO title="Curated event travel and stays" description="Plan the trip around the moment. Curated event access, accommodation, and travel support from Anna Travel Agency." />
 
       <section className="relative isolate overflow-hidden bg-[#0B1F3A] text-white">
+        <div className="pointer-events-none absolute inset-0 -z-20 overflow-hidden" aria-hidden="true">
+          <img src={heroSlides[heroImageIndex].src} alt="" width="1600" height="900" className="h-full w-full scale-110 object-cover opacity-25 blur-2xl transition-opacity duration-700" />
+        </div>
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[#0B1F3A]/75" aria-hidden="true" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_20%,rgba(217,140,155,0.22),transparent_35%),radial-gradient(circle_at_15%_80%,rgba(199,165,106,0.18),transparent_35%)]" />
         <div className="mx-auto grid min-h-[720px] max-w-7xl items-center gap-12 px-5 pb-20 pt-32 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:px-12">
           <div className="max-w-2xl">
