@@ -302,9 +302,10 @@ export default function Admin() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
+          className="mb-8 flex flex-col gap-6 rounded-3xl border border-white/10 bg-gradient-to-br from-[#151d32] via-[#101729] to-[#0b1020] p-6 shadow-2xl shadow-black/20 lg:flex-row lg:items-center lg:justify-between"
         >
           <div>
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.25em] text-purple-300">Operations centre</p>
             <Link to="/dashboard" className="inline-flex items-center gap-2 text-amber-400 text-sm mb-2 hover:underline">
               <ArrowLeft className="w-4 h-4" /> Back to Dashboard
             </Link>
@@ -317,8 +318,9 @@ export default function Admin() {
                 </span>
               )}
             </h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-gray-400">Manage live events, ticket inventory, stays, customer requests, and supplier confirmations from one workspace.</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               to="/admin/listing/new"
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-105 transition-all shadow-lg shadow-amber-500/25"
@@ -337,7 +339,7 @@ export default function Admin() {
         </motion.div>
 
         {/* Tabs */}
-        <div className="sticky top-20 z-30 -mx-4 mb-8 flex gap-2 overflow-x-auto border-y border-white/10 bg-[#0a0a1a]/95 px-4 py-3 pb-2 backdrop-blur-xl flex-wrap sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div className="sticky top-20 z-30 -mx-4 mb-8 flex gap-2 overflow-x-auto border-y border-white/10 bg-[#0a0a1a]/95 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           {[
             { id: 'overview' as Tab, icon: LayoutDashboard, label: 'Overview' },
             { id: 'listings' as Tab, icon: Building2, label: 'Listings' },
@@ -355,7 +357,10 @@ export default function Admin() {
               }`}
             >
               <tab.icon className="w-4 h-4" />
-              {tab.label}
+              <span>{tab.label}</span>
+              {tab.id === 'listings' && <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px]">{listings.length}</span>}
+              {tab.id === 'bookings' && <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px]">{bookings.length + allTicketOrders.length}</span>}
+              {tab.id === 'events' && events.length > 0 && <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px]">{events.length}</span>}
             </button>
           ))}
         </div>
