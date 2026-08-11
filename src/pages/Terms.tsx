@@ -16,7 +16,7 @@ const sections = [
   },
   {
     title: '4. BTS Supporter Discount',
-    content: `The supporter promotion applies to eligible tickets for the remaining BTS show in the United States. Each eligible ticket listing has its own discount, ranging from 30% to 70%, and the exact percentage and discounted price are shown before checkout. The promotion applies to ticket prices only, not accommodation, service charges, delivery charges, or other fees unless expressly stated. Discounts are subject to availability, cannot be exchanged for cash or combined with another promotion, and may end when the secured inventory is sold or withdrawn. Ticket requests remain subject to supplier verification, and no booking is confirmed until Anna Travel Agency confirms availability and payment is received and verified.`,
+    content: `The supporter promotion applies to eligible tickets for upcoming BTS shows in the United States. Each eligible ticket listing has its own discount, ranging from 30% to 70%, and the exact percentage and discounted price are shown before checkout. The promotion applies to ticket prices only, not accommodation, service charges, delivery charges, or other fees unless expressly stated. Discounts are subject to availability, cannot be exchanged for cash or combined with another promotion, and may end when the secured inventory is sold or withdrawn. Ticket requests remain subject to supplier verification, and no booking is confirmed until Anna Travel Agency confirms availability and payment is received and verified.`,
   },
   {
     title: '5. Cancellation & Refund Policy',

@@ -43,7 +43,7 @@ export default function BtsSupporterOfferModal() {
             <span className="block">BTS tickets.</span>
             <span className="mt-3 block text-[#F2C94C]">Big discounts.</span>
           </h2>
-          <p className="mx-auto mt-10 max-w-4xl text-3xl font-black uppercase leading-[0.95] tracking-[-0.03em] text-[#FF7AB8] drop-shadow-[0_4px_18px_rgba(0,0,0,0.8)] sm:text-5xl lg:text-6xl">SAVE UP TO 70% ON THE REMAINING US SHOW</p>
+          <p className="mx-auto mt-10 max-w-4xl text-3xl font-black uppercase leading-[0.95] tracking-[-0.03em] text-[#FF7AB8] drop-shadow-[0_4px_18px_rgba(0,0,0,0.8)] sm:text-5xl lg:text-6xl">SAVE UP TO 70% ON ELIGIBLE BTS TICKETS</p>
         </div>
       </section>
     </div>

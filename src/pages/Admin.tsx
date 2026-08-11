@@ -18,8 +18,8 @@ type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events';
 export default function Admin() {
   const { user } = useAuth();
   const {
-    listings, bookings, deleteListing, updateBooking, isDemo,
-    fetchAllUsers, updateTicketOrder, fetchAllTicketOrders,
+    listings, orders, bookings, deleteListing, updateBooking, isDemo,
+    fetchAllUsers, updateTicketOrder, fetchAllTicketOrders, fetchAllOrders, updateOrder,
     fetchEvents, addEvent, updateEvent, deleteEvent,
     fetchEventTickets, addEventTicket, updateEventTicket, deleteEventTicket
   } = useData();
@@ -43,7 +43,9 @@ export default function Admin() {
   const [editTicket, setEditTicket] = useState<Partial<EventTicket> | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [uploadingEventImage, setUploadingEventImage] = useState(false);
+  const [uploadingSeatMap, setUploadingSeatMap] = useState(false);
   const [uploadingTicketImage, setUploadingTicketImage] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // Ticket Orders (for display)
   const [allTicketOrders, setAllTicketOrders] = useState<TicketOrder[]>([]);
@@ -51,8 +53,11 @@ export default function Admin() {
 
   useEffect(() => {
     if (activeTab === 'users') loadUsers();
-    if (activeTab === 'events') loadEvents();
-    if (activeTab === 'bookings' || activeTab === 'overview') loadTicketOrders();
+    if (activeTab === 'events' || activeTab === 'overview') loadEvents();
+    if (activeTab === 'bookings' || activeTab === 'overview') {
+      loadTicketOrders();
+      void fetchAllOrders();
+    }
   }, [activeTab]);
 
   if (!user || user.role !== 'admin') {
@@ -116,6 +121,21 @@ export default function Admin() {
       notify('error', error instanceof Error ? error.message : 'Event image upload failed.');
     } finally {
       setUploadingEventImage(false);
+    }
+  };
+
+  const handleUploadSeatMap = async (file?: File) => {
+    if (!file) return;
+    if (isDemo) return notify('error', 'Supabase is not connected. Image uploads are disabled in Demo Mode.');
+    setUploadingSeatMap(true);
+    try {
+      const imageUrl = await uploadPublicImage(file, 'events');
+      setEditEvent((current) => ({ ...(current || {}), seat_map_url: imageUrl }));
+      notify('success', 'Seat map uploaded. Save the event to publish it.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'Seat map upload failed.');
+    } finally {
+      setUploadingSeatMap(false);
     }
   };
 
@@ -359,6 +379,15 @@ export default function Admin() {
               ))}
             </div>
 
+            <div className="mb-8 rounded-2xl border border-white/10 bg-gradient-to-br from-[#151d32] to-[#0e1425] p-5">
+              <div className="mb-4 flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Today’s workspace</p><h3 className="mt-1 text-xl font-bold text-white">What needs your attention?</h3></div><button onClick={() => { setActiveTab('bookings'); void loadTicketOrders(); }} className="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-gray-300 hover:bg-white/10">Open all activity</button></div>
+              <div className="grid gap-3 md:grid-cols-3">
+                <button onClick={() => setActiveTab('bookings')} className="rounded-xl border border-amber-400/20 bg-amber-400/10 p-4 text-left transition hover:bg-amber-400/15"><span className="text-2xl">⏳</span><span className="mt-3 block text-2xl font-black text-white">{bookings.filter((booking) => booking.status === 'pending').length}</span><span className="text-sm text-amber-100/70">Hotel requests pending</span></button>
+                <button onClick={() => setActiveTab('bookings')} className="rounded-xl border border-purple-400/20 bg-purple-400/10 p-4 text-left transition hover:bg-purple-400/15"><span className="text-2xl">🎟️</span><span className="mt-3 block text-2xl font-black text-white">{allTicketOrders.filter((order) => order.status === 'pending').length}</span><span className="text-sm text-purple-100/70">Ticket orders pending</span></button>
+                <button onClick={() => setActiveTab('events')} className="rounded-xl border border-blue-400/20 bg-blue-400/10 p-4 text-left transition hover:bg-blue-400/15"><span className="text-2xl">📅</span><span className="mt-3 block text-2xl font-black text-white">{events.filter((event) => new Date(event.date).getTime() >= Date.now()).length || '—'}</span><span className="text-sm text-blue-100/70">Upcoming events to manage</span></button>
+              </div>
+            </div>
+
             <h3 className="text-xl font-bold text-white mb-4">Recent Activity</h3>
             <Card3D>
               <div className="overflow-x-auto">
@@ -490,6 +519,14 @@ export default function Admin() {
               <div className="py-12 text-center text-gray-400">No bookings or ticket orders yet.</div>
             ) : (
               <div className="space-y-6">
+                {orders.length > 0 && (
+                  <div>
+                    <div className="mb-3 flex items-center justify-between"><h4 className="flex items-center gap-2 text-lg font-bold text-white"><span>🧾</span> Customer Orders ({orders.length})</h4><button onClick={() => { void fetchAllOrders(); }} className="text-xs text-gray-400 hover:text-white">Refresh orders</button></div>
+                    <div className="grid gap-3 lg:grid-cols-2">
+                      {orders.map((order) => <Card3D key={order.id}><div className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-mono text-sm font-bold text-amber-300">{order.bookingCode}</p><p className="mt-1 text-xs text-gray-500">{new Date(order.createdAt).toLocaleString()}</p></div><select value={order.status} onChange={(event) => { void updateOrder(order.id, { status: event.target.value }); }} className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div><div className="grid grid-cols-2 gap-2 text-xs"><label className="text-gray-400">Payment<select value={order.paymentStatus} onChange={(event) => { void updateOrder(order.id, { paymentStatus: event.target.value }); }} className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white"><option value="pending">Pending</option><option value="requested">Requested</option><option value="paid">Paid</option><option value="failed">Failed</option></select></label><label className="text-gray-400">Supplier<select value={order.supplierStatus} onChange={(event) => { void updateOrder(order.id, { supplierStatus: event.target.value }); }} className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white"><option value="checking_availability">Checking</option><option value="held">Held</option><option value="confirmed">Confirmed</option><option value="unavailable">Unavailable</option></select></label></div><div className="grid grid-cols-2 gap-2"><input defaultValue={order.supplierConfirmationNumber || ''} onBlur={(event) => { if (event.target.value !== (order.supplierConfirmationNumber || '')) void updateOrder(order.id, { supplierConfirmationNumber: event.target.value }); }} placeholder="Supplier confirmation no." className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white" /><input defaultValue={order.roomNumber || ''} onBlur={(event) => { if (event.target.value !== (order.roomNumber || '')) void updateOrder(order.id, { roomNumber: event.target.value }); }} placeholder="Room number" className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white" /></div></div></Card3D>)}
+                    </div>
+                  </div>
+                )}
                 {/* Hotel Bookings Section */}
                 {bookings.length > 0 && (
                   <div>
@@ -629,8 +666,8 @@ export default function Admin() {
                 <input value={eventSearch} onChange={(event) => setEventSearch(event.target.value)} placeholder="Search events..." className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-400/60" />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)]">
+              <div className="min-w-0">
                 {loadingEvents ? (
                   <div className="py-8 text-center text-gray-400">Loading events...</div>
                 ) : events.length === 0 ? (
@@ -685,7 +722,7 @@ export default function Admin() {
                 )}
               </div>
 
-              <div>
+              <div className="min-w-0 md:sticky md:top-32 md:self-start">
                 {selectedEvent ? (
                   <>
                     <div className="flex items-center justify-between mb-4">
@@ -820,6 +857,7 @@ export default function Admin() {
                 venue: (form.querySelector('[name="venue"]') as HTMLInputElement).value,
                 city: (form.querySelector('[name="city"]') as HTMLInputElement).value,
                 image_url: (form.querySelector('[name="image_url"]') as HTMLInputElement).value || undefined,
+                seat_map_url: (form.querySelector('[name="seat_map_url"]') as HTMLInputElement).value || undefined,
                 status: (form.querySelector('[name="status"]') as HTMLSelectElement).value as Event['status'],
               };
               await handleSaveEvent(data);
@@ -866,6 +904,18 @@ export default function Admin() {
                       <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingEventImage || isDemo} onChange={(event) => { void handleUploadEventImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
                     </label>
                   </div>
+                  {editEvent?.image_url && <button type="button" onClick={() => setPreviewImage(editEvent.image_url || null)} className="mt-3 block overflow-hidden rounded-xl border border-white/10 text-left"><img src={editEvent.image_url} alt="Event image preview" className="h-32 w-full object-cover" onError={(event) => { event.currentTarget.src = '/images/event-sport.jpg'; }} /><span className="block bg-black/50 px-3 py-1 text-xs text-white">Click to preview event image</span></button>}
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Stadium seating map (optional)</label>
+                  <div className="mt-1 flex gap-2">
+                    <input name="seat_map_url" value={editEvent?.seat_map_url || ''} onChange={(event) => setEditEvent((current) => ({ ...(current || {}), seat_map_url: event.target.value }))} placeholder="Optional seating map image URL" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
+                    <label className="inline-flex cursor-pointer items-center rounded-xl border border-purple-400/30 bg-purple-500/15 px-3 text-xs font-semibold text-purple-200">
+                      {uploadingSeatMap ? 'Uploading…' : 'Upload'}
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingSeatMap || isDemo} onChange={(event) => { void handleUploadSeatMap(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                    </label>
+                  </div>
+                  {editEvent?.seat_map_url && <button type="button" onClick={() => setPreviewImage(editEvent.seat_map_url || null)} className="mt-3 block overflow-hidden rounded-xl border border-white/10 text-left"><img src={editEvent.seat_map_url} alt="Stadium seating map preview" className="h-32 w-full object-contain bg-slate-900" onError={(event) => { event.currentTarget.src = '/images/seatmaps/mt-bank-stadium-bts-2026-08-10.png'; }} /><span className="block bg-black/50 px-3 py-1 text-xs text-white">Click to preview seating map</span></button>}
                 </div>
                 <button type="submit" className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-[1.02] transition-all">
                   {editEvent?.id ? 'Update Event' : 'Create Event'}
@@ -916,6 +966,7 @@ export default function Admin() {
                       <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingTicketImage || isDemo} onChange={(event) => { void handleUploadTicketImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
                     </label>
                   </div>
+                  {editTicket?.image_url && <button type="button" onClick={() => setPreviewImage(editTicket.image_url || null)} className="mt-3 block overflow-hidden rounded-xl border border-white/10 text-left"><img src={editTicket.image_url} alt="Ticket image preview" className="h-32 w-full object-cover" onError={(event) => { event.currentTarget.src = '/images/stadium.jpg'; }} /><span className="block bg-black/50 px-3 py-1 text-xs text-white">Click to preview ticket image</span></button>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -964,6 +1015,14 @@ export default function Admin() {
               </div>
             </form>
           </motion.div>
+        </div>
+      )}
+      {previewImage && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-h-[90vh] max-w-5xl" onClick={(event) => event.stopPropagation()}>
+            <button type="button" onClick={() => setPreviewImage(null)} aria-label="Close image preview" className="absolute -right-3 -top-3 z-10 rounded-full bg-white p-2 text-slate-900 shadow-xl"><X className="h-5 w-5" /></button>
+            <img src={previewImage} alt="Large admin image preview" className="max-h-[85vh] max-w-full rounded-2xl object-contain shadow-2xl" onError={(event) => { event.currentTarget.src = '/images/stadium.jpg'; }} />
+          </div>
         </div>
       )}
     </main>

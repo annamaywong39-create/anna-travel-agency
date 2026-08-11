@@ -3,10 +3,28 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { LISTINGS as DEFAULT_LISTINGS, type Listing } from '../data/constants';
 import { FEATURED_US_EVENTS } from '../data/events';
 
+export interface Order {
+  id: string;
+  bookingCode: string;
+  userId: string;
+  orderType: string;
+  status: string;
+  paymentStatus: string;
+  supplierStatus: string;
+  paypalRequestId?: string;
+  supplierConfirmationNumber?: string;
+  roomNumber?: string;
+  customerNotes?: string;
+  adminNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Booking {
   id: string;
   listingId: string;
   userId: string;
+  orderId?: string;
   userEmail: string;
   userName: string;
   checkIn: string;
@@ -43,6 +61,7 @@ export interface UserProfile {
 export interface TicketOrder {
   id: string;
   userId: string;
+  orderId?: string;
   ticketId: string;
   quantity: number;
   totalPrice: number;
@@ -67,6 +86,7 @@ export interface Event {
   venue: string;
   city: string;
   image_url?: string;
+  seat_map_url?: string;
   status: 'upcoming' | 'live' | 'finished';
   category?: string;
   created_at: string;
@@ -90,6 +110,7 @@ export interface EventTicket {
 
 interface DataContextType {
   listings: Listing[];
+  orders: Order[];
   bookings: Booking[];
   reviews: Review[];
   ticketOrders: TicketOrder[];
@@ -111,6 +132,9 @@ interface DataContextType {
   addTicketOrder: (order: Omit<TicketOrder, 'id' | 'createdAt'>) => Promise<TicketOrder>;
   updateTicketOrder: (id: string, data: Partial<TicketOrder>) => Promise<void>;
   fetchAllTicketOrders: () => Promise<TicketOrder[]>;
+  createOrder: (data: { userId: string; orderType: string; customerNotes?: string }) => Promise<Order>;
+  fetchAllOrders: () => Promise<Order[]>;
+  updateOrder: (id: string, data: Partial<Order>) => Promise<void>;
 
   // Reviews
   addReview: (review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
@@ -227,6 +251,7 @@ function rowToBooking(r: Record<string, unknown>): Booking {
     id: r.id as string,
     listingId: r.listing_id as string,
     userId: r.user_id as string,
+    orderId: r.order_id ? String(r.order_id) : undefined,
     userEmail: r.user_email as string,
     userName: r.user_name as string,
     checkIn: r.check_in as string,
@@ -252,10 +277,30 @@ function rowToReview(r: Record<string, unknown>): Review {
   };
 }
 
+function rowToOrder(r: Record<string, unknown>): Order {
+  return {
+    id: String(r.id),
+    bookingCode: String(r.booking_code || ''),
+    userId: String(r.user_id || ''),
+    orderType: String(r.order_type || 'mixed'),
+    status: String(r.status || 'pending'),
+    paymentStatus: String(r.payment_status || 'pending'),
+    supplierStatus: String(r.supplier_status || 'checking_availability'),
+    paypalRequestId: r.paypal_request_id ? String(r.paypal_request_id) : undefined,
+    supplierConfirmationNumber: r.supplier_confirmation_number ? String(r.supplier_confirmation_number) : undefined,
+    roomNumber: r.room_number ? String(r.room_number) : undefined,
+    customerNotes: r.customer_notes ? String(r.customer_notes) : undefined,
+    adminNotes: r.admin_notes ? String(r.admin_notes) : undefined,
+    createdAt: String(r.created_at || ''),
+    updatedAt: String(r.updated_at || ''),
+  };
+}
+
 function rowToTicketOrder(r: Record<string, unknown>): TicketOrder {
   return {
     id: r.id as string,
     userId: r.user_id as string,
+    orderId: r.order_id ? String(r.order_id) : undefined,
     ticketId: r.ticket_id as string,
     quantity: r.quantity as number,
     totalPrice: r.total_price as number,
@@ -274,6 +319,7 @@ function rowToEvent(r: Record<string, unknown>): Event {
     venue: r.venue as string,
     city: r.city as string,
     image_url: r.image_url as string || undefined,
+    seat_map_url: r.seat_map_url as string || undefined,
     status: r.status as Event['status'],
     category: r.category as string || undefined,
     created_at: r.created_at as string,
@@ -309,6 +355,7 @@ function getCartItemKey(item: CartItem) {
 export function DataProvider({ children }: { children: ReactNode }) {
   // Render the curated portfolio immediately so the page does not collapse while Supabase loads.
   const [listings, setListings] = useState<Listing[]>(DEFAULT_LISTINGS);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
@@ -363,14 +410,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ── Supabase loaders ──
   async function loadFromSupabase() {
     setIsLoading(true);
-    const [listRes, bookRes, revRes, ticketRes] = await Promise.all([
+    const [listRes, orderRes, bookRes, revRes, ticketRes] = await Promise.all([
       supabase.from('listings').select('*').order('created_at', { ascending: false }),
+      supabase.from('orders').select('*').order('created_at', { ascending: false }),
       supabase.from('bookings').select('*').order('created_at', { ascending: false }),
       supabase.from('reviews').select('*').order('created_at', { ascending: false }),
       supabase.from('ticket_orders').select('*').order('created_at', { ascending: false }),
     ]);
 
     if (listRes.data && listRes.data.length > 0) setListings(listRes.data.map(rowToListing));
+    if (orderRes.data) setOrders(orderRes.data.map(rowToOrder));
     if (bookRes.data) setBookings(bookRes.data.map(rowToBooking));
     if (revRes.data) setReviews(revRes.data.map(rowToReview));
     if (ticketRes.data) setTicketOrders(ticketRes.data.map(rowToTicketOrder));
@@ -437,6 +486,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
     const { data, error } = await supabase.from('bookings').insert({
       listing_id: booking.listingId,
+      order_id: booking.orderId || null,
       user_id: booking.userId,
       user_email: booking.userEmail,
       user_name: booking.userName,
@@ -528,6 +578,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const ticketId = String(order.ticketId || 'ticket-' + generatedId);
     const { data, error } = await supabase.from('ticket_orders').insert({
       user_id: order.userId,
+      order_id: order.orderId || null,
       ticket_id: ticketId,
       quantity: order.quantity,
       total_price: order.totalPrice,
@@ -553,6 +604,62 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (data.status !== undefined) row.status = data.status;
     const { error } = await supabase.from('ticket_orders').update(row).eq('id', id);
     if (!error) setTicketOrders(prev => prev.map(t => t.id === id ? { ...t, ...data } : t));
+  };
+
+  const createOrder = async (data: { userId: string; orderType: string; customerNotes?: string }): Promise<Order> => {
+    if (isDemo) {
+      const localOrder: Order = {
+        id: `order-${Date.now()}`,
+        bookingCode: `ANA-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        userId: data.userId,
+        orderType: data.orderType,
+        status: 'pending',
+        paymentStatus: 'pending',
+        supplierStatus: 'checking_availability',
+        customerNotes: data.customerNotes,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      setOrders((current) => [localOrder, ...current]);
+      return localOrder;
+    }
+    const { data: row, error } = await supabase.from('orders').insert({
+      user_id: data.userId,
+      order_type: data.orderType,
+      customer_notes: data.customerNotes || null,
+    }).select().single();
+    if (error || !row) throw new Error(error?.message || 'Order could not be created.');
+    const order = rowToOrder(row);
+    setOrders((current) => [order, ...current]);
+    return order;
+  };
+
+  const fetchAllOrders = async (): Promise<Order[]> => {
+    if (isDemo) return orders;
+    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    const nextOrders = (data || []).map(rowToOrder);
+    setOrders(nextOrders);
+    return nextOrders;
+  };
+
+  const updateOrder = async (id: string, data: Partial<Order>) => {
+    if (isDemo) {
+      setOrders((current) => current.map((order) => order.id === id ? { ...order, ...data } : order));
+      return;
+    }
+    const row: Record<string, unknown> = {};
+    if (data.status !== undefined) row.status = data.status;
+    if (data.paymentStatus !== undefined) row.payment_status = data.paymentStatus;
+    if (data.supplierStatus !== undefined) row.supplier_status = data.supplierStatus;
+    if (data.paypalRequestId !== undefined) row.paypal_request_id = data.paypalRequestId;
+    if (data.supplierConfirmationNumber !== undefined) row.supplier_confirmation_number = data.supplierConfirmationNumber;
+    if (data.roomNumber !== undefined) row.room_number = data.roomNumber;
+    if (data.customerNotes !== undefined) row.customer_notes = data.customerNotes;
+    if (data.adminNotes !== undefined) row.admin_notes = data.adminNotes;
+    const { error } = await supabase.from('orders').update(row).eq('id', id);
+    if (error) throw error;
+    setOrders((current) => current.map((order) => order.id === id ? { ...order, ...data } : order));
   };
 
   const fetchAllTicketOrders = async (): Promise<TicketOrder[]> => {
@@ -743,6 +850,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return (
     <DataContext.Provider value={{
       listings,
+      orders,
       bookings,
       reviews,
       ticketOrders,
@@ -758,6 +866,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addTicketOrder,
       updateTicketOrder,
       fetchAllTicketOrders,
+      createOrder,
+      fetchAllOrders,
+      updateOrder,
       addReview,
       deleteReview,
       getListingReviews,

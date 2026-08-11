@@ -20,6 +20,7 @@ type EventItem = {
   category: string;
   description?: string;
   image_url?: string;
+  seat_map_url?: string;
   status: string;
   tickets: TicketOption[];
 };
@@ -134,6 +135,7 @@ export default function Tickets() {
           category: event.category || 'Event',
           description: event.description,
           image_url: eventImageFor(event),
+          seat_map_url: event.seat_map_url ? String(event.seat_map_url) : undefined,
           status: eventStatus(event.date, event.status),
           tickets: (ticketRows || []).filter((ticket) => ticket.event_id === event.id).map((ticket) => ({
             id: ticket.id,
@@ -204,9 +206,9 @@ export default function Tickets() {
   };
 
   const selectedTicket = selected?.tickets.find((ticket) => ticket.id === ticketId);
-  const selectedSeatMap = selected && /bts|m&t bank stadium|baltimore/i.test(`${selected.title} ${selected.venue} ${selected.city}`)
+  const selectedSeatMap = selected?.seat_map_url || (selected && /bts|m&t bank stadium|baltimore/i.test(`${selected.title} ${selected.venue} ${selected.city}`)
     ? '/images/seatmaps/mt-bank-stadium-bts-2026-08-10.png'
-    : null;
+    : null);
   const mapPosition = selectedTicket?.section === '532'
     ? { left: '39%', top: '83%' }
     : selectedTicket?.section === '133'

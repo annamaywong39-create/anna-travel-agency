@@ -11,7 +11,7 @@ export default function BtsSupporterBanner() {
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7D3CFF] via-[#C13CFF] to-[#E8338A] shadow-lg shadow-[#7D3CFF]/30"><Ticket className="h-6 w-6" /></div>
           <div>
             <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-[#F2C94C] px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-[#21103F]">BTS fan gift</span><span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#D6B7FF]">Ongoing offer</span></div>
-            <h2 className="mt-2 text-xl font-black leading-tight sm:text-2xl">30–70% off tickets for the remaining BTS show in the US</h2>
+            <h2 className="mt-2 text-xl font-black leading-tight sm:text-2xl">30–70% off eligible BTS tickets for upcoming US shows</h2>
             <p className="mt-1 text-sm leading-6 text-white/75"><Heart className="mr-1 inline h-4 w-4 text-[#FF7AB8]" />A private supporter has made special ticket discounts possible so more BTS fans can enjoy the show.</p>
             <p className="mt-1 text-xs font-medium text-[#E7D9FF]">Each eligible ticket has its own discount, ranging from 30% to 70%. Terms and conditions apply. Final availability and confirmation are required.</p>
           </div>

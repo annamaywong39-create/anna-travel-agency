@@ -12,7 +12,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export default function Checkout() {
-  const { cartItems, removeFromCart, clearCart, getCartTotal, addBooking, addTicketOrder } = useData();
+  const { cartItems, removeFromCart, clearCart, getCartTotal, createOrder, addBooking, addTicketOrder } = useData();
   const { user } = useAuth();
   const { format } = useCurrency();
   const navigate = useNavigate();
@@ -43,6 +43,10 @@ export default function Checkout() {
     setError(null);
 
     try {
+      const order = await createOrder({
+        userId: user.id,
+        orderType: cartItems.some((item) => item.type === 'room') && cartItems.some((item) => item.type === 'ticket') ? 'mixed' : cartItems.some((item) => item.type === 'room') ? 'accommodation' : 'tickets',
+      });
       let bookedRooms = 0;
       let orderedTickets = 0;
       let errors: string[] = [];
@@ -54,6 +58,7 @@ export default function Checkout() {
           try {
             const booking = await addBooking({
               ...item.item,
+              orderId: order.id,
               userId: user.id,
               status: 'pending',
             });
@@ -76,6 +81,7 @@ export default function Checkout() {
             
             const ticketOrder = await addTicketOrder({
               userId: user.id,
+              orderId: order.id,
               ticketId: item.item.ticketId || item.id,
               quantity: item.quantity,
               totalPrice: item.price * item.quantity,

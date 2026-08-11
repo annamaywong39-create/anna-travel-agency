@@ -38,6 +38,7 @@ export default function AdminListingForm() {
   const [newImage, setNewImage] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState('');
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (existingListing) {
@@ -235,7 +236,7 @@ export default function AdminListingForm() {
                 {formData.images.filter(img => img.trim() !== '').length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
                     {formData.images.filter(img => img.trim() !== '').map((img, index) => (
-                      <div key={index} className="relative group rounded-xl overflow-hidden border border-white/10">
+                      <button type="button" key={index} onClick={() => setPreviewImage(img)} className="relative group rounded-xl overflow-hidden border border-white/10 text-left">
                         <img
                           src={img}
                           alt={`Property image ${index + 1}`}
@@ -243,8 +244,8 @@ export default function AdminListingForm() {
                           onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200x150/1a1a2e/666?text=No+Image'; }}
                         />
                         <button type="button" onClick={() => handleRemoveImage(index)} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"><X className="w-3 h-3" /></button>
-                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px]">#{index + 1}</span>
-                      </div>
+                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px]">Preview #{index + 1}</span>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -325,6 +326,14 @@ export default function AdminListingForm() {
           </Card3D>
         </motion.div>
       </div>
+      {previewImage && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-h-[90vh] max-w-5xl" onClick={(event) => event.stopPropagation()}>
+            <button type="button" onClick={() => setPreviewImage(null)} aria-label="Close image preview" className="absolute -right-3 -top-3 z-10 rounded-full bg-white p-2 text-slate-900 shadow-xl"><X className="h-5 w-5" /></button>
+            <img src={previewImage} alt="Large listing preview" className="max-h-[85vh] max-w-full rounded-2xl object-contain shadow-2xl" onError={(event) => { event.currentTarget.src = '/images/hotel-luxury.jpg'; }} />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
