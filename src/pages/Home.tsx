@@ -103,19 +103,19 @@ export default function Home() {
             <div className="absolute -inset-4 rounded-[2rem] border border-[#D98C9B]/25 rotate-3" />
             <div className="relative overflow-hidden rounded-[2rem] bg-[#132A46] shadow-2xl shadow-black/30">
               <div className="relative h-[430px] w-full overflow-hidden">
-                {heroSlides.map((slide, index) => (
-                  <img
-                    key={slide.src}
-                    src={slide.src}
-                    alt={slide.alt}
-                    width={900}
-                    height={600}
-                    decoding="async"
-                    fetchPriority={index === 0 ? 'high' : 'auto'}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${index === heroImageIndex ? 'opacity-90' : 'opacity-0'}`}
-                  />
-                ))}
+                <img
+                  key={heroSlides[heroImageIndex].src}
+                  src={heroSlides[heroImageIndex].src}
+                  alt={heroSlides[heroImageIndex].alt}
+                  width={900}
+                  height={600}
+                  decoding="async"
+                  fetchPriority="high"
+                  className="absolute inset-0 h-full w-full object-cover opacity-90"
+                  onError={(event) => {
+                    if (!event.currentTarget.src.endsWith('/images/hero.jpg')) event.currentTarget.src = '/images/hero.jpg';
+                  }}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3A] via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between gap-4 p-7"><div><p className="text-sm text-[#E6C98E]">{heroSlides[heroImageIndex].eyebrow}</p><p className="mt-2 min-h-[3.5rem] text-2xl font-medium leading-tight">{heroSlides[heroImageIndex].caption}</p></div><div className="flex gap-1.5" aria-label="Hero story carousel"><span className="sr-only">Travel story images</span>{heroSlides.map((slide, index) => <button key={slide.src} type="button" aria-label={`Show story ${index + 1}`} aria-pressed={index === heroImageIndex} onClick={() => setHeroImageIndex(index)} className={`h-2 rounded-full transition-all ${index === heroImageIndex ? 'w-6 bg-[#F2C94C]' : 'w-2 bg-white/50 hover:bg-white'}`} />)}</div></div>
               </div>
