@@ -10,6 +10,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData, type Booking, type Event, type EventTicket, type TicketOrder } from '../contexts/DataContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import Card3D from '../components/Card3D';
+import { formatVenueDate } from '../lib/eventDate';
+import { uploadPublicImage } from '../lib/storage';
 
 type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events';
 
@@ -33,11 +35,15 @@ export default function Admin() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [eventSearch, setEventSearch] = useState('');
   const [eventTickets, setEventTickets] = useState<EventTicket[]>([]);
   const [showEventForm, setShowEventForm] = useState(false);
   const [editEvent, setEditEvent] = useState<Partial<Event> | null>(null);
   const [showTicketForm, setShowTicketForm] = useState(false);
   const [editTicket, setEditTicket] = useState<Partial<EventTicket> | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [uploadingEventImage, setUploadingEventImage] = useState(false);
+  const [uploadingTicketImage, setUploadingTicketImage] = useState(false);
 
   // Ticket Orders (for display)
   const [allTicketOrders, setAllTicketOrders] = useState<TicketOrder[]>([]);
@@ -53,6 +59,17 @@ export default function Admin() {
     return <Navigate to="/login" replace />;
   }
 
+  if (isDemo) {
+    return (
+      <main className="min-h-screen bg-[#0A1128] px-4 pb-20 pt-32 text-white">
+        <div className="mx-auto max-w-xl rounded-2xl border border-amber-400/30 bg-amber-950/30 p-8 text-center">
+          <h1 className="text-2xl font-bold">Supabase connection required</h1>
+          <p className="mt-3 leading-7 text-amber-100/80">Admin changes and image uploads are disabled because this deployment is in Demo Mode. Add the Supabase variables to Vercel and redeploy before managing live data.</p>
+        </div>
+      </main>
+    );
+  }
+
   const loadUsers = async () => {
     setLoadingUsers(true);
     const users = await fetchAllUsers();
@@ -65,8 +82,14 @@ export default function Admin() {
     const data = await fetchEvents();
     setEvents(data);
     setLoadingEvents(false);
-    setSelectedEvent(null);
-    setEventTickets([]);
+    const firstEvent = data.find((event) => new Date(event.date).getTime() >= Date.now()) || data[0];
+    if (firstEvent) {
+      setSelectedEvent(firstEvent);
+      await loadTickets(firstEvent.id);
+    } else {
+      setSelectedEvent(null);
+      setEventTickets([]);
+    }
   };
 
   const loadTicketOrders = async () => {
@@ -74,6 +97,41 @@ export default function Admin() {
     const data = await fetchAllTicketOrders();
     setAllTicketOrders(data);
     setLoadingTicketOrders(false);
+  };
+
+  const notify = (type: 'success' | 'error', text: string) => {
+    setFeedback({ type, text });
+    window.setTimeout(() => setFeedback(null), 4000);
+  };
+
+  const handleUploadEventImage = async (file?: File) => {
+    if (!file) return;
+    if (isDemo) return notify('error', 'Supabase is not connected. Image uploads are disabled in Demo Mode.');
+    setUploadingEventImage(true);
+    try {
+      const imageUrl = await uploadPublicImage(file, 'events');
+      setEditEvent((current) => ({ ...(current || {}), image_url: imageUrl }));
+      notify('success', 'Event image uploaded. Save the event to publish it.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'Event image upload failed.');
+    } finally {
+      setUploadingEventImage(false);
+    }
+  };
+
+  const handleUploadTicketImage = async (file?: File) => {
+    if (!file) return;
+    if (isDemo) return notify('error', 'Supabase is not connected. Image uploads are disabled in Demo Mode.');
+    setUploadingTicketImage(true);
+    try {
+      const imageUrl = await uploadPublicImage(file, 'tickets');
+      setEditTicket((current) => ({ ...(current || {}), image_url: imageUrl }));
+      notify('success', 'Ticket image uploaded. Save the ticket tier to publish it.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'Ticket image upload failed.');
+    } finally {
+      setUploadingTicketImage(false);
+    }
   };
 
   const loadTickets = async (eventId: string) => {
@@ -87,52 +145,93 @@ export default function Admin() {
   };
 
   const handleSaveEvent = async (data: Partial<Event>) => {
-    if (data.id) {
-      await updateEvent(data.id, data);
-    } else {
-      await addEvent(data as Omit<Event, 'id' | 'created_at'>);
+    try {
+      if (data.id) {
+        await updateEvent(data.id, data);
+      } else {
+        await addEvent(data as Omit<Event, 'id' | 'created_at'>);
+      }
+      await loadEvents();
+      setShowEventForm(false);
+      setEditEvent(null);
+      notify('success', data.id ? 'Event updated successfully.' : 'Event created successfully.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'The event could not be saved.');
     }
-    await loadEvents();
-    setShowEventForm(false);
-    setEditEvent(null);
   };
 
   const handleDeleteEvent = async (id: string) => {
-    if (confirm('Delete this event and all its tickets?')) {
+    if (!confirm('Delete this event and all its tickets?')) return;
+    try {
       await deleteEvent(id);
       await loadEvents();
       if (selectedEvent?.id === id) setSelectedEvent(null);
+      notify('success', 'Event deleted successfully.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'The event could not be deleted.');
     }
   };
 
   const handleSaveTicket = async (data: Partial<EventTicket>) => {
     if (!selectedEvent) return;
-    if (data.id) {
-      await updateEventTicket(data.id, data);
-    } else {
-      await addEventTicket({
-        event_id: selectedEvent.id,
-        category_name: data.category_name!,
-        price: data.price!,
-        quantity_available: data.quantity_available || 0,
-      });
+    const category = String(data.category_name || '').trim();
+    const price = Number(data.price);
+    const quantity = Number(data.quantity_available);
+    if (!category) return notify('error', 'Enter a ticket category or section name.');
+    if (!Number.isFinite(price) || price < 0) return notify('error', 'Enter a valid non-negative ticket price.');
+    if (!Number.isInteger(quantity) || quantity < 0) return notify('error', 'Quantity must be a whole number of 0 or more.');
+
+    try {
+      if (data.id) {
+        await updateEventTicket(data.id, { ...data, category_name: category, price, quantity_available: quantity });
+      } else {
+        await addEventTicket({
+          event_id: selectedEvent.id,
+          category_name: category,
+          section: data.section,
+          row: data.row,
+          seat_details: data.seat_details,
+          delivery_method: data.delivery_method,
+          delivery_timing: data.delivery_timing,
+          status: data.status || 'available',
+          price,
+          quantity_available: quantity,
+        });
+      }
+      await loadTickets(selectedEvent.id);
+      setShowTicketForm(false);
+      setEditTicket(null);
+      notify('success', data.id ? 'Ticket tier updated successfully.' : 'Ticket tier added successfully.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'The ticket tier could not be saved.');
     }
-    await loadTickets(selectedEvent.id);
-    setShowTicketForm(false);
-    setEditTicket(null);
   };
 
   const handleDeleteTicket = async (id: string) => {
-    if (confirm('Delete this ticket tier?')) {
+    if (!confirm('Delete this ticket tier?')) return;
+    try {
       await deleteEventTicket(id);
       if (selectedEvent) await loadTickets(selectedEvent.id);
+      notify('success', 'Ticket tier deleted successfully.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'The ticket tier could not be deleted.');
     }
   };
 
   const toggleSoldOut = async (ticket: EventTicket) => {
-    const newQty = ticket.quantity_available > 0 ? 0 : 100;
-    await updateEventTicket(ticket.id, { quantity_available: newQty });
-    if (selectedEvent) await loadTickets(selectedEvent.id);
+    if (ticket.quantity_available === 0) {
+      setEditTicket(ticket);
+      setShowTicketForm(true);
+      notify('error', 'Enter a new quantity in Edit Ticket to reopen this inventory.');
+      return;
+    }
+    try {
+      await updateEventTicket(ticket.id, { quantity_available: 0, status: 'sold_out' });
+      if (selectedEvent) await loadTickets(selectedEvent.id);
+      notify('success', 'Ticket tier marked sold out. Quantity was not replaced with a made-up amount.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'The ticket status could not be updated.');
+    }
   };
 
   // ─── Stats ──────────────────────────────────────────────
@@ -178,6 +277,7 @@ export default function Admin() {
 
   return (
     <main className="pt-24 pb-20 min-h-screen">
+      {feedback && <div role="status" className={`fixed right-5 top-24 z-[60] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-2xl ${feedback.type === 'success' ? 'border-emerald-400/40 bg-emerald-950/95 text-emerald-200' : 'border-red-400/40 bg-red-950/95 text-red-200'}`}>{feedback.text}</div>}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -217,7 +317,7 @@ export default function Admin() {
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 flex-wrap">
+        <div className="sticky top-20 z-30 -mx-4 mb-8 flex gap-2 overflow-x-auto border-y border-white/10 bg-[#0a0a1a]/95 px-4 py-3 pb-2 backdrop-blur-xl flex-wrap sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           {[
             { id: 'overview' as Tab, icon: LayoutDashboard, label: 'Overview' },
             { id: 'listings' as Tab, icon: Building2, label: 'Listings' },
@@ -519,16 +619,25 @@ export default function Admin() {
         {/* ═══ EVENTS TAB ═══ (unchanged) */}
         {activeTab === 'events' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white">All Events</h3>
+                <p className="mt-1 text-sm text-gray-500">Choose an event, then manage its ticket inventory on the right.</p>
+              </div>
+              <div className="relative w-full sm:max-w-xs">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                <input value={eventSearch} onChange={(event) => setEventSearch(event.target.value)} placeholder="Search events..." className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-400/60" />
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-xl font-bold text-white mb-4">All Events</h3>
                 {loadingEvents ? (
                   <div className="py-8 text-center text-gray-400">Loading events...</div>
                 ) : events.length === 0 ? (
                   <div className="py-8 text-center text-gray-400">No events created yet.</div>
                 ) : (
                   <div className="space-y-3">
-                    {events.map((event) => (
+                    {events.filter((event) => `${event.title} ${event.city} ${event.venue}`.toLowerCase().includes(eventSearch.toLowerCase())).map((event) => (
                       <Card3D key={event.id}>
                         <div className="p-4">
                           <div className="flex items-start justify-between">
@@ -536,7 +645,7 @@ export default function Admin() {
                               <h4 className="text-white font-bold">{event.title}</h4>
                               <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                                 <CalendarIcon className="w-3 h-3" />
-                                <span>{new Date(event.date).toLocaleDateString()}</span>
+                                <span>{formatVenueDate(event.date)}</span>
                                 <MapPin className="w-3 h-3 ml-2" />
                                 <span>{event.city}</span>
                               </div>
@@ -599,8 +708,9 @@ export default function Admin() {
                               <div className="p-4 flex items-center justify-between">
                                 <div>
                                   <p className="text-white font-medium">{ticket.category_name}</p>
+                                  <p className="text-gray-400 text-xs">{ticket.section ? `Section ${ticket.section}` : 'Section on request'}{ticket.row ? ` · Row ${ticket.row}` : ''}</p>
                                   <p className="text-amber-400 text-sm">{isSoldOut ? 'Sold Out' : `$${ticket.price}`}</p>
-                                  <p className="text-gray-500 text-xs">{ticket.quantity_available} available</p>
+                                  <p className="text-gray-500 text-xs">{ticket.quantity_available} available · {ticket.status || (isSoldOut ? 'sold_out' : 'available')}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <button
@@ -749,7 +859,13 @@ export default function Admin() {
                 </div>
                 <div>
                   <label className="text-sm text-gray-400">Image URL</label>
-                  <input name="image_url" defaultValue={editEvent?.image_url || ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                  <div className="flex gap-2">
+                    <input name="image_url" value={editEvent?.image_url || ''} onChange={(event) => setEditEvent((current) => ({ ...(current || {}), image_url: event.target.value }))} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
+                    <label className="inline-flex cursor-pointer items-center rounded-xl border border-blue-400/30 bg-blue-500/15 px-3 text-xs font-semibold text-blue-200">
+                      {uploadingEventImage ? 'Uploading…' : 'Upload'}
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingEventImage || isDemo} onChange={(event) => { void handleUploadEventImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                    </label>
+                  </div>
                 </div>
                 <button type="submit" className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-[1.02] transition-all">
                   {editEvent?.id ? 'Update Event' : 'Create Event'}
@@ -774,6 +890,13 @@ export default function Admin() {
               const data = {
                 id: editTicket?.id,
                 category_name: (form.querySelector('[name="category_name"]') as HTMLInputElement).value,
+                section: (form.querySelector('[name="section"]') as HTMLInputElement).value || undefined,
+                row: (form.querySelector('[name="row"]') as HTMLInputElement).value || undefined,
+                seat_details: (form.querySelector('[name="seat_details"]') as HTMLInputElement).value || undefined,
+                delivery_method: (form.querySelector('[name="delivery_method"]') as HTMLInputElement).value || undefined,
+                delivery_timing: (form.querySelector('[name="delivery_timing"]') as HTMLInputElement).value || undefined,
+                image_url: (form.querySelector('[name="image_url"]') as HTMLInputElement).value || undefined,
+                status: (form.querySelector('[name="status"]') as HTMLSelectElement).value,
                 price: parseInt((form.querySelector('[name="price"]') as HTMLInputElement).value),
                 quantity_available: parseInt((form.querySelector('[name="quantity"]') as HTMLInputElement).value) || 0,
               };
@@ -783,6 +906,49 @@ export default function Admin() {
                 <div>
                   <label className="text-sm text-gray-400">Category Name *</label>
                   <input name="category_name" required defaultValue={editTicket?.category_name || ''} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Ticket image</label>
+                  <div className="mt-1 flex gap-2">
+                    <input name="image_url" value={editTicket?.image_url || ''} onChange={(event) => setEditTicket((current) => ({ ...(current || {}), image_url: event.target.value }))} placeholder="Optional authorized image URL" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
+                    <label className="inline-flex cursor-pointer items-center rounded-xl border border-purple-400/30 bg-purple-500/15 px-3 text-xs font-semibold text-purple-200">
+                      {uploadingTicketImage ? 'Uploading…' : 'Upload'}
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingTicketImage || isDemo} onChange={(event) => { void handleUploadTicketImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                    </label>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-gray-400">Section</label>
+                    <input name="section" defaultValue={editTicket?.section || ''} placeholder="e.g. 532 or Field R" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-400">Row</label>
+                    <input name="row" defaultValue={editTicket?.row || ''} placeholder="e.g. 16" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Seat details</label>
+                  <input name="seat_details" defaultValue={editTicket?.seat_details || ''} placeholder="e.g. 2 mobile tickets or seat details on request" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-gray-400">Delivery method</label>
+                    <input name="delivery_method" defaultValue={editTicket?.delivery_method || 'Mobile transfer'} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-400">Delivery timing</label>
+                    <input name="delivery_timing" defaultValue={editTicket?.delivery_timing || ''} placeholder="e.g. Evening before event" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Status</label>
+                  <select name="status" defaultValue={editTicket?.status || (editTicket?.quantity_available === 0 ? 'sold_out' : 'available')} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white">
+                    <option value="available">Available</option>
+                    <option value="reserved">Reserved</option>
+                    <option value="sold">Sold</option>
+                    <option value="sold_out">Sold out</option>
+                  </select>
                 </div>
                 <div>
                   <label className="text-sm text-gray-400">Price (USD) *</label>

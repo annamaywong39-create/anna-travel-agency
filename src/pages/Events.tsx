@@ -6,6 +6,7 @@ import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
 import { useData, type Event } from '../contexts/DataContext';
 import { eventImageFor } from '../lib/eventImages';
+import { formatVenueDate } from '../lib/eventDate';
 
 function hasEventEnded(event: Pick<Event, 'date' | 'status'>) {
   return event.status === 'finished' || new Date(event.date).getTime() < Date.now();
@@ -156,7 +157,7 @@ export default function Events() {
                     <div className="space-y-1 text-sm text-gray-400 mb-3">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-amber-400" />
-                        <span>{new Date(event.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        <span>{formatVenueDate(event.date, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-amber-400" />
@@ -207,7 +208,7 @@ export default function Events() {
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-2 text-gray-400">
                 <Calendar className="w-4 h-4 text-amber-400" />
-                <span>{new Date(selectedEvent.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                <span>{formatVenueDate(selectedEvent.date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
               </div>
               <div className="flex items-center gap-2 text-gray-400">
                 <MapPin className="w-4 h-4 text-amber-400" />

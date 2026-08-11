@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { HOST_CITIES, type Listing } from '../data/constants';
 import Card3D from '../components/Card3D';
+import { uploadPublicImage } from '../lib/storage';
 
 const AMENITY_OPTIONS = [
   'WiFi', 'Pool', 'Gym', 'Parking', 'Kitchen', 'AC', 'TV', 'Washer',
@@ -22,7 +23,7 @@ export default function AdminListingForm() {
   const { id } = useParams();
   const isEditing = id && id !== 'new';
   const { user } = useAuth();
-  const { listings, addListing, updateListing } = useData();
+  const { listings, addListing, updateListing, isDemo } = useData();
   const navigate = useNavigate();
 
   const existingListing = isEditing ? listings.find(l => l.id === id) : null;
@@ -35,6 +36,8 @@ export default function AdminListingForm() {
 
   const [newAmenity, setNewAmenity] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
     if (existingListing) {
@@ -75,6 +78,24 @@ export default function AdminListingForm() {
     }
   };
 
+  const handleUploadImage = async (file?: File) => {
+    if (!file) return;
+    if (isDemo) {
+      setFormError('Supabase is not connected. Image uploads are disabled in Demo Mode.');
+      return;
+    }
+    setFormError('');
+    setUploadingImage(true);
+    try {
+      const url = await uploadPublicImage(file, 'listings');
+      setFormData((prev) => ({ ...prev, images: [...prev.images.filter((image) => image.trim()), url] }));
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : 'Image upload failed.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleRemoveImage = (index: number) => {
     setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
   };
@@ -83,13 +104,22 @@ export default function AdminListingForm() {
     if (e.key === 'Enter') { e.preventDefault(); handleAddImage(); }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isDemo) {
+      setFormError('Supabase is not connected. Admin changes are disabled in Demo Mode.');
+      return;
+    }
+    setFormError('');
     const cleanImages = formData.images.filter(img => img.trim() !== '');
-    const cleanData = { ...formData, images: cleanImages.length > 0 ? cleanImages : [''] };
-    if (isEditing && id) updateListing(id, cleanData);
-    else addListing(cleanData);
-    navigate('/admin');
+    const cleanData = { ...formData, images: cleanImages.length > 0 ? cleanImages : ['/images/hotel-luxury.jpg'] };
+    try {
+      if (isEditing && id) await updateListing(id, cleanData);
+      else await addListing(cleanData);
+      navigate('/admin');
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : 'Listing could not be saved.');
+    }
   };
 
   return (
@@ -103,6 +133,8 @@ export default function AdminListingForm() {
 
           <Card3D>
             <form onSubmit={handleSubmit} className="p-6 md:p-8 bg-[#131C2E] rounded-2xl border border-white/5 space-y-6">
+              {formError && <div role="alert" className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-200">{formError}</div>}
+              {isDemo && <div className="rounded-xl border border-amber-400/30 bg-amber-950/30 px-4 py-3 text-sm text-amber-200">Demo Mode is active. Connect Supabase before saving listings or uploading images.</div>}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label htmlFor="title" className="text-sm text-gray-400 mb-1 block">Title *</label>
@@ -216,6 +248,13 @@ export default function AdminListingForm() {
                     ))}
                   </div>
                 )}
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs text-gray-500">Upload an image to Supabase Storage, or add an authorized image URL.</p>
+                  <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-[#DB8293]/30 bg-[#DB8293]/15 px-4 py-2 text-sm font-semibold text-[#DB8293] hover:bg-[#DB8293]/25">
+                    {uploadingImage ? 'Uploading…' : 'Upload image'}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingImage || isDemo} onChange={(event) => { void handleUploadImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                  </label>
+                </div>
                 <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
