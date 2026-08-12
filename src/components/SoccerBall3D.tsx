@@ -131,7 +131,7 @@ export default function SoccerBall3D({ className = '' }: { className?: string })
 
           {/* ═══ FIFA 2026 TEXT on fuselage ═══ */}
           <text x="44" y="24.5" fontSize="5.5" fontWeight="900" fill="#f59e0b" fontFamily="Arial, sans-serif" letterSpacing="0.5">
-            FIFA 2026
+ANNA TRAVEL
           </text>
 
           <defs>

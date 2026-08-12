@@ -30,8 +30,8 @@ const policies = [
 
 const faqs = [
   {
-    q: 'What happens if FIFA cancels a World Cup match?',
-    a: 'If a match is cancelled or the tournament is suspended due to force majeure (natural disaster, pandemic, FIFA decision), you will receive a full 100% refund within 14 business days, regardless of when you booked.',
+    q: 'What happens if an event is cancelled?',
+    a: 'If an event is cancelled or suspended due to force majeure (such as a natural disaster, pandemic, government action, or organiser decision), we will explain the available refund or rescheduling options and process any approved refund within 14 business days.',
   },
   {
     q: 'How long does a refund take to process?',
@@ -58,7 +58,7 @@ const faqs = [
 export default function Refund() {
   return (
     <main className="pt-24 pb-20 min-h-screen">
-      <SEO title="Refund Policy" description="Anna Travel Agency refund and cancellation policy for FIFA World Cup 2026 accommodation bookings." path="/refund" />
+      <SEO title="Refund Policy" description="Anna Travel Agency refund and cancellation policy for accommodation and event bookings." path="/refund" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Link to="/" className="inline-flex items-center gap-2 text-amber-400 text-sm mb-6 hover:underline">

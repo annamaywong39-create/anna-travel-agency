@@ -367,7 +367,7 @@ export default function Booking() {
                         <p className="text-gray-400 mb-4">
                           {cartAdded
                             ? 'Your room has been added to your cart. You can continue browsing or proceed to checkout.'
-                            : 'Your World Cup accommodation is secured.'}
+                            : 'Your accommodation request has been received.'}
                         </p>
 
                         {cartAdded && (

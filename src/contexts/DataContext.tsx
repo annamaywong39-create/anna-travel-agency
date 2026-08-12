@@ -135,6 +135,7 @@ interface DataContextType {
   createOrder: (data: { userId: string; orderType: string; customerNotes?: string }) => Promise<Order>;
   fetchAllOrders: () => Promise<Order[]>;
   updateOrder: (id: string, data: Partial<Order>) => Promise<void>;
+  deleteOrder: (id: string) => Promise<void>;
 
   // Reviews
   addReview: (review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
@@ -512,10 +513,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const sendAdminNotification = async (booking: Booking) => {
     try {
       const listing = listings.find(l => l.id === booking.listingId);
-      const paymentMethodMap = {
-        bitcoin: '₿ Bitcoin',
+      const paymentMethodMap: Record<string, string> = {
         paypal: '🅿️ PayPal',
-        steam: '🎮 Steam Card',
       };
       await fetch('https://wtktniphfzeltvajpbhb.supabase.co/functions/v1/send-email', {
         method: 'POST',
@@ -533,7 +532,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             guests: booking.guests,
             totalPrice: `$${booking.totalPrice}`,
             bookingId: booking.id,
-            paymentMethod: booking.paymentMethod ? paymentMethodMap[booking.paymentMethod] : 'Pending',
+            paymentMethod: booking.paymentMethod ? (paymentMethodMap[booking.paymentMethod] || 'Pending') : 'Pending',
           }
         })
       });
@@ -641,6 +640,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const nextOrders = (data || []).map(rowToOrder);
     setOrders(nextOrders);
     return nextOrders;
+  };
+
+  const deleteOrder = async (id: string) => {
+    if (isDemo) {
+      setOrders((current) => current.filter((order) => order.id !== id));
+      return;
+    }
+    const { error } = await supabase.from('orders').delete().eq('id', id);
+    if (error) throw error;
+    setOrders((current) => current.filter((order) => order.id !== id));
   };
 
   const updateOrder = async (id: string, data: Partial<Order>) => {
@@ -869,6 +878,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       createOrder,
       fetchAllOrders,
       updateOrder,
+      deleteOrder,
       addReview,
       deleteReview,
       getListingReviews,

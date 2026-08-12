@@ -4,7 +4,7 @@ import SEO from '../components/SEO';
 const sections = [
   {
     title: '1. Information We Collect',
-    content: `We collect information you provide directly: name, email address, phone number, country, payment information (processed by Stripe — we do not store card numbers), booking preferences, and any communications with us.\n\nWe automatically collect: IP address, browser type, device information, pages viewed, time spent on pages, and cookies for session management and analytics.`,
+    content: `We collect information you provide directly: name, email address, phone number, country, payment information (processed through secure payment providers — we do not store card numbers), booking preferences, and any communications with us.\n\nWe automatically collect: IP address, browser type, device information, pages viewed, time spent on pages, and cookies for session management and analytics.`,
   },
   {
     title: '2. How We Use Your Information',
@@ -12,11 +12,11 @@ const sections = [
   },
   {
     title: '3. Information Sharing',
-    content: `We share your information with: property owners/managers (name, contact details, booking dates — necessary to fulfill your reservation); Stripe (payment processing — subject to their privacy policy); email service providers (for sending communications); analytics providers (aggregated, non-personal data only).\n\nWe do NOT sell your personal data to third parties. We may disclose information if required by law, court order, or government regulation.`,
+    content: `We share your information with: property owners/managers (name, contact details, booking dates — necessary to fulfill your reservation); payment providers and PayPal (payment processing — subject to their privacy policies); email service providers (for sending communications); analytics providers (aggregated, non-personal data only).\n\nWe do NOT sell your personal data to third parties. We may disclose information if required by law, court order, or government regulation.`,
   },
   {
     title: '4. Data Security',
-    content: `We implement industry-standard security measures: SSL/TLS encryption for all data transmission; secure payment processing through Stripe (PCI-DSS compliant); encrypted database storage; regular security audits; access controls for employee data access.\n\nHowever, no method of transmission over the Internet is 100% secure. We cannot guarantee absolute security.`,
+    content: `We implement industry-standard security measures: SSL/TLS encryption for all data transmission; secure payment processing through our payment providers; encrypted database storage; regular security audits; access controls for employee data access.\n\nHowever, no method of transmission over the Internet is 100% secure. We cannot guarantee absolute security.`,
   },
   {
     title: '5. Cookies & Tracking',

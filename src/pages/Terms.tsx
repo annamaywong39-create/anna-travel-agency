@@ -8,7 +8,7 @@ const sections = [
   },
   {
     title: '2. Services Provided',
-    content: `Anna Travel Agency provides an online platform connecting guests with accommodation providers for the FIFA World Cup 2026. We facilitate bookings for hotels, apartments, and short-term rentals across host cities in the United States, Mexico, and Canada. We act as an intermediary between guests and property owners/managers.`,
+    content: `Anna Travel Agency provides an online platform connecting travellers with accommodation providers and event-ticket opportunities. We facilitate requests for hotels, apartments, short-term rentals, and selected events. We act as an intermediary between guests, property owners, suppliers, and ticket providers.`,
   },
   {
     title: '3. Booking & Payments',
@@ -20,7 +20,7 @@ const sections = [
   },
   {
     title: '5. Cancellation & Refund Policy',
-    content: `Free cancellation is available up to 7 days before the scheduled check-in date for a full refund. Cancellations made 3–7 days before check-in receive a 50% refund. Cancellations made less than 3 days before check-in are non-refundable. No-shows are non-refundable. In cases of force majeure (including but not limited to natural disasters, pandemics, or event cancellation by FIFA), full refunds will be issued within 14 business days.`,
+    content: `Free cancellation is available up to 7 days before the scheduled check-in date for a full refund. Cancellations made 3–7 days before check-in receive a 50% refund. Cancellations made less than 3 days before check-in are non-refundable. No-shows are non-refundable. In cases of force majeure (including but not limited to natural disasters, pandemics, government restrictions, or cancellation by the event organiser), full refunds will be issued within 14 business days.`,
   },
   {
     title: '6. User Accounts',
@@ -55,7 +55,7 @@ const sections = [
 export default function Terms() {
   return (
     <main className="pt-24 pb-20 min-h-screen">
-      <SEO title="Terms of Service" description="Terms of Service for Anna Travel Agency — FIFA World Cup 2026 accommodation booking platform." path="/terms" />
+      <SEO title="Terms of Service" description="Terms of Service for Anna Travel Agency accommodation and event-ticket concierge services." path="/terms" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl font-black text-white mb-2">Terms of Service</h1>

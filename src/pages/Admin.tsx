@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Building2, Calendar, Users, Plus, Edit2, Trash2,
   Eye, DollarSign, ArrowLeft, Search, Filter,
-  Ticket, RefreshCw, Calendar as CalendarIcon, MapPin, X, Home
+  Ticket, RefreshCw, Calendar as CalendarIcon, MapPin, X, Home, List, Grid2X2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData, type Booking, type Event, type EventTicket, type TicketOrder } from '../contexts/DataContext';
@@ -19,7 +19,7 @@ export default function Admin() {
   const { user } = useAuth();
   const {
     listings, orders, bookings, deleteListing, updateBooking, isDemo,
-    fetchAllUsers, updateTicketOrder, fetchAllTicketOrders, fetchAllOrders, updateOrder,
+    fetchAllUsers, updateTicketOrder, fetchAllTicketOrders, fetchAllOrders, updateOrder, deleteOrder,
     fetchEvents, addEvent, updateEvent, deleteEvent,
     fetchEventTickets, addEventTicket, updateEventTicket, deleteEventTicket
   } = useData();
@@ -36,6 +36,8 @@ export default function Admin() {
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [eventSearch, setEventSearch] = useState('');
+  const [eventView, setEventView] = useState<'grid' | 'list'>('list');
+  const [ticketFilter, setTicketFilter] = useState<'all' | 'available' | 'sold_out'>('all');
   const [eventTickets, setEventTickets] = useState<EventTicket[]>([]);
   const [showEventForm, setShowEventForm] = useState(false);
   const [editEvent, setEditEvent] = useState<Partial<Event> | null>(null);
@@ -278,10 +280,8 @@ export default function Admin() {
   const getPaymentMethodDisplay = (method?: string) => {
     if (!method || method === 'pending') return '⏳ Pending';
     const map: Record<string, { label: string; color: string }> = {
-      bitcoin: { label: '₿ Bitcoin', color: 'bg-orange-500/20 text-orange-400' },
       paypal: { label: '🅿️ PayPal', color: 'bg-blue-500/20 text-blue-400' },
-      steam: { label: '🎮 Steam Card', color: 'bg-purple-500/20 text-purple-400' },
-      card: { label: '💳 Card', color: 'bg-green-500/20 text-green-400' },
+      pending: { label: '⏳ Pending', color: 'bg-gray-500/20 text-gray-400' },
     };
     return map[method] || { label: '⏳ Pending', color: 'bg-gray-500/20 text-gray-400' };
   };
@@ -528,7 +528,7 @@ export default function Admin() {
                   <div>
                     <div className="mb-3 flex items-center justify-between"><h4 className="flex items-center gap-2 text-lg font-bold text-white"><span>🧾</span> Customer Orders ({orders.length})</h4><button onClick={() => { void fetchAllOrders(); }} className="text-xs text-gray-400 hover:text-white">Refresh orders</button></div>
                     <div className="grid gap-3 lg:grid-cols-2">
-                      {orders.map((order) => <Card3D key={order.id}><div className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-mono text-sm font-bold text-amber-300">{order.bookingCode}</p><p className="mt-1 text-xs text-gray-500">{new Date(order.createdAt).toLocaleString()}</p></div><select value={order.status} onChange={(event) => { void updateOrder(order.id, { status: event.target.value }); }} className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div><div className="grid grid-cols-2 gap-2 text-xs"><label className="text-gray-400">Payment<select value={order.paymentStatus} onChange={(event) => { void updateOrder(order.id, { paymentStatus: event.target.value }); }} className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white"><option value="pending">Pending</option><option value="requested">Requested</option><option value="paid">Paid</option><option value="failed">Failed</option></select></label><label className="text-gray-400">Supplier<select value={order.supplierStatus} onChange={(event) => { void updateOrder(order.id, { supplierStatus: event.target.value }); }} className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white"><option value="checking_availability">Checking</option><option value="held">Held</option><option value="confirmed">Confirmed</option><option value="unavailable">Unavailable</option></select></label></div><div className="grid grid-cols-2 gap-2"><input defaultValue={order.supplierConfirmationNumber || ''} onBlur={(event) => { if (event.target.value !== (order.supplierConfirmationNumber || '')) void updateOrder(order.id, { supplierConfirmationNumber: event.target.value }); }} placeholder="Supplier confirmation no." className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white" /><input defaultValue={order.roomNumber || ''} onBlur={(event) => { if (event.target.value !== (order.roomNumber || '')) void updateOrder(order.id, { roomNumber: event.target.value }); }} placeholder="Room number" className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white" /></div></div></Card3D>)}
+                      {orders.map((order) => <Card3D key={order.id}><div className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-mono text-sm font-bold text-amber-300">{order.bookingCode}</p><p className="mt-1 text-xs text-gray-500">{new Date(order.createdAt).toLocaleString()}</p></div><select value={order.status} onChange={(event) => { void updateOrder(order.id, { status: event.target.value }); }} className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div><div className="grid grid-cols-2 gap-2 text-xs"><label className="text-gray-400">Payment<select value={order.paymentStatus} onChange={(event) => { void updateOrder(order.id, { paymentStatus: event.target.value }); }} className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white"><option value="pending">Pending</option><option value="requested">Requested</option><option value="paid">Paid</option><option value="failed">Failed</option></select></label><label className="text-gray-400">Supplier<select value={order.supplierStatus} onChange={(event) => { void updateOrder(order.id, { supplierStatus: event.target.value }); }} className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white"><option value="checking_availability">Checking</option><option value="held">Held</option><option value="confirmed">Confirmed</option><option value="unavailable">Unavailable</option></select></label></div><div className="grid grid-cols-2 gap-2"><input defaultValue={order.supplierConfirmationNumber || ''} onBlur={(event) => { if (event.target.value !== (order.supplierConfirmationNumber || '')) void updateOrder(order.id, { supplierConfirmationNumber: event.target.value }); }} placeholder="Supplier confirmation no." className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white" /><input defaultValue={order.roomNumber || ''} onBlur={(event) => { if (event.target.value !== (order.roomNumber || '')) void updateOrder(order.id, { roomNumber: event.target.value }); }} placeholder="Room number" className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white" /></div><button type="button" onClick={() => { if (confirm(`Delete order ${order.bookingCode}? This cannot be undone.`)) void deleteOrder(order.id); }} className="text-xs font-semibold text-red-300 hover:text-red-200">Delete unnecessary order</button></div></Card3D>)}
                     </div>
                   </div>
                 )}
@@ -670,6 +670,10 @@ export default function Admin() {
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <input value={eventSearch} onChange={(event) => setEventSearch(event.target.value)} placeholder="Search events..." className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-400/60" />
               </div>
+              <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+                <button type="button" onClick={() => setEventView('list')} aria-label="List view" className={`rounded-lg p-2 ${eventView === 'list' ? 'bg-purple-500/30 text-purple-200' : 'text-gray-500 hover:text-white'}`}><List className="h-4 w-4" /></button>
+                <button type="button" onClick={() => setEventView('grid')} aria-label="Grid view" className={`rounded-lg p-2 ${eventView === 'grid' ? 'bg-purple-500/30 text-purple-200' : 'text-gray-500 hover:text-white'}`}><Grid2X2 className="h-4 w-4" /></button>
+              </div>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)]">
               <div className="min-w-0">
@@ -678,7 +682,7 @@ export default function Admin() {
                 ) : events.length === 0 ? (
                   <div className="py-8 text-center text-gray-400">No events created yet.</div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className={eventView === 'grid' ? 'grid gap-3 sm:grid-cols-2' : 'space-y-3'}>
                     {events.filter((event) => `${event.title} ${event.city} ${event.venue}`.toLowerCase().includes(eventSearch.toLowerCase())).map((event) => (
                       <Card3D key={event.id}>
                         <div className="p-4">
@@ -730,20 +734,22 @@ export default function Admin() {
               <div className="min-w-0 md:sticky md:top-32 md:self-start">
                 {selectedEvent ? (
                   <>
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-bold text-white">Tickets for {selectedEvent.title}</h3>
-                      <button
+                    <div className="mb-4 flex flex-col gap-3">
+                      <div className="flex items-center justify-between gap-3"><h3 className="text-xl font-bold text-white">Tickets for {selectedEvent.title}</h3><button
                         onClick={() => { setEditTicket({}); setShowTicketForm(true); }}
                         className="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-sm flex items-center gap-1"
                       >
                         <Plus className="w-3 h-3" /> Add Tier
                       </button>
                     </div>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {(['all', 'available', 'sold_out'] as const).map((filter) => <button key={filter} type="button" onClick={() => setTicketFilter(filter)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${ticketFilter === filter ? 'bg-purple-500/25 text-purple-200' : 'bg-white/5 text-gray-500 hover:text-white'}`}>{filter === 'all' ? `All (${eventTickets.length})` : filter === 'available' ? `Available (${eventTickets.filter((ticket) => ticket.quantity_available > 0).length})` : `Sold out (${eventTickets.filter((ticket) => ticket.quantity_available === 0).length})`}</button>)}
+                    </div>
                     {eventTickets.length === 0 ? (
                       <div className="py-8 text-center text-gray-400">No ticket tiers added.</div>
                     ) : (
                       <div className="space-y-2">
-                        {eventTickets.map((ticket) => {
+                        {eventTickets.filter((ticket) => ticketFilter === 'all' || (ticketFilter === 'available' ? ticket.quantity_available > 0 : ticket.quantity_available === 0)).map((ticket) => {
                           const isSoldOut = ticket.quantity_available === 0;
                           return (
                             <Card3D key={ticket.id}>
@@ -784,6 +790,7 @@ export default function Admin() {
                         })}
                       </div>
                     )}
+                    </div>
                   </>
                 ) : (
                   <div className="py-12 text-center text-gray-400">
@@ -933,8 +940,8 @@ export default function Admin() {
 
       {/* ─── Ticket Form Modal ─── */}
       {showTicketForm && selectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#14142a] rounded-2xl border border-white/10 max-w-md w-full p-6">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain bg-black/70 p-4 backdrop-blur-sm sm:items-center">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="my-4 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#14142a] p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-white">{editTicket?.id ? 'Edit Ticket' : 'Add Ticket Tier'}</h2>
               <button onClick={() => { setShowTicketForm(false); setEditTicket(null); }} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>

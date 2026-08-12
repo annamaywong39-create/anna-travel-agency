@@ -29,6 +29,10 @@ export default function AdminEvents() {
   const [showForm, setShowForm] = useState(false);
   const [editEvent, setEditEvent] = useState<Partial<Event> | null>(null);
 
+  useEffect(() => {
+    if (user && user.role === 'admin' && !isDemo) void loadEvents();
+  }, [user, isDemo]);
+
   if (!user || user.role !== 'admin') {
     return <Navigate to="/login" replace />;
   }
@@ -36,10 +40,6 @@ export default function AdminEvents() {
   if (isDemo) {
     return <main className="min-h-screen bg-[#0A1128] px-4 pb-20 pt-32 text-center text-white"><div className="mx-auto max-w-xl rounded-2xl border border-amber-400/30 bg-amber-950/30 p-8"><h1 className="text-2xl font-bold">Supabase connection required</h1><p className="mt-3 leading-7 text-amber-100/80">Event and ticket changes are disabled in Demo Mode. Connect Supabase in Vercel before managing live data.</p></div></main>;
   }
-
-  useEffect(() => {
-    loadEvents();
-  }, []);
 
   const loadEvents = async () => {
     setLoading(true);
@@ -194,8 +194,11 @@ export default function AdminEvents() {
                             </button>
                             <button
                               onClick={async () => {
-                                const newQty = t.quantity_available > 0 ? 0 : 100;
-                                await updateEventTicket(t.id, { quantity_available: newQty });
+                                if (t.quantity_available === 0) {
+                                  alert('Edit this ticket tier and enter a real quantity to reopen it.');
+                                  return;
+                                }
+                                await updateEventTicket(t.id, { quantity_available: 0, status: 'sold_out' });
                                 await loadTickets(selectedEvent.id);
                               }}
                               className={`px-2 py-1 rounded text-xs font-medium transition-all ${

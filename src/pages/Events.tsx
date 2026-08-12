@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Search, X, Globe } from 'lucide-react';
+import { Calendar, MapPin, Search, X, Globe, Grid3X3, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
@@ -19,6 +19,7 @@ export default function Events() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     loadEvents();
@@ -109,6 +110,10 @@ export default function Events() {
                   </button>
                 ))}
               </div>
+              <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+                <button type="button" onClick={() => setViewMode('grid')} aria-label="Grid view" className={`rounded-lg p-2 ${viewMode === 'grid' ? 'bg-amber-500/20 text-amber-300' : 'text-gray-400 hover:text-white'}`}><Grid3X3 className="h-4 w-4" /></button>
+                <button type="button" onClick={() => setViewMode('list')} aria-label="List view" className={`rounded-lg p-2 ${viewMode === 'list' ? 'bg-amber-500/20 text-amber-300' : 'text-gray-400 hover:text-white'}`}><List className="h-4 w-4" /></button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -126,7 +131,7 @@ export default function Events() {
             <p className="text-gray-400">Check back later for upcoming events.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
             {filteredEvents.map((event, i) => (
               <motion.div
                 key={event.id}
