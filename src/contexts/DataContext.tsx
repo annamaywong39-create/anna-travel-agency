@@ -103,6 +103,7 @@ export interface EventTicket {
   delivery_timing?: string;
   status?: string;
   image_url?: string;
+  discount_percent?: number;
   price: number;
   quantity_available: number;
   created_at: string;
@@ -339,6 +340,7 @@ function rowToEventTicket(r: Record<string, unknown>): EventTicket {
     delivery_timing: r.delivery_timing ? String(r.delivery_timing) : undefined,
     status: r.status ? String(r.status) : undefined,
     image_url: r.image_url ? String(r.image_url) : undefined,
+    discount_percent: r.discount_percent !== null && r.discount_percent !== undefined ? Number(r.discount_percent) : undefined,
     price: r.price as number,
     quantity_available: r.quantity_available as number,
     created_at: r.created_at as string,

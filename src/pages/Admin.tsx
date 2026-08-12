@@ -13,7 +13,40 @@ import Card3D from '../components/Card3D';
 import { formatVenueDate } from '../lib/eventDate';
 import { uploadPublicImage } from '../lib/storage';
 
-type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events';
+type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events' | 'ticket_inventory';
+
+function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    if (char === '"' && text[i + 1] === '"') { cell += '"'; i += 1; continue; }
+    if (char === '"') { quoted = !quoted; continue; }
+    if (char === ',' && !quoted) { row.push(cell.trim()); cell = ''; continue; }
+    if ((char === '\\n' || char === '\\r') && !quoted) {
+      if (char === '\\r' && text[i + 1] === '\\n') i += 1;
+      row.push(cell.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = []; cell = ''; continue;
+    }
+    cell += char;
+  }
+  row.push(cell.trim());
+  if (row.some(Boolean)) rows.push(row);
+  if (rows.length < 2) return [];
+  const headers = rows[0].map((header) => header.trim());
+  return rows.slice(1).map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] || ''])));
+}
+
+function isBtsTicketEvent(event?: Pick<Event, 'title'>) {
+  return /bts/i.test(event?.title || '');
+}
+
+function randomSponsorDiscount() {
+  return Number((60 + Math.random() * 10).toFixed(1));
+}
 
 export default function Admin() {
   const { user } = useAuth();
@@ -38,6 +71,10 @@ export default function Admin() {
   const [eventSearch, setEventSearch] = useState('');
   const [eventView, setEventView] = useState<'grid' | 'list'>('list');
   const [ticketFilter, setTicketFilter] = useState<'all' | 'available' | 'sold_out'>('all');
+  const [ticketSearch, setTicketSearch] = useState('');
+  const [ticketInventory, setTicketInventory] = useState<Array<{ event: Event; ticket: EventTicket }>>([]);
+  const [loadingTicketInventory, setLoadingTicketInventory] = useState(false);
+  const [csvImportStatus, setCsvImportStatus] = useState('');
   const [eventTickets, setEventTickets] = useState<EventTicket[]>([]);
   const [showEventForm, setShowEventForm] = useState(false);
   const [editEvent, setEditEvent] = useState<Partial<Event> | null>(null);
@@ -55,6 +92,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (activeTab === 'users') loadUsers();
+    if (activeTab === 'ticket_inventory') void loadTicketInventory();
     if (activeTab === 'events' || activeTab === 'overview') loadEvents();
     if (activeTab === 'bookings' || activeTab === 'overview') {
       loadTicketOrders();
@@ -104,6 +142,132 @@ export default function Admin() {
     const data = await fetchAllTicketOrders();
     setAllTicketOrders(data);
     setLoadingTicketOrders(false);
+  };
+
+  const loadTicketInventory = async () => {
+    setLoadingTicketInventory(true);
+    try {
+      const eventRows = events.length ? events : await fetchEvents();
+      const groups = await Promise.all(eventRows.map(async (event) => ({ event, tickets: await fetchEventTickets(event.id) })));
+      setTicketInventory(groups.flatMap(({ event, tickets }) => tickets.map((ticket) => ({ event, ticket }))));
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'Ticket inventory could not be loaded.');
+    } finally {
+      setLoadingTicketInventory(false);
+    }
+  };
+
+  const handleCsvImport = async (file?: File) => {
+    if (!file) return;
+    if (isDemo) { notify('error', 'Supabase is not connected. CSV import is disabled in Demo Mode.'); return; }
+    setCsvImportStatus('Reading CSV…');
+    try {
+      const rows = parseCsv(await file.text()) as Array<Record<string, string>>;
+      if (!rows.length) throw new Error('The CSV has no ticket rows.');
+      rows.forEach((row, index) => {
+        if (!row.event_title?.trim() || !row.category_name?.trim()) throw new Error(`Row ${index + 2}: event_title and category_name are required.`);
+        if (!Number.isFinite(Number(row.price_usd)) || Number(row.price_usd) < 0) throw new Error(`Row ${index + 2}: price_usd must be a valid non-negative number.`);
+        if (!Number.isInteger(Number(row.quantity_available)) || Number(row.quantity_available) < 0) throw new Error(`Row ${index + 2}: quantity_available must be a whole number of 0 or more.`);
+        if (row.discount_percent && (!Number.isFinite(Number(row.discount_percent)) || Number(row.discount_percent) < 60 || Number(row.discount_percent) > 70)) throw new Error(`Row ${index + 2}: BTS discount_percent must be between 60 and 70.`);
+      });
+      const eventCache = new Map(events.map((event) => [event.title.toLowerCase(), event]));
+      const ticketCache = new Map<string, EventTicket[]>();
+      let added = 0;
+      let updated = 0;
+      let skipped = 0;
+
+      for (let index = 0; index < rows.length; index += 1) {
+        const row = rows[index];
+        const title = row.event_title?.trim();
+        const category = row.category_name?.trim();
+        const price = Number(row.price_usd);
+        const quantity = Number(row.quantity_available);
+        if (!title || !category) throw new Error(`Row ${index + 2}: event_title and category_name are required.`);
+        if (!Number.isFinite(price) || price < 0) throw new Error(`Row ${index + 2}: price_usd must be a valid non-negative number.`);
+        if (!Number.isInteger(quantity) || quantity < 0) throw new Error(`Row ${index + 2}: quantity_available must be a whole number of 0 or more.`);
+
+        let event = eventCache.get(title.toLowerCase());
+        if (!event) {
+          event = await addEvent({
+            title,
+            description: 'Ticket inventory imported by Admin. Availability is subject to verification.',
+            date: row.event_date,
+            venue: row.venue || 'Venue to be confirmed',
+            city: row.city || 'City to be confirmed',
+            image_url: row.event_image_url || undefined,
+            status: 'upcoming',
+            category: 'Event',
+          });
+          eventCache.set(title.toLowerCase(), event);
+        } else if (row.event_date || row.venue || row.city || row.event_image_url || row.seat_map_url) {
+          const eventPatch: Partial<Event> = {
+            ...(row.event_date ? { date: row.event_date } : {}),
+            ...(row.venue ? { venue: row.venue } : {}),
+            ...(row.city ? { city: row.city } : {}),
+            ...(row.event_image_url ? { image_url: row.event_image_url } : {}),
+            ...(row.seat_map_url ? { seat_map_url: row.seat_map_url } : {}),
+          };
+          if (Object.keys(eventPatch).length) {
+            await updateEvent(event.id, eventPatch);
+            event = { ...event, ...eventPatch };
+            eventCache.set(title.toLowerCase(), event);
+          }
+        }
+
+        let existing = ticketCache.get(event.id);
+        if (!existing) {
+          existing = await fetchEventTickets(event.id);
+          ticketCache.set(event.id, existing);
+        }
+        const sameIdentity = existing.find((ticket) => ticket.category_name === category && String(ticket.section || '') === String(row.section || '') && String(ticket.row || '') === String(row.row || ''));
+        const exactDuplicate = sameIdentity && Number(sameIdentity.price) === price && Number(sameIdentity.quantity_available) === quantity && (sameIdentity.seat_details || '') === (row.seat_details || '');
+        if (exactDuplicate) { skipped += 1; continue; }
+
+        const ticketData: Partial<EventTicket> = {
+          category_name: category,
+          section: row.section || undefined,
+          row: row.row || undefined,
+          seat_details: row.seat_details || undefined,
+          delivery_method: row.delivery_method || 'Mobile entry',
+          delivery_timing: row.delivery_timing || undefined,
+          status: row.status || 'available',
+          image_url: row.image_url || undefined,
+          price,
+          quantity_available: quantity,
+          discount_percent: row.discount_percent ? Number(row.discount_percent) : (sameIdentity ? undefined : isBtsTicketEvent(event) ? randomSponsorDiscount() : undefined),
+        };
+        if (sameIdentity) {
+          await updateEventTicket(sameIdentity.id, ticketData);
+          const next = existing.map((ticket) => ticket.id === sameIdentity.id ? { ...ticket, ...ticketData } as EventTicket : ticket);
+          ticketCache.set(event.id, next);
+          updated += 1;
+        } else {
+          const created = await addEventTicket({ event_id: event.id, ...ticketData } as Omit<EventTicket, 'id' | 'created_at'>);
+          ticketCache.set(event.id, [...existing, created]);
+          added += 1;
+        }
+        setCsvImportStatus(`Processed ${index + 1} of ${rows.length} rows…`);
+      }
+      await loadEvents();
+      await loadTicketInventory();
+      setCsvImportStatus(`Import complete: ${added} added, ${updated} updated, ${skipped} unchanged.`);
+      notify('success', `CSV complete: ${added} added, ${updated} updated, ${skipped} unchanged.`);
+    } catch (error) {
+      setCsvImportStatus('');
+      notify('error', error instanceof Error ? error.message : 'CSV import failed. No further rows were processed.');
+    }
+  };
+
+  const deleteInventoryTicket = async (entry: { event: Event; ticket: EventTicket }) => {
+    if (!confirm(`Delete ${entry.ticket.category_name} from ${entry.event.title}? This cannot be undone.`)) return;
+    try {
+      await deleteEventTicket(entry.ticket.id);
+      setTicketInventory((current) => current.filter((item) => item.ticket.id !== entry.ticket.id));
+      if (selectedEvent?.id === entry.event.id) await loadTickets(entry.event.id);
+      notify('success', 'Ticket removed from inventory.');
+    } catch (error) {
+      notify('error', error instanceof Error ? error.message : 'Ticket could not be removed.');
+    }
   };
 
   const notify = (type: 'success' | 'error', text: string) => {
@@ -199,9 +363,11 @@ export default function Admin() {
     const category = String(data.category_name || '').trim();
     const price = Number(data.price);
     const quantity = Number(data.quantity_available);
+    const discount = data.discount_percent === undefined || data.discount_percent === null ? (data.id ? undefined : isBtsTicketEvent(selectedEvent || undefined) ? randomSponsorDiscount() : undefined) : Number(data.discount_percent);
     if (!category) return notify('error', 'Enter a ticket category or section name.');
     if (!Number.isFinite(price) || price < 0) return notify('error', 'Enter a valid non-negative ticket price.');
     if (!Number.isInteger(quantity) || quantity < 0) return notify('error', 'Quantity must be a whole number of 0 or more.');
+    if (discount !== undefined && (!Number.isFinite(discount) || discount < 60 || discount > 70)) return notify('error', 'Sponsor discount must be between 60 and 70 percent.');
 
     try {
       if (data.id) {
@@ -218,6 +384,7 @@ export default function Admin() {
           status: data.status || 'available',
           price,
           quantity_available: quantity,
+          discount_percent: discount,
         });
       }
       await loadTickets(selectedEvent.id);
@@ -312,9 +479,13 @@ export default function Admin() {
             <h1 className="text-3xl font-black text-white flex items-center gap-3">
               <LayoutDashboard className="w-8 h-8 text-purple-400" />
               Admin Panel
-              {isDemo && (
+              {isDemo ? (
                 <span className="ml-3 px-2 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 text-xs font-medium">
-                  Demo Mode — localStorage
+                  Demo Mode — changes disabled
+                </span>
+              ) : (
+                <span className="ml-3 px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
+                  LIVE SUPABASE
                 </span>
               )}
             </h1>
@@ -345,6 +516,7 @@ export default function Admin() {
             { id: 'listings' as Tab, icon: Building2, label: 'Listings' },
             { id: 'bookings' as Tab, icon: Calendar, label: 'Bookings & Tickets' },
             { id: 'events' as Tab, icon: Ticket, label: 'Events' },
+            { id: 'ticket_inventory' as Tab, icon: Ticket, label: 'Ticket Inventory' },
             { id: 'users' as Tab, icon: Users, label: 'Users' },
           ].map((tab) => (
             <button
@@ -658,7 +830,22 @@ export default function Admin() {
           </motion.div>
         )}
 
-        {/* ═══ EVENTS TAB ═══ (unchanged) */}
+        {activeTab === 'ticket_inventory' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-white/10 bg-gradient-to-br from-[#151d32] to-[#0e1425] p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">Inventory control</p><h2 className="mt-1 text-2xl font-bold text-white">All ticket inventory</h2><p className="mt-1 text-sm text-gray-400">Monitor, edit, and remove ticket listings from every event.</p></div>
+              <div className="flex flex-wrap gap-2"><label className="inline-flex cursor-pointer items-center rounded-xl bg-purple-500/20 px-4 py-2 text-sm font-semibold text-purple-200 hover:bg-purple-500/30">Import CSV<input type="file" accept=".csv,text/csv" className="sr-only" onChange={(event) => { void handleCsvImport(event.target.files?.[0]); event.currentTarget.value = ''; }} /></label><button type="button" onClick={() => { void loadTicketInventory(); }} className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">Refresh inventory</button></div>
+            </div>
+            {csvImportStatus && <p role="status" className="mb-4 rounded-xl border border-purple-400/20 bg-purple-500/10 px-4 py-3 text-sm text-purple-200">{csvImportStatus}</p>}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+              <input value={ticketSearch} onChange={(event) => setTicketSearch(event.target.value)} placeholder="Search event, section, row, or ticket..." className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-400/60" />
+              <div className="flex gap-2">{(['all', 'available', 'sold_out'] as const).map((filter) => <button key={filter} type="button" onClick={() => setTicketFilter(filter)} className={`rounded-xl px-3 py-2 text-xs font-semibold ${ticketFilter === filter ? 'bg-purple-500/25 text-purple-200' : 'bg-white/5 text-gray-500 hover:text-white'}`}>{filter === 'all' ? 'All' : filter === 'available' ? 'Available' : 'Sold out'}</button>)}</div>
+            </div>
+            {loadingTicketInventory ? <div className="py-16 text-center text-gray-400">Loading ticket inventory...</div> : <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0d1425]"><table className="w-full min-w-[860px]"><thead><tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-gray-500"><th className="p-4">Event</th><th className="p-4">Section / Row</th><th className="p-4">Price</th><th className="p-4">Quantity</th><th className="p-4">Status</th><th className="p-4">Action</th></tr></thead><tbody>{ticketInventory.filter(({ event, ticket }) => { const q = ticketSearch.toLowerCase(); const matchesSearch = !q || `${event.title} ${event.city} ${ticket.category_name} ${ticket.section || ''} ${ticket.row || ''}`.toLowerCase().includes(q); const matchesFilter = ticketFilter === 'all' || (ticketFilter === 'available' ? ticket.quantity_available > 0 : ticket.quantity_available === 0); return matchesSearch && matchesFilter; }).map((entry) => { const soldOut = entry.ticket.quantity_available === 0; return <tr key={entry.ticket.id} className="border-b border-white/5 hover:bg-white/[0.03]"><td className="p-4"><p className="font-semibold text-white">{entry.event.title}</p><p className="mt-1 text-xs text-gray-500">{entry.event.city} · {formatVenueDate(entry.event.date)}</p></td><td className="p-4 text-sm text-gray-300">{entry.ticket.category_name}<span className="block text-xs text-gray-500">{entry.ticket.section || 'Section on request'}{entry.ticket.row ? ` · Row ${entry.ticket.row}` : ''}</span></td><td className="p-4 font-semibold text-amber-300">${entry.ticket.price.toLocaleString()}</td><td className="p-4 text-sm text-gray-300">{entry.ticket.quantity_available}</td><td className="p-4"><span className={`rounded-full px-2 py-1 text-xs ${soldOut ? 'bg-red-500/15 text-red-300' : 'bg-emerald-500/15 text-emerald-300'}`}>{soldOut ? 'Sold out' : 'Available'}</span></td><td className="p-4"><div className="flex gap-2"><button type="button" onClick={() => { setSelectedEvent(entry.event); setEditTicket(entry.ticket); setShowTicketForm(true); setActiveTab('events'); }} className="rounded-lg border border-blue-400/20 px-3 py-2 text-xs font-semibold text-blue-200 hover:bg-blue-500/15">Edit</button><button type="button" onClick={() => void deleteInventoryTicket(entry)} className="rounded-lg border border-red-400/20 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/15">Delete</button></div></td></tr>; })}</tbody></table></div>}
+          </motion.div>
+        )}
+
+        {/* ═══ EVENTS TAB ═══ */}
         {activeTab === 'events' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -961,6 +1148,7 @@ export default function Admin() {
                 status: (form.querySelector('[name="status"]') as HTMLSelectElement).value,
                 price: parseInt((form.querySelector('[name="price"]') as HTMLInputElement).value),
                 quantity_available: parseInt((form.querySelector('[name="quantity"]') as HTMLInputElement).value) || 0,
+                discount_percent: (form.querySelector('[name="discount_percent"]') as HTMLInputElement).value ? Number((form.querySelector('[name="discount_percent"]') as HTMLInputElement).value) : undefined,
               };
               await handleSaveTicket(data);
             }}>
@@ -1012,6 +1200,11 @@ export default function Admin() {
                     <option value="sold">Sold</option>
                     <option value="sold_out">Sold out</option>
                   </select>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Sponsor discount (%)</label>
+                  <input name="discount_percent" type="number" min="60" max="70" step="0.1" defaultValue={editTicket?.discount_percent ?? ''} placeholder="Leave blank to assign 60–70% randomly" className="w-full px-4 py-3 rounded-xl border border-[#F2C94C]/20 bg-[#F2C94C]/5 text-white" />
+                  <p className="mt-1 text-xs text-gray-500">For new BTS tickets, blank assigns a fixed random rate from 60–70%. It will not change on refresh.</p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-400">Price (USD) *</label>
