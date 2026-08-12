@@ -25,8 +25,8 @@ function parseCsv(text: string) {
     if (char === '"' && text[i + 1] === '"') { cell += '"'; i += 1; continue; }
     if (char === '"') { quoted = !quoted; continue; }
     if (char === ',' && !quoted) { row.push(cell.trim()); cell = ''; continue; }
-    if ((char === '\\n' || char === '\\r') && !quoted) {
-      if (char === '\\r' && text[i + 1] === '\\n') i += 1;
+    if ((char === '\n' || char === '\r') && !quoted) {
+      if (char === '\r' && text[i + 1] === '\n') i += 1;
       row.push(cell.trim());
       if (row.some(Boolean)) rows.push(row);
       row = []; cell = ''; continue;
@@ -46,6 +46,10 @@ function isBtsTicketEvent(event?: Pick<Event, 'title'>) {
 
 function randomSponsorDiscount() {
   return Number((60 + Math.random() * 10).toFixed(1));
+}
+
+function isDatabaseId(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 export default function Admin() {
@@ -124,7 +128,7 @@ export default function Admin() {
 
   const loadEvents = async () => {
     setLoadingEvents(true);
-    const data = await fetchEvents();
+    const data = (await fetchEvents()).filter((event) => isDatabaseId(event.id));
     setEvents(data);
     setLoadingEvents(false);
     const firstEvent = data.find((event) => new Date(event.date).getTime() >= Date.now()) || data[0];
@@ -147,7 +151,7 @@ export default function Admin() {
   const loadTicketInventory = async () => {
     setLoadingTicketInventory(true);
     try {
-      const eventRows = events.length ? events : await fetchEvents();
+      const eventRows = events.length ? events : (await fetchEvents()).filter((event) => isDatabaseId(event.id));
       const groups = await Promise.all(eventRows.map(async (event) => ({ event, tickets: await fetchEventTickets(event.id) })));
       setTicketInventory(groups.flatMap(({ event, tickets }) => tickets.map((ticket) => ({ event, ticket }))));
     } catch (error) {
@@ -463,13 +467,28 @@ export default function Admin() {
   };
 
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="admin-modern min-h-screen bg-[#071A2A] pb-20 pt-24 text-white">
       {feedback && <div role="status" className={`fixed right-5 top-24 z-[60] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-2xl ${feedback.type === 'success' ? 'border-emerald-400/40 bg-emerald-950/95 text-emerald-200' : 'border-red-400/40 bg-red-950/95 text-red-200'}`}>{feedback.text}</div>}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:pl-64 lg:pr-8">
+        <aside className="fixed left-4 top-24 z-30 hidden w-56 rounded-3xl border border-[#2dd4bf]/20 bg-[#0c252d]/95 p-3 shadow-2xl shadow-black/30 backdrop-blur-xl lg:block">
+          <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#7ee7d9]">Workspace</p>
+          <nav className="space-y-1">
+            {[
+              { id: 'overview' as Tab, label: 'Overview', icon: LayoutDashboard },
+              { id: 'events' as Tab, label: 'Events', icon: Calendar },
+              { id: 'ticket_inventory' as Tab, label: 'Ticket Inventory', icon: Ticket },
+              { id: 'bookings' as Tab, label: 'Orders', icon: Calendar },
+              { id: 'listings' as Tab, label: 'Stays', icon: Building2 },
+              { id: 'users' as Tab, label: 'Customers', icon: Users },
+            ].map(({ id, label, icon: Icon }) => <button key={id} type="button" onClick={() => setActiveTab(id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${activeTab === id ? 'bg-[#2dd4bf]/20 text-[#b8fff4]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><Icon className="h-4 w-4" />{label}</button>)}
+          </nav>
+          <div className="mt-4 border-t border-white/10 pt-3"><Link to="/admin/listing/new" className="mb-2 flex items-center gap-2 rounded-xl bg-amber-500/15 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-500/25"><Plus className="h-4 w-4" />Add stay</Link><button type="button" onClick={() => { setActiveTab('events'); setEditEvent({}); setShowEventForm(true); }} className="flex w-full items-center gap-2 rounded-xl bg-blue-500/15 px-3 py-2 text-xs font-semibold text-blue-200 hover:bg-blue-500/25"><Plus className="h-4 w-4" />Add event</button></div>
+        </aside>
+        <div className="mb-6 flex lg:hidden"><select value={activeTab} onChange={(event) => setActiveTab(event.target.value as Tab)} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"><option value="overview">Overview</option><option value="events">Events</option><option value="ticket_inventory">Ticket Inventory</option><option value="bookings">Orders</option><option value="listings">Stays</option><option value="users">Customers</option></select></div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 flex flex-col gap-6 rounded-3xl border border-white/10 bg-gradient-to-br from-[#151d32] via-[#101729] to-[#0b1020] p-6 shadow-2xl shadow-black/20 lg:flex-row lg:items-center lg:justify-between"
+          className="mb-8 flex flex-col gap-6 rounded-[2rem] border border-[#2dd4bf]/20 bg-gradient-to-br from-[#103638] via-[#0d2a35] to-[#111a2c] p-6 shadow-2xl shadow-[#020617]/40 lg:flex-row lg:items-center lg:justify-between"
         >
           <div>
             <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.25em] text-purple-300">Operations centre</p>
@@ -494,14 +513,14 @@ export default function Admin() {
           <div className="flex flex-wrap gap-2">
             <Link
               to="/admin/listing/new"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-105 transition-all shadow-lg shadow-amber-500/25"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#f6c453] to-[#f08a5d] text-[#10202b] font-bold hover:scale-105 transition-all shadow-lg shadow-[#f6c453]/20"
             >
               <Plus className="w-5 h-5" />
               Add Listing
             </Link>
             <button
               onClick={() => { setEditEvent({}); setShowEventForm(true); }}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold hover:scale-105 transition-all shadow-lg shadow-blue-500/25"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#2dd4bf] to-[#3b82f6] text-[#071A2A] font-bold hover:scale-105 transition-all shadow-lg shadow-[#2dd4bf]/20"
             >
               <Plus className="w-5 h-5" />
               Add Event
@@ -510,7 +529,7 @@ export default function Admin() {
         </motion.div>
 
         {/* Tabs */}
-        <div className="sticky top-20 z-30 -mx-4 mb-8 flex gap-2 overflow-x-auto border-y border-white/10 bg-[#0a0a1a]/95 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div className="hidden">
           {[
             { id: 'overview' as Tab, icon: LayoutDashboard, label: 'Overview' },
             { id: 'listings' as Tab, icon: Building2, label: 'Listings' },
@@ -834,7 +853,7 @@ export default function Admin() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-white/10 bg-gradient-to-br from-[#151d32] to-[#0e1425] p-5 sm:flex-row sm:items-center sm:justify-between">
               <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">Inventory control</p><h2 className="mt-1 text-2xl font-bold text-white">All ticket inventory</h2><p className="mt-1 text-sm text-gray-400">Monitor, edit, and remove ticket listings from every event.</p></div>
-              <div className="flex flex-wrap gap-2"><label className="inline-flex cursor-pointer items-center rounded-xl bg-purple-500/20 px-4 py-2 text-sm font-semibold text-purple-200 hover:bg-purple-500/30">Import CSV<input type="file" accept=".csv,text/csv" className="sr-only" onChange={(event) => { void handleCsvImport(event.target.files?.[0]); event.currentTarget.value = ''; }} /></label><button type="button" onClick={() => { void loadTicketInventory(); }} className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">Refresh inventory</button></div>
+              <div className="flex flex-wrap gap-2"><select value={selectedEvent?.id || ''} onChange={(event) => { const chosen = events.find((item) => item.id === event.target.value); if (chosen) setSelectedEvent(chosen); }} className="max-w-[240px] rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"><option value="">Select event for new ticket</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title}</option>)}</select><button type="button" onClick={() => { if (!selectedEvent) return notify('error', 'Select an event before adding a ticket.'); setEditTicket({}); setShowTicketForm(true); }} className="rounded-xl bg-amber-500/20 px-4 py-2 text-sm font-semibold text-amber-200 hover:bg-amber-500/30">+ Add Ticket</button><label className="inline-flex cursor-pointer items-center rounded-xl bg-purple-500/20 px-4 py-2 text-sm font-semibold text-purple-200 hover:bg-purple-500/30">Import CSV<input type="file" accept=".csv,text/csv" className="sr-only" onChange={(event) => { void handleCsvImport(event.target.files?.[0]); event.currentTarget.value = ''; }} /></label><button type="button" onClick={() => { void loadTicketInventory(); }} className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">Refresh inventory</button></div>
             </div>
             {csvImportStatus && <p role="status" className="mb-4 rounded-xl border border-purple-400/20 bg-purple-500/10 px-4 py-3 text-sm text-purple-200">{csvImportStatus}</p>}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row">
@@ -862,7 +881,7 @@ export default function Admin() {
                 <button type="button" onClick={() => setEventView('grid')} aria-label="Grid view" className={`rounded-lg p-2 ${eventView === 'grid' ? 'bg-purple-500/30 text-purple-200' : 'text-gray-500 hover:text-white'}`}><Grid2X2 className="h-4 w-4" /></button>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)]">
+            <div className="grid grid-cols-1 gap-6">
               <div className="min-w-0">
                 {loadingEvents ? (
                   <div className="py-8 text-center text-gray-400">Loading events...</div>
@@ -904,7 +923,7 @@ export default function Admin() {
                                 <Trash2 className="w-3 h-3" />
                               </button>
                               <button
-                                onClick={() => handleSelectEvent(event)}
+                                onClick={() => { handleSelectEvent(event); setActiveTab('ticket_inventory'); }}
                                 className={`p-1.5 rounded-lg ${selectedEvent?.id === event.id ? 'bg-amber-500/30 text-amber-300' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
                               >
                                 <Ticket className="w-3 h-3" />
@@ -918,8 +937,8 @@ export default function Admin() {
                 )}
               </div>
 
-              <div className="min-w-0 md:sticky md:top-32 md:self-start">
-                {selectedEvent ? (
+              <div className="hidden min-w-0 md:sticky md:top-32 md:self-start">
+                {activeTab === 'events' && selectedEvent ? (
                   <>
                     <div className="mb-4 flex flex-col gap-3">
                       <div className="flex items-center justify-between gap-3"><h3 className="text-xl font-bold text-white">Tickets for {selectedEvent.title}</h3><button

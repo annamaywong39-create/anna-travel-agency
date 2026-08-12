@@ -8,6 +8,10 @@ import Card3D from '../components/Card3D';
 import { useAuth } from '../contexts/AuthContext';
 import { useData, type Event, type EventTicket } from '../contexts/DataContext';
 
+function isDatabaseId(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 export default function AdminEvents() {
   const { user } = useAuth();
   const {
@@ -43,7 +47,7 @@ export default function AdminEvents() {
 
   const loadEvents = async () => {
     setLoading(true);
-    const data = await fetchEvents();
+    const data = (await fetchEvents()).filter((event) => isDatabaseId(event.id));
     setEvents(data);
     setLoading(false);
   };
