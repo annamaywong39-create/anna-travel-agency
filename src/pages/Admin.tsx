@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -56,13 +56,16 @@ export default function Admin() {
   const { user } = useAuth();
   const {
     listings, orders, bookings, deleteListing, updateBooking, isDemo,
-    fetchAllUsers, updateTicketOrder, fetchAllTicketOrders, fetchAllOrders, updateOrder, deleteOrder,
+    fetchAllUsers, updateTicketOrder, deleteTicketOrder, fetchAllTicketOrders, fetchAllOrders, updateOrder, deleteOrder,
     fetchEvents, addEvent, updateEvent, deleteEvent,
     fetchEventTickets, addEventTicket, updateEventTicket, deleteEventTicket
   } = useData();
   const { format } = useCurrency();
 
-  const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    const savedTab = new URLSearchParams(window.location.search).get('tab') as Tab | null;
+    return savedTab && ['overview', 'listings', 'bookings', 'users', 'events', 'ticket_inventory'].includes(savedTab) ? savedTab : 'overview';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   // Users
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -76,6 +79,7 @@ export default function Admin() {
   const [eventView, setEventView] = useState<'grid' | 'list'>('list');
   const [ticketFilter, setTicketFilter] = useState<'all' | 'available' | 'sold_out'>('all');
   const [ticketSearch, setTicketSearch] = useState('');
+  const [inventoryGroup, setInventoryGroup] = useState<'event' | 'date'>('event');
   const [ticketInventory, setTicketInventory] = useState<Array<{ event: Event; ticket: EventTicket }>>([]);
   const [loadingTicketInventory, setLoadingTicketInventory] = useState(false);
   const [csvImportStatus, setCsvImportStatus] = useState('');
@@ -102,6 +106,12 @@ export default function Admin() {
       loadTicketOrders();
       void fetchAllOrders();
     }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', activeTab);
+    window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}${url.hash}`);
   }, [activeTab]);
 
   if (!user || user.role !== 'admin') {
@@ -172,6 +182,8 @@ export default function Admin() {
         if (!row.event_title?.trim() || !row.category_name?.trim()) throw new Error(`Row ${index + 2}: event_title and category_name are required.`);
         if (!Number.isFinite(Number(row.price_usd)) || Number(row.price_usd) < 0) throw new Error(`Row ${index + 2}: price_usd must be a valid non-negative number.`);
         if (!Number.isInteger(Number(row.quantity_available)) || Number(row.quantity_available) < 0) throw new Error(`Row ${index + 2}: quantity_available must be a whole number of 0 or more.`);
+        if (row.status === 'available' && Number(row.quantity_available) === 0) throw new Error(`Row ${index + 2}: an available ticket must have quantity greater than 0.`);
+        if (row.status === 'sold_out' && Number(row.quantity_available) > 0) throw new Error(`Row ${index + 2}: a sold_out ticket must have quantity 0.`);
         if (row.discount_percent && (!Number.isFinite(Number(row.discount_percent)) || Number(row.discount_percent) < 60 || Number(row.discount_percent) > 70)) throw new Error(`Row ${index + 2}: BTS discount_percent must be between 60 and 70.`);
       });
       const eventCache = new Map(events.map((event) => [event.title.toLowerCase(), event]));
@@ -371,6 +383,8 @@ export default function Admin() {
     if (!category) return notify('error', 'Enter a ticket category or section name.');
     if (!Number.isFinite(price) || price < 0) return notify('error', 'Enter a valid non-negative ticket price.');
     if (!Number.isInteger(quantity) || quantity < 0) return notify('error', 'Quantity must be a whole number of 0 or more.');
+    if (data.status === 'available' && quantity === 0) return notify('error', 'An Available ticket must have a quantity greater than 0.');
+    if (data.status === 'sold_out' && quantity > 0) return notify('error', 'A Sold out ticket must have quantity 0.');
     if (discount !== undefined && (!Number.isFinite(discount) || discount < 60 || discount > 70)) return notify('error', 'Sponsor discount must be between 60 and 70 percent.');
 
     try {
@@ -465,6 +479,19 @@ export default function Admin() {
       ? { label: display, color: 'bg-gray-500/20 text-gray-400' }
       : display;
   };
+
+  const visibleTicketInventory = ticketInventory.filter(({ event, ticket }) => {
+    const q = ticketSearch.toLowerCase();
+    const matchesSearch = !q || `${event.title} ${event.city} ${ticket.category_name} ${ticket.section || ''} ${ticket.row || ''}`.toLowerCase().includes(q);
+    const matchesFilter = ticketFilter === 'all' || (ticketFilter === 'available' ? ticket.quantity_available > 0 : ticket.quantity_available === 0);
+    return matchesSearch && matchesFilter;
+  });
+  const groupedTicketInventory = Array.from(visibleTicketInventory.reduce((groups, entry) => {
+    const key = inventoryGroup === 'date' ? entry.event.date.slice(0, 10) : entry.event.id;
+    const label = inventoryGroup === 'date' ? formatVenueDate(entry.event.date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : entry.event.title;
+    const current = groups.get(key) || { label, items: [] as typeof visibleTicketInventory };
+    current.items.push(entry); groups.set(key, current); return groups;
+  }, new Map<string, { label: string; items: typeof visibleTicketInventory }>()).values());
 
   return (
     <main className="admin-modern min-h-screen bg-[#071A2A] pb-20 pt-24 text-white">
@@ -834,7 +861,7 @@ export default function Admin() {
                                       <option value="cancelled">❌ Cancel</option>
                                     </select>
                                   </td>
-                                  <td className="p-4"><button className="text-gray-400 hover:text-white"><Eye className="w-4 h-4" /></button></td>
+                                  <td className="p-4"><button type="button" onClick={() => { if (confirm(`Delete ticket order ${order.id.slice(-8).toUpperCase()}? This cannot be undone.`)) void deleteTicketOrder(order.id); }} className="rounded-lg border border-red-400/20 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/15">Delete</button></td>
                                 </tr>
                               );
                             })}
@@ -858,9 +885,12 @@ export default function Admin() {
             {csvImportStatus && <p role="status" className="mb-4 rounded-xl border border-purple-400/20 bg-purple-500/10 px-4 py-3 text-sm text-purple-200">{csvImportStatus}</p>}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row">
               <input value={ticketSearch} onChange={(event) => setTicketSearch(event.target.value)} placeholder="Search event, section, row, or ticket..." className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-purple-400/60" />
-              <div className="flex gap-2">{(['all', 'available', 'sold_out'] as const).map((filter) => <button key={filter} type="button" onClick={() => setTicketFilter(filter)} className={`rounded-xl px-3 py-2 text-xs font-semibold ${ticketFilter === filter ? 'bg-purple-500/25 text-purple-200' : 'bg-white/5 text-gray-500 hover:text-white'}`}>{filter === 'all' ? 'All' : filter === 'available' ? 'Available' : 'Sold out'}</button>)}</div>
+              <div className="flex flex-wrap gap-2"><select value={inventoryGroup} onChange={(event) => setInventoryGroup(event.target.value as typeof inventoryGroup)} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white"><option value="event">Group by event</option><option value="date">Group by date</option></select>{(['all', 'available', 'sold_out'] as const).map((filter) => <button key={filter} type="button" onClick={() => setTicketFilter(filter)} className={`rounded-xl px-3 py-2 text-xs font-semibold ${ticketFilter === filter ? 'bg-purple-500/25 text-purple-200' : 'bg-white/5 text-gray-500 hover:text-white'}`}>{filter === 'all' ? 'All' : filter === 'available' ? 'Available' : 'Sold out'}</button>)}</div>
             </div>
-            {loadingTicketInventory ? <div className="py-16 text-center text-gray-400">Loading ticket inventory...</div> : <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0d1425]"><table className="w-full min-w-[860px]"><thead><tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-gray-500"><th className="p-4">Event</th><th className="p-4">Section / Row</th><th className="p-4">Price</th><th className="p-4">Quantity</th><th className="p-4">Status</th><th className="p-4">Action</th></tr></thead><tbody>{ticketInventory.filter(({ event, ticket }) => { const q = ticketSearch.toLowerCase(); const matchesSearch = !q || `${event.title} ${event.city} ${ticket.category_name} ${ticket.section || ''} ${ticket.row || ''}`.toLowerCase().includes(q); const matchesFilter = ticketFilter === 'all' || (ticketFilter === 'available' ? ticket.quantity_available > 0 : ticket.quantity_available === 0); return matchesSearch && matchesFilter; }).map((entry) => { const soldOut = entry.ticket.quantity_available === 0; return <tr key={entry.ticket.id} className="border-b border-white/5 hover:bg-white/[0.03]"><td className="p-4"><p className="font-semibold text-white">{entry.event.title}</p><p className="mt-1 text-xs text-gray-500">{entry.event.city} · {formatVenueDate(entry.event.date)}</p></td><td className="p-4 text-sm text-gray-300">{entry.ticket.category_name}<span className="block text-xs text-gray-500">{entry.ticket.section || 'Section on request'}{entry.ticket.row ? ` · Row ${entry.ticket.row}` : ''}</span></td><td className="p-4 font-semibold text-amber-300">${entry.ticket.price.toLocaleString()}</td><td className="p-4 text-sm text-gray-300">{entry.ticket.quantity_available}</td><td className="p-4"><span className={`rounded-full px-2 py-1 text-xs ${soldOut ? 'bg-red-500/15 text-red-300' : 'bg-emerald-500/15 text-emerald-300'}`}>{soldOut ? 'Sold out' : 'Available'}</span></td><td className="p-4"><div className="flex gap-2"><button type="button" onClick={() => { setSelectedEvent(entry.event); setEditTicket(entry.ticket); setShowTicketForm(true); setActiveTab('events'); }} className="rounded-lg border border-blue-400/20 px-3 py-2 text-xs font-semibold text-blue-200 hover:bg-blue-500/15">Edit</button><button type="button" onClick={() => void deleteInventoryTicket(entry)} className="rounded-lg border border-red-400/20 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/15">Delete</button></div></td></tr>; })}</tbody></table></div>}
+            {loadingTicketInventory ? <div className="py-16 text-center text-gray-400">Loading ticket inventory...</div> : <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0d1425]"><table className="w-full min-w-[860px]"><thead><tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-gray-500"><th className="p-4">Event</th><th className="p-4">Section / Row</th><th className="p-4">Price</th><th className="p-4">Quantity</th><th className="p-4">Status</th><th className="p-4">Action</th></tr></thead><tbody>{groupedTicketInventory.map((group) => <Fragment key={group.label}>
+  <tr className="border-b border-white/10 bg-white/[0.04]"><td colSpan={6} className="p-3 text-sm font-bold text-purple-200">{group.label} <span className="ml-2 text-xs font-normal text-gray-500">{group.items.length} ticket option{group.items.length === 1 ? '' : 's'}</span></td></tr>
+  {group.items.map((entry) => { const soldOut = entry.ticket.quantity_available === 0; return <tr key={entry.ticket.id} className="border-b border-white/5 hover:bg-white/[0.03]"><td className="p-4"><p className="font-semibold text-white">{entry.event.title}</p><p className="mt-1 text-xs text-gray-500">{entry.event.city} · {formatVenueDate(entry.event.date)}</p></td><td className="p-4 text-sm text-gray-300">{entry.ticket.category_name}<span className="block text-xs text-gray-500">{entry.ticket.section || 'Section on request'}{entry.ticket.row ? ` · ${entry.ticket.row}` : ''}</span></td><td className="p-4 font-semibold text-amber-300">${entry.ticket.price.toLocaleString()}</td><td className="p-4 text-sm text-gray-300">{entry.ticket.quantity_available}</td><td className="p-4"><span className={`rounded-full px-2 py-1 text-xs ${soldOut ? 'bg-red-500/15 text-red-300' : 'bg-emerald-500/15 text-emerald-300'}`}>{soldOut ? 'Sold out' : 'Available'}</span></td><td className="p-4"><div className="flex gap-2"><button type="button" onClick={() => { setSelectedEvent(entry.event); setEditTicket(entry.ticket); setShowTicketForm(true); setActiveTab('events'); }} className="rounded-lg border border-blue-400/20 px-3 py-2 text-xs font-semibold text-blue-200 hover:bg-blue-500/15">Edit</button><button type="button" onClick={() => void deleteInventoryTicket(entry)} className="rounded-lg border border-red-400/20 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/15">Delete</button></div></td></tr>; })}
+</Fragment>)}</tbody></table></div>}
           </motion.div>
         )}
 

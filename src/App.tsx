@@ -49,7 +49,7 @@ export default function App() {
           <CurrencyProvider>
             <Router>
               <ScrollToTop />
-              <div className="min-h-screen bg-[#0a0a1a] text-white overflow-x-hidden">
+              <div className="min-h-screen bg-[#F7F4EE] text-[#172033] overflow-x-hidden">
                 <Navbar />
                 <Suspense fallback={pageFallback}>
                   <Routes>

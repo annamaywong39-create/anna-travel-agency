@@ -72,7 +72,7 @@ export default function Refund() {
           <p className="text-gray-500 text-sm mb-10">Last updated: January 1, 2026</p>
 
           <p className="text-gray-300 text-lg leading-relaxed mb-10">
-            At Anna Travel Agency, we understand plans can change. Our refund policy is designed to be fair and transparent for all guests booking accommodation for the FIFA World Cup 2026.
+            At Anna Travel Agency, we understand plans can change. Our refund policy is designed to be fair and transparent for accommodation and event-ticket requests.
           </p>
 
           {/* Policy tiers */}
@@ -136,7 +136,7 @@ export default function Refund() {
               <div className="p-6 space-y-4">
                 <div>
                   <h4 className="text-white font-semibold mb-1">🌪️ Force Majeure</h4>
-                  <p className="text-gray-400 text-sm">In cases of natural disasters, pandemics, government travel bans, or FIFA event cancellations — full refunds are issued within 14 business days regardless of timing.</p>
+                  <p className="text-gray-400 text-sm">In cases of natural disasters, pandemics, government travel bans, or event cancellations by the organiser, refund options will be communicated and approved refunds are issued within 14 business days.</p>
                 </div>
                 <div>
                   <h4 className="text-white font-semibold mb-1">🏥 Medical Emergency</h4>

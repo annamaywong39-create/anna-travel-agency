@@ -34,7 +34,7 @@ The `vercel.json` file keeps the single-page app routes working.
 - Replace localStorage authentication with Supabase Auth.
 - Never publish passwords, service-role keys, payment secret keys, or database passwords.
 - Remove demo/fake ticket inventory and use verified supplier inventory.
-- Use a server-side Stripe/Paystack checkout session and webhook.
+- Use a secure server-side payment checkout and webhook once automatic payment integration is enabled.
 - Generate booking codes server-side after creating an order.
 - Confirm accommodation with the supplier before displaying a room number.
 - Publish only genuine customer reviews. The review feature is designed for verified completed bookings.

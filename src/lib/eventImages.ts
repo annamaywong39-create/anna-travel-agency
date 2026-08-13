@@ -10,9 +10,9 @@ const localEventImages = {
 
 /** Use a local, themed image when a database event has no usable image. */
 export function eventImageFor(event: { title?: string; category?: string; image_url?: string }) {
-  if (event.image_url?.startsWith('/images/')) return event.image_url;
   const text = `${event.title || ''} ${event.category || ''}`.toLowerCase();
-  if (text.includes('bts')) return text.includes('arlington') || text.includes('toronto') ? localEventImages.btsAlt : localEventImages.bts;
+  if (text.includes('bts')) return '/images/events/bts/bts-arirang-tour.png';
+  if (event.image_url?.startsWith('/images/')) return event.image_url;
   if (text.includes('f1') || text.includes('grand prix') || text.includes('tennis') || text.includes('open')) return localEventImages.stadium;
   if (text.includes('festival') || text.includes('edc') || text.includes('lollapalooza') || text.includes('music')) return localEventImages.festival;
   if (text.includes('tech') || text.includes('ces') || text.includes('pax') || text.includes('gaming')) return localEventImages.technology;

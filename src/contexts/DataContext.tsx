@@ -132,6 +132,7 @@ interface DataContextType {
   // Ticket Orders
   addTicketOrder: (order: Omit<TicketOrder, 'id' | 'createdAt'>) => Promise<TicketOrder>;
   updateTicketOrder: (id: string, data: Partial<TicketOrder>) => Promise<void>;
+  deleteTicketOrder: (id: string) => Promise<void>;
   fetchAllTicketOrders: () => Promise<TicketOrder[]>;
   createOrder: (data: { userId: string; orderType: string; customerNotes?: string }) => Promise<Order>;
   fetchAllOrders: () => Promise<Order[]>;
@@ -673,6 +674,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setOrders((current) => current.map((order) => order.id === id ? { ...order, ...data } : order));
   };
 
+  const deleteTicketOrder = async (id: string) => {
+    if (isDemo) {
+      setTicketOrders((current) => current.filter((order) => order.id !== id));
+      return;
+    }
+    const { error } = await supabase.from('ticket_orders').delete().eq('id', id);
+    if (error) throw error;
+    setTicketOrders((current) => current.filter((order) => order.id !== id));
+  };
+
   const fetchAllTicketOrders = async (): Promise<TicketOrder[]> => {
     if (isDemo) {
       return ticketOrders;
@@ -876,6 +887,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       getUserBookings,
       addTicketOrder,
       updateTicketOrder,
+      deleteTicketOrder,
       fetchAllTicketOrders,
       createOrder,
       fetchAllOrders,

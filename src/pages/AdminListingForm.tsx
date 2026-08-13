@@ -117,7 +117,7 @@ export default function AdminListingForm() {
     try {
       if (isEditing && id) await updateListing(id, cleanData);
       else await addListing(cleanData);
-      navigate('/admin');
+      navigate('/admin?tab=listings');
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Listing could not be saved.');
     }
