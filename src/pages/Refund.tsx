@@ -67,7 +67,7 @@ export default function Refund() {
 
           <div className="flex items-center gap-3 mb-2">
             <Shield className="w-8 h-8 text-green-400" />
-            <h1 className="text-4xl font-black text-white">Refund Policy</h1>
+            <h1 className="text-4xl font-black text-[#14253F]">Refund Policy</h1>
           </div>
           <p className="text-gray-500 text-sm mb-10">Last updated: January 1, 2026</p>
 
@@ -90,8 +90,8 @@ export default function Refund() {
                     <div className="flex items-start gap-4">
                       <p.icon className={`w-6 h-6 ${p.color} shrink-0 mt-1`} />
                       <div>
-                        <h3 className="text-white font-bold text-lg mb-2">{p.title}</h3>
-                        <p className="text-gray-400 leading-relaxed">{p.description}</p>
+                        <h3 className="text-[#14253F] font-bold text-lg mb-2">{p.title}</h3>
+                        <p className="text-[#687A90] leading-relaxed">{p.description}</p>
                       </div>
                     </div>
                   </div>
@@ -103,7 +103,7 @@ export default function Refund() {
           {/* Visual timeline */}
           <Card3D>
             <div className="p-6">
-              <h3 className="text-white font-bold text-lg mb-4">Refund at a Glance</h3>
+              <h3 className="text-[#14253F] font-bold text-lg mb-4">Refund at a Glance</h3>
               <div className="flex items-center gap-2 overflow-x-auto pb-2">
                 <div className="shrink-0 text-center px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20">
                   <p className="text-green-400 font-bold text-sm">7+ days</p>
@@ -131,27 +131,27 @@ export default function Refund() {
 
           {/* Special circumstances */}
           <div className="mt-10 mb-10">
-            <h2 className="text-2xl font-bold text-white mb-4">Special Circumstances</h2>
+            <h2 className="text-2xl font-bold text-[#14253F] mb-4">Special Circumstances</h2>
             <Card3D glowColor="rgba(59, 130, 246, 0.15)">
               <div className="p-6 space-y-4">
                 <div>
-                  <h4 className="text-white font-semibold mb-1">🌪️ Force Majeure</h4>
-                  <p className="text-gray-400 text-sm">In cases of natural disasters, pandemics, government travel bans, or event cancellations by the organiser, refund options will be communicated and approved refunds are issued within 14 business days.</p>
+                  <h4 className="text-[#14253F] font-semibold mb-1">🌪️ Force Majeure</h4>
+                  <p className="text-[#687A90] text-sm">In cases of natural disasters, pandemics, government travel bans, or event cancellations by the organiser, refund options will be communicated and approved refunds are issued within 14 business days.</p>
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold mb-1">🏥 Medical Emergency</h4>
-                  <p className="text-gray-400 text-sm">Guests who cannot travel due to medical emergencies may qualify for a full refund with valid documentation (doctor's note or hospital records). Contact us within 48 hours.</p>
+                  <h4 className="text-[#14253F] font-semibold mb-1">🏥 Medical Emergency</h4>
+                  <p className="text-[#687A90] text-sm">Guests who cannot travel due to medical emergencies may qualify for a full refund with valid documentation (doctor's note or hospital records). Contact us within 48 hours.</p>
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold mb-1">✈️ Travel Restrictions</h4>
-                  <p className="text-gray-400 text-sm">If your country imposes a travel ban to the host country after booking, you qualify for a full refund with proof of the restriction.</p>
+                  <h4 className="text-[#14253F] font-semibold mb-1">✈️ Travel Restrictions</h4>
+                  <p className="text-[#687A90] text-sm">If your country imposes a travel ban to the host country after booking, you qualify for a full refund with proof of the restriction.</p>
                 </div>
               </div>
             </Card3D>
           </div>
 
           {/* FAQ */}
-          <h2 className="text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-[#14253F] mb-6">Frequently Asked Questions</h2>
           <div className="space-y-3 mb-12">
             {faqs.map((faq, i) => (
               <motion.div
@@ -166,8 +166,8 @@ export default function Refund() {
                     <div className="flex items-start gap-3">
                       <HelpCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="text-white font-semibold mb-2">{faq.q}</h4>
-                        <p className="text-gray-400 text-sm leading-relaxed">{faq.a}</p>
+                        <h4 className="text-[#14253F] font-semibold mb-2">{faq.q}</h4>
+                        <p className="text-[#687A90] text-sm leading-relaxed">{faq.a}</p>
                       </div>
                     </div>
                   </div>
@@ -179,13 +179,13 @@ export default function Refund() {
           {/* Contact */}
           <Card3D glowColor="rgba(245, 158, 11, 0.15)">
             <div className="p-6 text-center">
-              <h3 className="text-white font-bold text-lg mb-2">Need Help With a Refund?</h3>
-              <p className="text-gray-400 mb-4">Our team is available 24/7 to assist you.</p>
+              <h3 className="text-[#14253F] font-bold text-lg mb-2">Need Help With a Refund?</h3>
+              <p className="text-[#687A90] mb-4">Our team is available 24/7 to assist you.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a href="mailto:hello@annatravelagency.com" className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold hover:scale-105 transition-all">
+                <a href="mailto:hello@annatravelagency.com" className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-[#14253F] font-bold hover:scale-105 transition-all">
                   Email Us
                 </a>
-                <Link to="/contact" className="px-6 py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-all">
+                <Link to="/contact" className="px-6 py-3 rounded-xl bg-white text-[#14253F] font-bold hover:bg-white/20 transition-all">
                   Contact Form
                 </Link>
               </div>

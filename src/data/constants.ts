@@ -27,22 +27,14 @@ export interface HostCity {
 }
 
 export const HOST_CITIES: HostCity[] = [
-  { id: 'nyc', name: 'New York / New Jersey', country: 'USA', countryFlag: '🇺🇸', stadium: 'MetLife Stadium', image: IMAGES.nyc, description: 'The heart of it all — major events, iconic venues, and the electric energy of the Big Apple.' },
-  { id: 'la', name: 'Los Angeles', country: 'USA', countryFlag: '🇺🇸', stadium: 'SoFi Stadium', image: '/images/city.jpg', description: 'Sun, stars, and soccer — LA brings the glamour to the beautiful game.' },
-  { id: 'miami', name: 'Miami', country: 'USA', countryFlag: '🇺🇸', stadium: 'Hard Rock Stadium', image: IMAGES.fans1, description: 'Tropical vibes meet world-class football in the Magic City.' },
-  { id: 'houston', name: 'Houston', country: 'USA', countryFlag: '🇺🇸', stadium: 'NRG Stadium', image: IMAGES.stadium, description: 'Space City welcomes the world with Southern hospitality and massive venues.' },
-  { id: 'dallas', name: 'Dallas / Arlington', country: 'USA', countryFlag: '🇺🇸', stadium: 'AT&T Stadium', image: IMAGES.fans2, description: 'Everything is bigger in Texas — including the live-event atmosphere.' },
-  { id: 'sf', name: 'San Francisco Bay Area', country: 'USA', countryFlag: '🇺🇸', stadium: "Levi's Stadium", image: IMAGES.hotel3, description: 'Bay Area beauty meets football fever in the tech capital.' },
-  { id: 'seattle', name: 'Seattle', country: 'USA', countryFlag: '🇺🇸', stadium: 'Lumen Field', image: IMAGES.vancouver, description: 'The Emerald City shines bright for football fans worldwide.' },
-  { id: 'philly', name: 'Philadelphia', country: 'USA', countryFlag: '🇺🇸', stadium: 'Lincoln Financial Field', image: IMAGES.hero, description: 'Historic charm and passionate sports culture await.' },
-  { id: 'atlanta', name: 'Atlanta', country: 'USA', countryFlag: '🇺🇸', stadium: 'Mercedes-Benz Stadium', image: IMAGES.stadium, description: 'The capital of the South brings energy and culture to the pitch.' },
-  { id: 'kansas', name: 'Kansas City', country: 'USA', countryFlag: '🇺🇸', stadium: 'Arrowhead Stadium', image: IMAGES.fans1, description: 'The heartland of America, with legendary BBQ and football passion.' },
-  { id: 'boston', name: 'Boston / Foxborough', country: 'USA', countryFlag: '🇺🇸', stadium: 'Gillette Stadium', image: IMAGES.nyc, description: 'Historic New England charm meets world football excitement.' },
-  { id: 'mexico', name: 'Mexico City', country: 'Mexico', countryFlag: '🇲🇽', stadium: 'Estadio Azteca', image: IMAGES.mexico, description: 'The legendary Azteca stadium — where football history was made and will be made again.' },
-  { id: 'monterrey', name: 'Monterrey', country: 'Mexico', countryFlag: '🇲🇽', stadium: 'Estadio BBVA', image: IMAGES.monterrey, description: 'Mountain-framed modernity and passionate Norteño football culture.' },
-  { id: 'guadalajara', name: 'Guadalajara', country: 'Mexico', countryFlag: '🇲🇽', stadium: 'Estadio Akron', image: IMAGES.mexico, description: 'The Pearl of the West — tequila, mariachi, and football unite.' },
-  { id: 'toronto', name: 'Toronto', country: 'Canada', countryFlag: '🇨🇦', stadium: 'BMO Field', image: IMAGES.toronto, description: "Canada's largest city offers multicultural magic and lakefront beauty." },
-  { id: 'vancouver', name: 'Vancouver', country: 'Canada', countryFlag: '🇨🇦', stadium: 'BC Place', image: IMAGES.vancouver, description: 'Ocean, mountains, and football — Vancouver has it all.' },
+  { id: 'baltimore', name: 'Baltimore', country: 'USA', countryFlag: '🇺🇸', stadium: 'M&T Bank Stadium', image: IMAGES.hero, description: 'Historic harbor city and home of M&T Bank Stadium — hosting major concerts and sporting events.' },
+  { id: 'dallas', name: 'Arlington / Dallas', country: 'USA', countryFlag: '🇺🇸', stadium: 'AT&T Stadium', image: IMAGES.fans2, description: 'Texas live-event hub with AT&T Stadium and easy access to Dallas-Fort Worth.' },
+  { id: 'chicago', name: 'Chicago', country: 'USA', countryFlag: '🇺🇸', stadium: 'Soldier Field', image: IMAGES.fans1, description: 'Lakefront city with Soldier Field and a full calendar of concerts and sports.' },
+  { id: 'la', name: 'Los Angeles / Inglewood', country: 'USA', countryFlag: '🇺🇸', stadium: 'SoFi Stadium', image: IMAGES.vancouver, description: 'SoFi Stadium district — major destination for concerts and large-scale events.' },
+  { id: 'nyc', name: 'New York / New Jersey', country: 'USA', countryFlag: '🇺🇸', stadium: 'MetLife Stadium', image: IMAGES.nyc, description: 'The New York metro area with MetLife Stadium and year-round events.' },
+  { id: 'toronto', name: 'Toronto', country: 'Canada', countryFlag: '🇨🇦', stadium: 'Rogers Stadium', image: IMAGES.toronto, description: 'Canada’s largest city with Rogers Stadium and waterfront venues.' },
+  { id: 'vancouver', name: 'Vancouver', country: 'Canada', countryFlag: '🇨🇦', stadium: 'BC Place', image: IMAGES.vancouver, description: 'Coastal city with BC Place and mountain views.' },
+  { id: 'atlanta', name: 'Atlanta', country: 'USA', countryFlag: '🇺🇸', stadium: 'Mercedes-Benz Stadium', image: IMAGES.stadium, description: 'Southern hub with Mercedes-Benz Stadium and vibrant live-event scene.' },
 ];
 
 export interface Listing {

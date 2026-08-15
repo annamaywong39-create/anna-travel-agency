@@ -15,20 +15,20 @@ export default function About() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden mb-16 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-white/10 p-8 md:p-12"
+          className="relative rounded-3xl overflow-hidden mb-16 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-[#D8E5F0] p-8 md:p-12"
         >
           <div className="relative z-10 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm mb-6">
               <Heart className="w-4 h-4" />
               Our Story
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
+            <h1 className="text-4xl md:text-6xl font-black text-[#14253F] mb-6">
               About{' '}
               <span className="bg-gradient-to-r from-amber-300 to-red-400 bg-clip-text text-transparent">
                 Anna Travel Agency
               </span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-3xl mx-auto leading-relaxed">
+            <p className="text-[#687A90] text-lg max-w-3xl mx-auto leading-relaxed">
               Born from a passion for travel and events, Anna Travel Agency is your trusted partner
               for accommodation and ticket bookings. We connect travelers with verified hotels,
               apartments, and shortlets — and fans with tickets to the best events.
@@ -53,7 +53,7 @@ export default function About() {
             viewport={{ once: true }}
             className="flex flex-col justify-center"
           >
-            <h2 className="text-3xl font-bold text-white mb-6">Our Mission</h2>
+            <h2 className="text-3xl font-bold text-[#14253F] mb-6">Our Mission</h2>
             <p className="text-gray-300 leading-relaxed mb-6">
               We believe every traveler deserves a comfortable, convenient, and affordable place to stay.
               Whether you're traveling for business, leisure, or a special event, we're here to make your experience seamless.
@@ -69,9 +69,9 @@ export default function About() {
                 { number: '4.9', label: 'Average Rating' },
                 { number: '100%', label: 'Satisfaction Guarantee' },
               ].map((stat) => (
-                <div key={stat.label} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div key={stat.label} className="p-4 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0]">
                   <p className="text-2xl font-black text-amber-400">{stat.number}</p>
-                  <p className="text-gray-400 text-sm">{stat.label}</p>
+                  <p className="text-[#687A90] text-sm">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -80,7 +80,7 @@ export default function About() {
 
         {/* Values */}
         <div className="mb-20">
-          <h2 className="text-3xl font-bold text-white text-center mb-10">What Sets Us Apart</h2>
+          <h2 className="text-3xl font-bold text-[#14253F] text-center mb-10">What Sets Us Apart</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: Shield, title: 'Trust & Safety', desc: 'Every property is personally verified. Your safety is our top priority.', color: 'text-green-400' },
@@ -98,8 +98,8 @@ export default function About() {
                 <Card3D>
                   <div className="p-6 text-center">
                     <value.icon className={`w-10 h-10 mx-auto mb-4 ${value.color}`} />
-                    <h3 className="text-white font-bold text-lg mb-2">{value.title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{value.desc}</p>
+                    <h3 className="text-[#14253F] font-bold text-lg mb-2">{value.title}</h3>
+                    <p className="text-[#687A90] text-sm leading-relaxed">{value.desc}</p>
                   </div>
                 </Card3D>
               </motion.div>
@@ -109,7 +109,7 @@ export default function About() {
 
         {/* Team */}
         <div className="mb-20">
-          <h2 className="text-3xl font-bold text-white text-center mb-10">Our Team</h2>
+          <h2 className="text-3xl font-bold text-[#14253F] text-center mb-10">Our Team</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { name: 'Anna Rodriguez', role: 'Founder & CEO', emoji: '👩‍💼', bio: 'Travel industry veteran with 15+ years of experience.' },
@@ -128,9 +128,9 @@ export default function About() {
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center text-3xl mx-auto mb-4">
                       {member.emoji}
                     </div>
-                    <h3 className="text-white font-bold text-lg">{member.name}</h3>
+                    <h3 className="text-[#14253F] font-bold text-lg">{member.name}</h3>
                     <p className="text-amber-400 text-sm mb-3">{member.role}</p>
-                    <p className="text-gray-400 text-sm">{member.bio}</p>
+                    <p className="text-[#687A90] text-sm">{member.bio}</p>
                   </div>
                 </Card3D>
               </motion.div>
@@ -145,11 +145,11 @@ export default function About() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Book Your Stay?</h2>
-          <p className="text-gray-400 mb-8">Find the perfect accommodation for your next trip.</p>
+          <h2 className="text-3xl font-bold text-[#14253F] mb-4">Ready to Book Your Stay?</h2>
+          <p className="text-[#687A90] mb-8">Find the perfect accommodation for your next trip.</p>
           <Link
             to="/listings"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-[#14253F] font-bold text-lg shadow-2xl shadow-amber-500/25 hover:scale-105 transition-all"
           >
             Browse Accommodations ✈️
           </Link>

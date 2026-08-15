@@ -14,15 +14,25 @@ export default function Contact() {
     name: '', email: '', subject: '', message: '', type: 'general',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await saveContactMessage(formData);
-    setSubmitted(true);
+    setError('');
+    setSending(true);
+    try {
+      await saveContactMessage(formData);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Your message could not be sent. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
-    <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD]">
       <SEO title="Contact Us" description="Get in touch with Anna Travel Agency. 24/7 support for accommodation and ticket inquiries." path="/contact" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -34,13 +44,13 @@ export default function Contact() {
             <MessageSquare className="w-4 h-4" />
             Get In Touch
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-4">
+          <h1 className="text-4xl md:text-6xl font-black text-[#14253F] mb-4">
             Contact{' '}
             <span className="bg-gradient-to-r from-[#DB8293] to-[#C49B55] bg-clip-text text-transparent">
               Us
             </span>
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-[#687A90] text-lg max-w-2xl mx-auto">
             Have questions? We're here to help 24/7.
           </p>
         </motion.div>
@@ -60,12 +70,12 @@ export default function Contact() {
                 transition={{ delay: i * 0.1 }}
               >
                 <Card3D>
-                  <div className="p-5 flex items-center gap-4 bg-[#131C2E] rounded-2xl border border-white/5">
-                    <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0 ${item.color}`}>
+                  <div className="p-5 flex items-center gap-4 bg-white rounded-2xl border border-[#D8E5F0]">
+                    <div className={`w-12 h-12 rounded-xl bg-[#F7FAFD] flex items-center justify-center shrink-0 ${item.color}`}>
                       <item.icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-white font-semibold">{item.title}</h3>
+                      <h3 className="text-[#14253F] font-semibold">{item.title}</h3>
                       <p className="text-gray-300 text-sm">{item.value}</p>
                       <p className="text-gray-500 text-xs">{item.sub}</p>
                     </div>
@@ -80,14 +90,14 @@ export default function Contact() {
               transition={{ delay: 0.4 }}
             >
               <Card3D>
-                <div className="p-5 bg-[#131C2E] rounded-2xl border border-white/5">
+                <div className="p-5 bg-white rounded-2xl border border-[#D8E5F0]">
                   <div className="flex items-center gap-2 mb-3">
                     <Globe className="w-5 h-5 text-[#C49B55]" />
-                    <h3 className="text-white font-semibold">We Speak Your Language</h3>
+                    <h3 className="text-[#14253F] font-semibold">We Speak Your Language</h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {['English', 'Español', 'Français', 'Português', 'العربية', '日本語', 'Deutsch'].map((lang) => (
-                      <span key={lang} className="px-2 py-1 rounded-md bg-white/5 text-gray-400 text-xs border border-white/10">
+                      <span key={lang} className="px-2 py-1 rounded-md bg-[#F7FAFD] text-[#687A90] text-xs border border-[#D8E5F0]">
                         {lang}
                       </span>
                     ))}
@@ -104,7 +114,7 @@ export default function Contact() {
               transition={{ delay: 0.2 }}
             >
               <Card3D>
-                <div className="p-6 md:p-8 bg-[#131C2E] rounded-2xl border border-white/5">
+                <div className="p-6 md:p-8 bg-white rounded-2xl border border-[#D8E5F0]">
                   {submitted ? (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -114,8 +124,8 @@ export default function Contact() {
                       <div className="w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mx-auto mb-6">
                         <CheckCircle2 className="w-8 h-8 text-green-400" />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-2">Message Sent! 🎉</h3>
-                      <p className="text-gray-400 mb-6">We'll get back to you within 2 hours.</p>
+                      <h3 className="text-2xl font-bold text-[#14253F] mb-2">Message Sent! 🎉</h3>
+                      <p className="text-[#687A90] mb-6">We'll get back to you within 2 hours.</p>
                       <button
                         onClick={() => {
                           setSubmitted(false);
@@ -128,10 +138,16 @@ export default function Contact() {
                     </motion.div>
                   ) : (
                     <form onSubmit={handleSubmit}>
-                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                      <h2 className="text-2xl font-bold text-[#14253F] mb-6 flex items-center gap-2">
                         <Headphones className="w-6 h-6 text-[#C49B55]" />
                         Send Us a Message
                       </h2>
+
+                      {error && (
+                        <div role="alert" className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+                          <p className="text-red-400 text-sm">{error}</p>
+                        </div>
+                      )}
 
                       <div className="flex flex-wrap gap-2 mb-6">
                         {[
@@ -147,7 +163,7 @@ export default function Contact() {
                             className={`px-4 py-2 rounded-lg text-sm transition-all ${
                               formData.type === t.value
                                 ? 'bg-[#DB8293]/20 border border-[#DB8293]/30 text-[#DB8293]'
-                                : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'
+                                : 'bg-[#F7FAFD] border border-[#D8E5F0] text-[#687A90] hover:bg-white'
                             }`}
                           >
                             {t.label}
@@ -157,7 +173,7 @@ export default function Contact() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <label htmlFor="name" className="text-sm text-gray-400 mb-1 block">
+                          <label htmlFor="name" className="text-sm text-[#687A90] mb-1 block">
                             Your Name *
                           </label>
                           <input
@@ -168,11 +184,11 @@ export default function Contact() {
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="John Doe"
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
+                            className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
                           />
                         </div>
                         <div>
-                          <label htmlFor="email" className="text-sm text-gray-400 mb-1 block">
+                          <label htmlFor="email" className="text-sm text-[#687A90] mb-1 block">
                             Email *
                           </label>
                           <input
@@ -183,13 +199,13 @@ export default function Contact() {
                             value={formData.email}
                             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                             placeholder="john@example.com"
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
+                            className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
                           />
                         </div>
                       </div>
 
                       <div className="mb-4">
-                        <label htmlFor="subject" className="text-sm text-gray-400 mb-1 block">
+                        <label htmlFor="subject" className="text-sm text-[#687A90] mb-1 block">
                           Subject *
                         </label>
                         <input
@@ -200,12 +216,12 @@ export default function Contact() {
                           value={formData.subject}
                           onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
                           placeholder="Help with booking"
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
+                          className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 transition-all"
                         />
                       </div>
 
                       <div className="mb-6">
-                        <label htmlFor="message" className="text-sm text-gray-400 mb-1 block">
+                        <label htmlFor="message" className="text-sm text-[#687A90] mb-1 block">
                           Message *
                         </label>
                         <textarea
@@ -216,16 +232,17 @@ export default function Contact() {
                           onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                           placeholder="Tell us how we can help..."
                           rows={5}
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 resize-none transition-all"
+                          className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] placeholder-gray-600 focus:outline-none focus:border-[#DB8293] focus:ring-1 focus:ring-[#DB8293]/20 resize-none transition-all"
                         />
                       </div>
 
                       <button
                         type="submit"
-                        className="w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 flex items-center justify-center gap-2"
+                        disabled={sending}
+                        className="w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-[#14253F] font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         <Send className="w-5 h-5" />
-                        Send Message
+                        {sending ? 'Sending…' : 'Send Message'}
                       </button>
                     </form>
                   )}

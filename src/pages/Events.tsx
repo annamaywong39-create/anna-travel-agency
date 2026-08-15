@@ -49,9 +49,9 @@ export default function Events() {
     switch (status) {
       case 'upcoming': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
       case 'live': return 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse';
-      case 'finished': return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'finished': return 'bg-gray-500/20 text-[#687A90] border-gray-500/30';
       case 'sold_out': return 'bg-[#C49B55]/20 text-[#C49B55] border-[#C49B55]/30';
-      default: return 'bg-gray-500/20 text-gray-400';
+      default: return 'bg-gray-500/20 text-[#687A90]';
     }
   };
 
@@ -64,34 +64,34 @@ export default function Events() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-white/10 p-8 md:p-12"
+          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-[#D8E5F0] p-8 md:p-12"
         >
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm mb-6">
               <Globe className="w-4 h-4" />
               Discover Events Worldwide
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
+            <h1 className="text-4xl md:text-5xl font-black text-[#14253F] mb-3">
               Upcoming Events
             </h1>
-            <p className="text-gray-400 text-lg max-w-2xl">
+            <p className="text-[#687A90] text-lg max-w-2xl">
               From concerts to sports, find events near you. Book tickets with ease.
             </p>
 
             {/* Search */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-3xl">
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#687A90]" />
                 <input
                   type="text"
                   placeholder="Search events by name, city, or venue..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-all"
                 />
                 {searchQuery && (
                   <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <X className="w-4 h-4 text-gray-400 hover:text-white" />
+                    <X className="w-4 h-4 text-[#687A90] hover:text-[#14253F]" />
                   </button>
                 )}
               </div>
@@ -103,16 +103,16 @@ export default function Events() {
                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                       filter === f
                         ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
-                        : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'
+                        : 'bg-[#F7FAFD] border border-[#D8E5F0] text-[#687A90] hover:bg-white'
                     }`}
                   >
                     {f.charAt(0).toUpperCase() + f.slice(1)}
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
-                <button type="button" onClick={() => setViewMode('grid')} aria-label="Grid view" className={`rounded-lg p-2 ${viewMode === 'grid' ? 'bg-amber-500/20 text-amber-300' : 'text-gray-400 hover:text-white'}`}><Grid3X3 className="h-4 w-4" /></button>
-                <button type="button" onClick={() => setViewMode('list')} aria-label="List view" className={`rounded-lg p-2 ${viewMode === 'list' ? 'bg-amber-500/20 text-amber-300' : 'text-gray-400 hover:text-white'}`}><List className="h-4 w-4" /></button>
+              <div className="flex items-center gap-1 rounded-xl border border-[#D8E5F0] bg-[#F7FAFD] p-1">
+                <button type="button" onClick={() => setViewMode('grid')} aria-label="Grid view" className={`rounded-lg p-2 ${viewMode === 'grid' ? 'bg-amber-500/20 text-amber-300' : 'text-[#687A90] hover:text-[#14253F]'}`}><Grid3X3 className="h-4 w-4" /></button>
+                <button type="button" onClick={() => setViewMode('list')} aria-label="List view" className={`rounded-lg p-2 ${viewMode === 'list' ? 'bg-amber-500/20 text-amber-300' : 'text-[#687A90] hover:text-[#14253F]'}`}><List className="h-4 w-4" /></button>
               </div>
             </div>
           </div>
@@ -122,13 +122,13 @@ export default function Events() {
         {loading ? (
           <div className="py-20 text-center">
             <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-amber-500 border-t-transparent" />
-            <p className="text-gray-400 mt-4">Loading events...</p>
+            <p className="text-[#687A90] mt-4">Loading events...</p>
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="py-20 text-center">
             <div className="text-6xl mb-4">📅</div>
-            <h3 className="text-2xl font-bold text-white mb-2">No events found</h3>
-            <p className="text-gray-400">Check back later for upcoming events.</p>
+            <h3 className="text-2xl font-bold text-[#14253F] mb-2">No events found</h3>
+            <p className="text-[#687A90]">Check back later for upcoming events.</p>
           </div>
         ) : (
           <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
@@ -158,8 +158,8 @@ export default function Events() {
                   </div>
                   {hasEventEnded(event) && <div className="border-y border-slate-500/40 bg-slate-700/70 px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-slate-100">This event has passed</div>}
                   <div className="p-5">
-                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{event.title}</h3>
-                    <div className="space-y-1 text-sm text-gray-400 mb-3">
+                    <h3 className="text-xl font-bold text-[#14253F] mb-2 line-clamp-1">{event.title}</h3>
+                    <div className="space-y-1 text-sm text-[#687A90] mb-3">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-amber-400" />
                         <span>{formatVenueDate(event.date, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
@@ -169,11 +169,11 @@ export default function Events() {
                         <span>{event.venue}, {event.city}</span>
                       </div>
                     </div>
-                    <p className="text-gray-400 text-sm line-clamp-2 mb-4">{event.description}</p>
+                    <p className="text-[#687A90] text-sm line-clamp-2 mb-4">{event.description}</p>
                     <button
                       disabled={hasEventEnded(event)}
                       onClick={() => setSelectedEvent(event)}
-                      className={`w-full py-3 rounded-xl text-white font-bold transition-all shadow-lg ${hasEventEnded(event) ? 'cursor-not-allowed bg-slate-700 text-slate-300 shadow-none' : 'bg-gradient-to-r from-amber-500 to-red-500 hover:scale-105 shadow-amber-500/25'}`}
+                      className={`w-full py-3 rounded-xl text-[#14253F] font-bold transition-all shadow-lg ${hasEventEnded(event) ? 'cursor-not-allowed bg-slate-700 text-slate-300 shadow-none' : 'bg-gradient-to-r from-amber-500 to-red-500 hover:scale-105 shadow-amber-500/25'}`}
                     >
                       {hasEventEnded(event) ? 'Event ended' : 'View Tickets'}
                     </button>
@@ -191,12 +191,12 @@ export default function Events() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-[#14142a] rounded-2xl border border-white/10 max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-2xl border border-[#D8E5F0] max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-white">{selectedEvent.title}</h2>
-              <button onClick={() => setSelectedEvent(null)} className="text-gray-400 hover:text-white">
+              <h2 className="text-2xl font-bold text-[#14253F]">{selectedEvent.title}</h2>
+              <button onClick={() => setSelectedEvent(null)} className="text-[#687A90] hover:text-[#14253F]">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -211,11 +211,11 @@ export default function Events() {
               />
             </div>
             <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-2 text-gray-400">
+              <div className="flex items-center gap-2 text-[#687A90]">
                 <Calendar className="w-4 h-4 text-amber-400" />
                 <span>{formatVenueDate(selectedEvent.date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-400">
+              <div className="flex items-center gap-2 text-[#687A90]">
                 <MapPin className="w-4 h-4 text-amber-400" />
                 <span>{selectedEvent.venue}, {selectedEvent.city}</span>
               </div>
@@ -228,7 +228,7 @@ export default function Events() {
             </div>
             <Link
               to="/tickets"
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-white font-bold text-center block hover:scale-105 transition-all shadow-lg shadow-amber-500/25"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 text-[#14253F] font-bold text-center block hover:scale-105 transition-all shadow-lg shadow-amber-500/25"
               onClick={() => setSelectedEvent(null)}
             >
               Buy Tickets

@@ -4,10 +4,13 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
+import { WishlistProvider } from './contexts/WishlistContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import BtsSupporterOfferModal from './components/BtsSupporterOfferModal';
+import BtsOfferModal from './components/BtsOfferModal';
+import MobileBottomNav from './components/MobileBottomNav';
+import ConciergeStickyButton from './components/ConciergeStickyButton';
 
 const LiveChat = lazy(() => import('./components/LiveChat'));
 const Home = lazy(() => import('./pages/Home'));
@@ -47,42 +50,46 @@ export default function App() {
       <AuthProvider>
         <DataProvider>
           <CurrencyProvider>
-            <Router>
-              <ScrollToTop />
-              <div className="min-h-screen bg-[#F7F4EE] text-[#172033] overflow-x-hidden">
-                <Navbar />
-                <Suspense fallback={pageFallback}>
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/listings" element={<Listings />} />
-                    <Route path="/city/:id" element={<CityDetail />} />
-                    <Route path="/listing/:id" element={<ListingDetail />} />
-                    <Route path="/booking/:id" element={<Booking />} />
-                    <Route path="/events" element={<Events />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/tickets" element={<Tickets />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/admin" element={<Admin />} />
-                    <Route path="/admin/listing/:id" element={<AdminListingForm />} />
-                    <Route path="/admin/events" element={<AdminEvents />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/refund" element={<Refund />} />
-                  </Routes>
-                </Suspense>
-                <Footer />
-                <BtsSupporterOfferModal />
-                <Suspense fallback={null}>
-                  <LiveChat />
-                </Suspense>
-              </div>
-            </Router>
+            <WishlistProvider>
+              <Router>
+                <ScrollToTop />
+                <div className="min-h-screen bg-[#F7FAFD] text-[#14253F] overflow-x-hidden pb-16 md:pb-0">
+                  <Navbar />
+                  <Suspense fallback={pageFallback}>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/listings" element={<Listings />} />
+                      <Route path="/city/:id" element={<CityDetail />} />
+                      <Route path="/listing/:id" element={<ListingDetail />} />
+                      <Route path="/booking/:id" element={<Booking />} />
+                      <Route path="/events" element={<Events />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/tickets" element={<Tickets />} />
+                      <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/signup" element={<Signup />} />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/admin/listing/:id" element={<AdminListingForm />} />
+                      <Route path="/admin/events" element={<AdminEvents />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/refund" element={<Refund />} />
+                    </Routes>
+                  </Suspense>
+                  <Footer />
+                  <BtsOfferModal />
+                  <ConciergeStickyButton />
+                  <MobileBottomNav />
+                  <Suspense fallback={null}>
+                    <LiveChat />
+                  </Suspense>
+                </div>
+              </Router>
+            </WishlistProvider>
           </CurrencyProvider>
         </DataProvider>
       </AuthProvider>

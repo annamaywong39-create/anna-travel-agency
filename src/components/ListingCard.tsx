@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, MapPin, Users, BedDouble, Building2, Home, Key } from 'lucide-react';
+import { Star, MapPin, Users, BedDouble, Building2, Home, Key, Heart } from 'lucide-react';
 import Card3D from './Card3D';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import type { Listing } from '../data/constants';
 
 const typeIcons = {
@@ -11,20 +12,8 @@ const typeIcons = {
   shortlet: Key,
 };
 
-const typeColors = {
-  hotel: 'from-blue-500 to-cyan-400',
-  apartment: 'from-emerald-500 to-green-400',
-  shortlet: 'from-purple-500 to-pink-400',
-};
-
-const typeBadgeColors = {
-  hotel: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  apartment: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  shortlet: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-};
-
 export default function ListingCard({ listing, index = 0 }: { listing: Listing; index?: number }) {
-  const normalizedListing = {
+  const normalized = {
     ...listing,
     type: listing.type && typeIcons[listing.type] ? listing.type : 'hotel',
     images: Array.isArray(listing.images) ? listing.images : [],
@@ -39,102 +28,53 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
     distanceToStadium: listing.distanceToStadium || 'nearby',
     nearestStadium: listing.nearestStadium || 'your destination',
   };
-
-  const Icon = typeIcons[normalizedListing.type];
+  const Icon = typeIcons[normalized.type];
   const { format } = useCurrency();
-  const badgeClass = typeBadgeColors[normalizedListing.type] || typeBadgeColors.hotel;
-  const gradientClass = typeColors[normalizedListing.type] || typeColors.hotel;
-  const imageSrc = normalizedListing.images[0] || '/images/hotel-luxury.jpg';
+  const { toggle, has } = useWishlist();
+  const isWish = has(normalized.id);
+  const imageSrc = normalized.images[0] || '/images/hotel-luxury.jpg';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      viewport={{ once: true }}
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.08 }} viewport={{ once: true }}>
       <Card3D>
-        <Link to={`/listing/${normalizedListing.id}`} className="block">
-          {/* ─── Image ─── */}
-          <div className="relative property-media h-52">
-            <img
-              src={imageSrc}
-              alt={normalizedListing.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              width="400"
-              height="208"
-              loading="lazy"
-              onError={(event) => {
-                if (!event.currentTarget.src.endsWith('/images/hotel-luxury.jpg')) event.currentTarget.src = '/images/hotel-luxury.jpg';
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-            {/* Type badge */}
-            <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold border ${badgeClass} backdrop-blur-sm flex items-center gap-1.5`}>
-              <Icon className="w-3 h-3" />
-              {normalizedListing.type.charAt(0).toUpperCase() + normalizedListing.type.slice(1)}
+        <div className="relative overflow-hidden rounded-2xl border border-[#D8E5F0] bg-white shadow-sm hover:shadow-lg transition-shadow">
+          <Link to={`/listing/${normalized.id}`} className="block">
+            <div className="relative h-52 property-media">
+              <img src={imageSrc} alt={normalized.title} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" loading="lazy" onError={(e) => { if (!(e.target as HTMLImageElement).src.endsWith('/images/hotel-luxury.jpg')) (e.target as HTMLImageElement).src = '/images/hotel-luxury.jpg'; }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#14253F] backdrop-blur">
+                <Icon className="h-3 w-3" /> {normalized.type.charAt(0).toUpperCase() + normalized.type.slice(1)}
+              </div>
+              <div className="absolute bottom-3 right-3 rounded-xl bg-[#14253F]/85 px-3 py-1.5 text-white backdrop-blur">
+                <span className="text-[#F2C94C] font-bold">{listing.priceIsFrom ? 'From ' : ''}{format(normalized.price)}</span><span className="text-white/70 text-xs"> /night</span>
+              </div>
             </div>
+          </Link>
+          <button onClick={(e) => { e.preventDefault(); toggle({ id: normalized.id, type: 'listing', title: normalized.title }); }} aria-label={isWish ? 'Remove from wishlist' : 'Add to wishlist'} className={`absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur transition ${isWish ? 'bg-[#E85D9A] border-[#E85D9A] text-white' : 'bg-white/80 border-[#D8E5F0] text-[#8A9AB0] hover:text-[#E85D9A]'}`}>
+            <Heart className={`h-4 w-4 ${isWish ? 'fill-white' : ''}`} />
+          </button>
 
-            {/* Price */}
-            <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-sm border border-white/10">
-              <span className="text-amber-400 font-bold text-lg">{listing.priceIsFrom ? 'From ' : ''}{format(normalizedListing.price)}</span>
-              <span className="text-gray-300 text-xs"> /night</span>
-            </div>
+          <div className="p-4">
+            <Link to={`/listing/${normalized.id}`} className="block">
+              <h3 className="line-clamp-1 font-semibold text-[#14253F]">{normalized.title}</h3>
+              <div className="mt-1 flex items-center gap-1 text-sm text-[#687A90]">
+                <MapPin className="h-3.5 w-3.5 text-[#1267C4]" /> {normalized.city} <span className="mx-1">·</span> <span className="text-xs">{normalized.distanceToStadium} to {normalized.nearestStadium}</span>
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="flex items-center gap-1 text-sm font-medium text-[#14253F]"><Star className="h-4 w-4 fill-[#F2C94C] text-[#F2C94C]" /> {normalized.rating}</span><span className="text-xs text-[#8A9AB0]">({normalized.reviews}) • Verified stay</span>
+              </div>
+              <div className="mt-3 flex items-center gap-3 text-xs text-[#687A90]">
+                <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {normalized.maxGuests} guests</span>
+                <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" /> {normalized.bedrooms} bed{normalized.bedrooms>1?'s':''}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {normalized.amenities.slice(0,4).map((a) => <span key={a} className="rounded-md border border-[#D8E5F0] bg-[#F7FAFD] px-2 py-0.5 text-[11px] text-[#5B6B82]">{a}</span>)}
+                {normalized.amenities.length>4 && <span className="text-[11px] text-[#1267C4]">+{normalized.amenities.length-4} more</span>}
+              </div>
+            </Link>
+            <Link to={`/listing/${normalized.id}`} className="mt-4 block rounded-xl bg-[#1267C4] py-2.5 text-center text-sm font-bold text-white hover:bg-[#0F5AAC]">View Details</Link>
           </div>
-
-          {/* ─── Content ─── */}
-          <div className="p-5">
-            <h3 className="text-white font-semibold text-lg mb-1 line-clamp-1">{normalizedListing.title}</h3>
-
-            <div className="flex items-center gap-1 text-gray-400 text-sm mb-3">
-              <MapPin className="w-3.5 h-3.5 text-amber-400" />
-              <span>{normalizedListing.city}</span>
-              <span className="mx-1">·</span>
-              <span className="text-xs">{normalizedListing.distanceToStadium} to {normalizedListing.nearestStadium}</span>
-            </div>
-
-            {/* Rating */}
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                <span className="text-white font-medium">{normalizedListing.rating}</span>
-              </div>
-              <span className="text-gray-500 text-sm">({normalizedListing.reviews} reviews)</span>
-            </div>
-
-            {/* Meta */}
-            <div className="flex items-center gap-4 text-gray-400 text-sm">
-              <div className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" />
-                <span>{normalizedListing.maxGuests} guests</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <BedDouble className="w-3.5 h-3.5" />
-                <span>{normalizedListing.bedrooms} bed{normalizedListing.bedrooms > 1 ? 's' : ''}</span>
-              </div>
-            </div>
-
-            {/* Amenities preview */}
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {normalizedListing.amenities.slice(0, 4).map((a) => (
-                <span key={a} className="px-2 py-0.5 rounded-md bg-white/5 text-gray-400 text-xs border border-white/5">
-                  {a}
-                </span>
-              ))}
-              {normalizedListing.amenities.length > 4 && (
-                <span className="px-2 py-0.5 rounded-md text-amber-400 text-xs">
-                  +{normalizedListing.amenities.length - 4} more
-                </span>
-              )}
-            </div>
-
-            {/* CTA */}
-            <div className={`mt-4 py-2.5 rounded-xl bg-gradient-to-r ${gradientClass} text-white text-center font-semibold text-sm opacity-90 hover:opacity-100 transition-opacity`}>
-              View Details & Book
-            </div>
-          </div>
-        </Link>
+        </div>
       </Card3D>
     </motion.div>
   );

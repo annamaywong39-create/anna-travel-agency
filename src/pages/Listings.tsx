@@ -65,26 +65,28 @@ export default function Listings() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-white/10 p-8 md:p-12"
+          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-[#D8E5F0] p-8 md:p-12"
         >
           <div className="relative z-10">
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
+            <h1 className="text-4xl md:text-5xl font-black text-[#14253F] mb-3">
               Find Your Perfect Stay
             </h1>
-            <p className="text-gray-400 text-lg max-w-2xl">
+            <p className="text-[#687A90] text-lg max-w-2xl">
               {filteredListings.length} properties available – from luxury hotels to cozy apartments.
             </p>
             
             {/* Quick Search */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-3xl">
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#687A90]" />
                 <input
+                  id="listings-search"
+                  name="search"
                   type="text"
                   placeholder="Search by city, property name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-all"
                 />
               </div>
               <button
@@ -92,7 +94,7 @@ export default function Listings() {
                 className={`px-6 py-3 rounded-xl border transition-all flex items-center gap-2 ${
                   showFilters
                     ? 'bg-amber-500/20 border-amber-500/30 text-amber-300'
-                    : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                    : 'bg-[#F7FAFD] border-[#D8E5F0] text-gray-300 hover:bg-white'
                 }`}
               >
                 <Filter className="w-4 h-4" />
@@ -101,16 +103,16 @@ export default function Listings() {
                   <span className="ml-1 w-2 h-2 rounded-full bg-amber-400" />
                 )}
               </button>
-              <div className="flex rounded-xl border border-white/10 overflow-hidden">
+              <div className="flex rounded-xl border border-[#D8E5F0] overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`px-3 py-2 transition-all ${viewMode === 'grid' ? 'bg-amber-500/20 text-amber-300' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                  className={`px-3 py-2 transition-all ${viewMode === 'grid' ? 'bg-amber-500/20 text-amber-300' : 'bg-[#F7FAFD] text-[#687A90] hover:bg-white'}`}
                 >
                   <Grid3X3 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`px-3 py-2 transition-all ${viewMode === 'list' ? 'bg-amber-500/20 text-amber-300' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                  className={`px-3 py-2 transition-all ${viewMode === 'list' ? 'bg-amber-500/20 text-amber-300' : 'bg-[#F7FAFD] text-[#687A90] hover:bg-white'}`}
                 >
                   <SlidersHorizontal className="w-4 h-4" />
                 </button>
@@ -133,7 +135,7 @@ export default function Listings() {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 typeFilter === f.value
                   ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
-                  : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                  : 'bg-[#F7FAFD] border border-[#D8E5F0] text-[#687A90] hover:bg-white hover:text-[#14253F]'
               }`}
             >
               <f.icon className="w-4 h-4" />
@@ -148,15 +150,17 @@ export default function Listings() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-8 p-6 rounded-2xl bg-white/5 border border-white/10"
+            className="mb-8 p-6 rounded-2xl bg-[#F7FAFD] border border-[#D8E5F0]"
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="text-sm text-gray-400 mb-2 block">City</label>
+                <label htmlFor="city-filter" className="text-sm text-[#687A90] mb-2 block">City</label>
                 <select
+                  id="city-filter"
+                  name="city"
                   value={cityFilter}
                   onChange={(e) => setCityFilter(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-amber-500/50 appearance-none"
+                  className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] focus:outline-none focus:border-amber-500/50 appearance-none"
                 >
                   <option value="all">All Cities</option>
                   {uniqueCities.map((c) => (
@@ -165,7 +169,7 @@ export default function Listings() {
                 </select>
               </div>
               <div>
-                <label className="text-sm text-gray-400 mb-2 block">Price Range</label>
+                <label className="text-sm text-[#687A90] mb-2 block">Price Range</label>
                 <div className="flex flex-wrap gap-2">
                   {priceRanges.map((p) => (
                     <button
@@ -174,7 +178,7 @@ export default function Listings() {
                       className={`px-3 py-2 rounded-lg text-sm transition-all ${
                         priceFilter === p.value
                           ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                          : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                          : 'bg-[#F7FAFD] text-[#687A90] border border-[#D8E5F0] hover:bg-white'
                       }`}
                     >
                       {p.label}
@@ -183,23 +187,29 @@ export default function Listings() {
                 </div>
               </div>
               <div>
-                <label className="text-sm text-gray-400 mb-2 block flex items-center gap-2">
+                <label className="text-sm text-[#687A90] mb-2 block flex items-center gap-2">
                   <Calendar className="w-4 h-4" /> Dates
                 </label>
                 <div className="flex gap-2">
                   <input
+                    id="check-in"
+                    name="checkIn"
                     type="date"
                     value={dateRange.checkIn}
                     onChange={(e) => setDateRange(prev => ({ ...prev, checkIn: e.target.value }))}
                     placeholder="Check-in"
-                    className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-amber-500/50"
+                    aria-label="Check-in"
+                    className="flex-1 px-3 py-2 rounded-lg bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] text-sm focus:outline-none focus:border-amber-500/50"
                   />
                   <input
+                    id="check-out"
+                    name="checkOut"
                     type="date"
                     value={dateRange.checkOut}
                     onChange={(e) => setDateRange(prev => ({ ...prev, checkOut: e.target.value }))}
                     placeholder="Check-out"
-                    className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-amber-500/50"
+                    aria-label="Check-out"
+                    className="flex-1 px-3 py-2 rounded-lg bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] text-sm focus:outline-none focus:border-amber-500/50"
                   />
                 </div>
               </div>
@@ -213,7 +223,7 @@ export default function Listings() {
                   setSearchQuery('');
                   setDateRange({ checkIn: '', checkOut: '' });
                 }}
-                className="px-4 py-2 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 text-sm transition-all"
+                className="px-4 py-2 rounded-lg bg-[#F7FAFD] text-[#687A90] hover:bg-white text-sm transition-all"
               >
                 Clear All Filters
               </button>
@@ -223,9 +233,9 @@ export default function Listings() {
 
         {/* Results Count */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-gray-400 text-sm">
-            Showing <span className="text-white font-medium">{paginatedListings.length}</span> of{' '}
-            <span className="text-white font-medium">{filteredListings.length}</span> properties
+          <p className="text-[#687A90] text-sm">
+            Showing <span className="text-[#14253F] font-medium">{paginatedListings.length}</span> of{' '}
+            <span className="text-[#14253F] font-medium">{filteredListings.length}</span> properties
           </p>
           {totalPages > 1 && (
             <span className="text-gray-500 text-sm">Page {currentPage} of {totalPages}</span>
@@ -248,17 +258,17 @@ export default function Listings() {
                     <button
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="px-4 py-2 rounded-lg bg-[#F7FAFD] border border-[#D8E5F0] text-[#687A90] hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       Previous
                     </button>
-                    <span className="text-white text-sm">
+                    <span className="text-[#14253F] text-sm">
                       Page {currentPage} of {totalPages}
                     </span>
                     <button
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="px-4 py-2 rounded-lg bg-[#F7FAFD] border border-[#D8E5F0] text-[#687A90] hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       Next
                     </button>
@@ -272,8 +282,8 @@ export default function Listings() {
                 className="py-20 text-center"
               >
                 <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-2xl font-bold text-white mb-2">No listings found</h3>
-                <p className="text-gray-400 mb-6">Try adjusting your filters or search query.</p>
+                <h3 className="text-2xl font-bold text-[#14253F] mb-2">No listings found</h3>
+                <p className="text-[#687A90] mb-6">Try adjusting your filters or search query.</p>
                 <button
                   onClick={() => {
                     setTypeFilter('all');
@@ -300,8 +310,8 @@ export default function Listings() {
             {paginatedListings.length === 0 && (
               <div className="py-20 text-center">
                 <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-2xl font-bold text-white mb-2">No listings found</h3>
-                <p className="text-gray-400 mb-6">Try adjusting your filters or search query.</p>
+                <h3 className="text-2xl font-bold text-[#14253F] mb-2">No listings found</h3>
+                <p className="text-[#687A90] mb-6">Try adjusting your filters or search query.</p>
               </div>
             )}
           </div>

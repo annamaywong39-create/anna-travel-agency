@@ -34,7 +34,7 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: string;
   specialRequests?: string;
-  paymentMethod?: 'bitcoin' | 'paypal' | 'steam';
+  paymentMethod?: 'paypal';
 }
 
 export interface Review {
@@ -124,7 +124,7 @@ interface DataContextType {
   deleteListing: (id: string) => Promise<void>;
 
   // Bookings
-  addBooking: (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'bitcoin' | 'paypal' | 'steam' }) => Promise<Booking>;
+  addBooking: (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'paypal' }) => Promise<Booking>;
   updateBooking: (id: string, data: Partial<Booking>) => Promise<void>;
   cancelBooking: (id: string) => Promise<void>;
   getUserBookings: (userId: string) => Booking[];
@@ -263,7 +263,7 @@ function rowToBooking(r: Record<string, unknown>): Booking {
     totalPrice: r.total_price as number,
     status: r.status as Booking['status'],
     specialRequests: (r.special_requests as string) || undefined,
-    paymentMethod: r.payment_method as 'bitcoin' | 'paypal' | 'steam' || undefined,
+    paymentMethod: r.payment_method as 'paypal' || undefined,
     createdAt: r.created_at as string,
   };
 }
@@ -475,7 +475,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   // ━━━ BOOKINGS ━━━
-  const addBooking = async (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'bitcoin' | 'paypal' | 'steam' }): Promise<Booking> => {
+  const addBooking = async (booking: Omit<Booking, 'id' | 'createdAt'> & { paymentMethod?: 'paypal' }): Promise<Booking> => {
     const generatedId = generateBookingId();
     if (isDemo) {
       const newBooking: Booking = {
@@ -519,7 +519,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const paymentMethodMap: Record<string, string> = {
         paypal: '🅿️ PayPal',
       };
-      await fetch('https://wtktniphfzeltvajpbhb.supabase.co/functions/v1/send-email', {
+      const res = await fetch('https://wtktniphfzeltvajpbhb.supabase.co/functions/v1/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -539,6 +539,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         })
       });
+      if (!res.ok) {
+        console.error('Admin notification failed', res.status, await res.text());
+      }
     } catch (error) {
       console.error('Failed to send admin notification:', error);
     }
@@ -743,7 +746,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('ath_contacts', JSON.stringify(msgs));
       return;
     }
-    await supabase.from('contact_messages').insert(msg);
+    const { error } = await supabase.from('contact_messages').insert(msg);
+    if (error) throw new Error(error.message || 'Your message could not be saved. Please try again.');
   };
 
   // ━━━ USERS (Admin) ━━━

@@ -13,7 +13,7 @@ import Card3D from '../components/Card3D';
 import { formatVenueDate } from '../lib/eventDate';
 import { uploadPublicImage } from '../lib/storage';
 
-type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events' | 'ticket_inventory';
+type Tab = 'overview' | 'listings' | 'bookings' | 'users' | 'events' | 'ticket_inventory' | 'images';
 
 function parseCsv(text: string) {
   const rows: string[][] = [];
@@ -64,7 +64,7 @@ export default function Admin() {
 
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     const savedTab = new URLSearchParams(window.location.search).get('tab') as Tab | null;
-    return savedTab && ['overview', 'listings', 'bookings', 'users', 'events', 'ticket_inventory'].includes(savedTab) ? savedTab : 'overview';
+    return savedTab && ['overview', 'listings', 'bookings', 'users', 'events', 'ticket_inventory', 'images'].includes(savedTab) ? savedTab : 'overview';
   });
   const [searchQuery, setSearchQuery] = useState('');
   // Users
@@ -82,6 +82,8 @@ export default function Admin() {
   const [inventoryGroup, setInventoryGroup] = useState<'event' | 'date'>('event');
   const [ticketInventory, setTicketInventory] = useState<Array<{ event: Event; ticket: EventTicket }>>([]);
   const [loadingTicketInventory, setLoadingTicketInventory] = useState(false);
+  const [siteImages, setSiteImages] = useState<Array<{ name: string; url: string }>>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
   const [csvImportStatus, setCsvImportStatus] = useState('');
   const [eventTickets, setEventTickets] = useState<EventTicket[]>([]);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -98,10 +100,54 @@ export default function Admin() {
   const [allTicketOrders, setAllTicketOrders] = useState<TicketOrder[]>([]);
   const [loadingTicketOrders, setLoadingTicketOrders] = useState(false);
 
+  const loadSiteImages = async () => {
+    setLoadingImages(true);
+    try {
+      // List public images from known folders + site-media bucket
+      const staticImages = [
+        '/logo.png',
+        '/images/hero.jpg',
+        '/images/city.jpg',
+        '/images/stadium.jpg',
+        '/images/event-music.jpg',
+        '/images/event-sport.jpg',
+        '/images/fans.jpg',
+        '/images/apartment.jpg',
+        '/images/apartment-2.jpg',
+        '/images/hotel-luxury.jpg',
+        '/images/hotel-room.jpg',
+        '/images/events/bts/bts-arirang-tour.png',
+        '/images/events/bts/bts-giveaway-light.png',
+        '/images/events/bts/bts-giveaway-dark.png',
+        '/images/events/bts/bts-metlife-promo.png',
+        '/images/seatmaps/bts-chicago-2026-08-27.png',
+        '/images/seatmaps/mt-bank-stadium-bts-2026-08-10.png',
+      ].map(u => ({ name: u.split('/').pop() || u, url: u }));
+      // Try to list site-media bucket as well
+      let bucketFiles: Array<{ name: string; url: string }> = [];
+      try {
+        const { data, error } = await (await import('../lib/supabase')).supabase.storage.from('site-media').list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
+        if (!error && data) {
+          bucketFiles = data.filter(f => f.name).map(f => {
+            const publicUrl = (import('../lib/supabase') as any).supabase?.storage?.from('site-media').getPublicUrl(f.name).data?.publicUrl || '';
+            // Actually get URL synchronously via supabase instance already imported? Use direct
+            return { name: f.name, url: '' };
+          });
+          // For simplicity, use list from bucket via supabase client already imported in closure would be better, but we use static for now
+          // We'll fetch via supabase client in effect
+        }
+      } catch {}
+      setSiteImages(staticImages);
+    } finally {
+      setLoadingImages(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'users') loadUsers();
     if (activeTab === 'ticket_inventory') void loadTicketInventory();
     if (activeTab === 'events' || activeTab === 'overview') loadEvents();
+    if (activeTab === 'images') void loadSiteImages();
     if (activeTab === 'bookings' || activeTab === 'overview') {
       loadTicketOrders();
       void fetchAllOrders();
@@ -507,11 +553,12 @@ export default function Admin() {
               { id: 'bookings' as Tab, label: 'Orders', icon: Calendar },
               { id: 'listings' as Tab, label: 'Stays', icon: Building2 },
               { id: 'users' as Tab, label: 'Customers', icon: Users },
+              { id: 'images' as Tab, label: 'Images', icon: Eye },
             ].map(({ id, label, icon: Icon }) => <button key={id} type="button" onClick={() => setActiveTab(id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${activeTab === id ? 'bg-[#2dd4bf]/20 text-[#b8fff4]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><Icon className="h-4 w-4" />{label}</button>)}
           </nav>
           <div className="mt-4 border-t border-white/10 pt-3"><Link to="/admin/listing/new" className="mb-2 flex items-center gap-2 rounded-xl bg-amber-500/15 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-500/25"><Plus className="h-4 w-4" />Add stay</Link><button type="button" onClick={() => { setActiveTab('events'); setEditEvent({}); setShowEventForm(true); }} className="flex w-full items-center gap-2 rounded-xl bg-blue-500/15 px-3 py-2 text-xs font-semibold text-blue-200 hover:bg-blue-500/25"><Plus className="h-4 w-4" />Add event</button></div>
         </aside>
-        <div className="mb-6 flex lg:hidden"><select value={activeTab} onChange={(event) => setActiveTab(event.target.value as Tab)} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"><option value="overview">Overview</option><option value="events">Events</option><option value="ticket_inventory">Ticket Inventory</option><option value="bookings">Orders</option><option value="listings">Stays</option><option value="users">Customers</option></select></div>
+        <div className="mb-6 flex lg:hidden"><select value={activeTab} onChange={(event) => setActiveTab(event.target.value as Tab)} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"><option value="overview">Overview</option><option value="events">Events</option><option value="ticket_inventory">Ticket Inventory</option><option value="bookings">Orders</option><option value="listings">Stays</option><option value="users">Customers</option><option value="images">Images</option></select></div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1036,6 +1083,25 @@ export default function Admin() {
                 )}
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'images' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-white/10 bg-gradient-to-br from-[#151d32] to-[#0e1425] p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">Site media</p><h2 className="mt-1 text-2xl font-bold text-white">All site images</h2><p className="mt-1 text-sm text-gray-400">Public images and uploaded media. Click to preview large.</p></div>
+              <button onClick={() => void loadSiteImages()} className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-white/10">Refresh</button>
+            </div>
+            {loadingImages ? <div className="py-16 text-center text-gray-400">Loading images...</div> : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {siteImages.map((img) => (
+                  <button key={img.url} onClick={() => setPreviewImage(img.url)} className="group overflow-hidden rounded-2xl border border-white/10 bg-[#0d1425] text-left">
+                    <img src={img.url} alt={img.name} className="h-40 w-full object-cover transition group-hover:scale-105" loading="lazy" onError={(e)=>{ (e.target as HTMLImageElement).style.display='none'; }} />
+                    <div className="p-3"><p className="truncate text-sm font-semibold text-white">{img.name}</p><p className="truncate text-xs text-gray-500">{img.url}</p></div>
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 

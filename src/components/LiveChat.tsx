@@ -29,7 +29,7 @@ function getBotResponse(message: string): string {
   if (lower.includes('price') || lower.includes('cost') || lower.includes('how much')) return BOT_RESPONSES.price;
   if (lower.includes('refund') || lower.includes('cancel')) return BOT_RESPONSES.refund;
   if (lower.includes('stadium') || lower.includes('venue') || lower.includes('match')) return BOT_RESPONSES.stadium;
-  if (lower.includes('pay') || lower.includes('card') || lower.includes('stripe')) return BOT_RESPONSES.payment;
+  if (lower.includes('pay') || lower.includes('card') || lower.includes('payment')) return BOT_RESPONSES.payment;
   if (lower.includes('contact') || lower.includes('email') || lower.includes('phone')) return BOT_RESPONSES.contact;
   if (lower.includes('city') || lower.includes('cities') || lower.includes('where')) return BOT_RESPONSES.cities;
   return BOT_RESPONSES.default;

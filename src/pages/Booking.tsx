@@ -47,8 +47,8 @@ export default function Booking() {
 
   if (!listing) {
     return (
-      <main className="pt-32 pb-20 text-center bg-[#0A1128]">
-        <h1 className="text-3xl font-bold text-white">Listing not found</h1>
+      <main className="pt-32 pb-20 text-center bg-[#F7FAFD]">
+        <h1 className="text-3xl font-bold text-[#14253F]">Listing not found</h1>
         <Link to="/listings" className="text-[#DB8293] mt-4 inline-block">← Back to listings</Link>
       </main>
     );
@@ -135,12 +135,12 @@ export default function Booking() {
   };
 
   const inputCls = (field: string) =>
-    `w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-gray-600 focus:outline-none focus:ring-1 transition-all ${
-      errors[field] ? 'border-red-500 focus:ring-red-500/20' : 'border-white/10 focus:border-[#DB8293]/50 focus:ring-[#DB8293]/20'
+    `w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border text-[#14253F] placeholder-gray-600 focus:outline-none focus:ring-1 transition-all ${
+      errors[field] ? 'border-red-500 focus:ring-red-500/20' : 'border-[#D8E5F0] focus:border-[#DB8293]/50 focus:ring-[#DB8293]/20'
     }`;
 
   return (
-    <main className="pt-24 pb-20 min-h-screen bg-[#0A1128]">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link to={`/listing/${id}`} className="inline-flex items-center gap-2 text-[#DB8293] text-sm mb-6 hover:underline">
           <ArrowLeft className="w-4 h-4" /> Back to listing
@@ -150,14 +150,14 @@ export default function Booking() {
           {(['details', 'payment', 'confirmation'] as Step[]).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                step === s ? 'bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white' :
-                (['details', 'payment', 'confirmation'].indexOf(step) > i) ? 'bg-green-500 text-white' :
-                'bg-white/10 text-gray-500'
+                step === s ? 'bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-[#14253F]' :
+                (['details', 'payment', 'confirmation'].indexOf(step) > i) ? 'bg-green-500 text-[#14253F]' :
+                'bg-white text-gray-500'
               }`}>{(['details', 'payment', 'confirmation'].indexOf(step) > i) ? '✓' : i + 1}</div>
-              <span className={`text-sm hidden sm:inline ${step === s ? 'text-white font-medium' : 'text-gray-500'}`}>
+              <span className={`text-sm hidden sm:inline ${step === s ? 'text-[#14253F] font-medium' : 'text-gray-500'}`}>
                 {s === 'details' ? 'Guest Details' : s === 'payment' ? 'Payment' : 'Confirmed!'}
               </span>
-              {i < 2 && <div className="w-12 h-px bg-white/10 mx-2" />}
+              {i < 2 && <div className="w-12 h-px bg-white mx-2" />}
             </div>
           ))}
         </div>
@@ -168,8 +168,8 @@ export default function Booking() {
               {step === 'details' && (
                 <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                   <Card3D>
-                    <div className="p-6 md:p-8 bg-[#131C2E] rounded-2xl border border-white/5">
-                      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    <div className="p-6 md:p-8 bg-white rounded-2xl border border-[#D8E5F0]">
+                      <h2 className="text-2xl font-bold text-[#14253F] mb-6 flex items-center gap-2">
                         <Users className="w-6 h-6 text-[#DB8293]" /> Guest Information
                       </h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -180,7 +180,7 @@ export default function Booking() {
                           { key: 'phone', label: 'Phone', placeholder: '+1 234 567 8900', type: 'tel' },
                         ].map((f) => (
                           <div key={f.key}>
-                            <label htmlFor={f.key} className="text-sm text-gray-400 mb-1 block">
+                            <label htmlFor={f.key} className="text-sm text-[#687A90] mb-1 block">
                               {f.label}
                             </label>
                             <input
@@ -196,26 +196,26 @@ export default function Booking() {
                           </div>
                         ))}
                         <div>
-                          <label htmlFor="country" className="text-sm text-gray-400 mb-1 block">Country</label>
+                          <label htmlFor="country" className="text-sm text-[#687A90] mb-1 block">Country</label>
                           <select
                             id="country"
                             name="country"
                             value={formData.country}
                             onChange={(e) => setFormData(p => ({ ...p, country: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50 appearance-none"
+                            className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] focus:outline-none focus:border-[#DB8293]/50 appearance-none"
                           >
                             <option value="">Select country</option>
                             {['US','UK','BR','AR','DE','FR','JP','NG','MX','CA','GH','EG','Other'].map(c => <option key={c} value={c}>{c}</option>)}
                           </select>
                         </div>
                         <div>
-                          <label htmlFor="guests" className="text-sm text-gray-400 mb-1 block">Guests</label>
+                          <label htmlFor="guests" className="text-sm text-[#687A90] mb-1 block">Guests</label>
                           <select
                             id="guests"
                             name="guests"
                             value={formData.guests}
                             onChange={(e) => setFormData(p => ({ ...p, guests: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50 appearance-none"
+                            className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] focus:outline-none focus:border-[#DB8293]/50 appearance-none"
                           >
                             {[...Array(listing.maxGuests)].map((_, i) => <option key={i} value={i+1}>{i+1} Guest{i>0?'s':''}</option>)}
                           </select>
@@ -223,30 +223,30 @@ export default function Booking() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div>
-                          <label htmlFor="checkIn" className="text-sm text-gray-400 mb-1 block">Check-in</label>
+                          <label htmlFor="checkIn" className="text-sm text-[#687A90] mb-1 block">Check-in</label>
                           <input
                             id="checkIn"
                             name="checkIn"
                             type="date"
                             value={formData.checkIn}
                             onChange={(e) => setFormData(p => ({ ...p, checkIn: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                            className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] focus:outline-none focus:border-[#DB8293]/50"
                           />
                         </div>
                         <div>
-                          <label htmlFor="checkOut" className="text-sm text-gray-400 mb-1 block">Check-out</label>
+                          <label htmlFor="checkOut" className="text-sm text-[#687A90] mb-1 block">Check-out</label>
                           <input
                             id="checkOut"
                             name="checkOut"
                             type="date"
                             value={formData.checkOut}
                             onChange={(e) => setFormData(p => ({ ...p, checkOut: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#DB8293]/50"
+                            className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] focus:outline-none focus:border-[#DB8293]/50"
                           />
                         </div>
                       </div>
                       <div className="mt-4">
-                        <label htmlFor="specialRequests" className="text-sm text-gray-400 mb-1 block">Special Requests (optional)</label>
+                        <label htmlFor="specialRequests" className="text-sm text-[#687A90] mb-1 block">Special Requests (optional)</label>
                         <textarea
                           id="specialRequests"
                           name="specialRequests"
@@ -254,11 +254,11 @@ export default function Booking() {
                           onChange={(e) => setFormData(p => ({ ...p, specialRequests: e.target.value }))}
                           placeholder="Any special requirements..."
                           rows={3}
-                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-[#DB8293]/50 resize-none"
+                          className="w-full px-4 py-3 rounded-xl bg-[#F7FAFD] border border-[#D8E5F0] text-[#14253F] placeholder-gray-600 focus:outline-none focus:border-[#DB8293]/50 resize-none"
                         />
                       </div>
                       <button onClick={handleDetailsSubmit}
-                        className="mt-6 w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25">
+                        className="mt-6 w-full py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-[#14253F] font-bold text-lg hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25">
                         Continue to Payment →
                       </button>
                     </div>
@@ -269,11 +269,11 @@ export default function Booking() {
               {step === 'payment' && (
                 <motion.div key="payment" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                   <Card3D>
-                    <div className="p-6 md:p-8 bg-[#131C2E] rounded-2xl border border-white/5">
-                      <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                    <div className="p-6 md:p-8 bg-white rounded-2xl border border-[#D8E5F0]">
+                      <h2 className="text-2xl font-bold text-[#14253F] mb-2 flex items-center gap-2">
                         <CreditCard className="w-6 h-6 text-[#C49B55]" /> Choose Payment Method
                       </h2>
-                      <p className="text-gray-400 text-sm mb-6 flex items-center gap-1">
+                      <p className="text-[#687A90] text-sm mb-6 flex items-center gap-1">
                         <Lock className="w-3 h-3" /> All payments are encrypted and secure
                       </p>
 
@@ -285,11 +285,11 @@ export default function Booking() {
                             className={`p-3 rounded-xl text-center transition-all border ${
                               paymentMethod === m.id
                                 ? 'bg-[#DB8293]/15 border-[#DB8293]/40 ring-1 ring-[#DB8293]/20'
-                                : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                : 'bg-[#F7FAFD] border-[#D8E5F0] hover:bg-white'
                             }`}
                           >
                             <span className="text-2xl block mb-1">{m.icon}</span>
-                            <span className={`text-xs font-medium block ${paymentMethod === m.id ? 'text-[#DB8293]' : 'text-gray-400'}`}>{m.label}</span>
+                            <span className={`text-xs font-medium block ${paymentMethod === m.id ? 'text-[#DB8293]' : 'text-[#687A90]'}`}>{m.label}</span>
                             <span className={`text-[10px] block mt-0.5 ${m.timeColor}`}>{m.time}</span>
                           </button>
                         ))}
@@ -308,7 +308,7 @@ export default function Booking() {
                           <p className={`text-sm font-semibold ${selectedMethod.timeColor}`}>
                             Estimated confirmation: {selectedMethod.time}
                           </p>
-                          <p className="text-gray-400 text-xs mt-1 leading-relaxed">{selectedMethod.warning}</p>
+                          <p className="text-[#687A90] text-xs mt-1 leading-relaxed">{selectedMethod.warning}</p>
                         </div>
                       </motion.div>
 
@@ -331,15 +331,15 @@ export default function Booking() {
 
                       <div className="flex gap-3 mt-6">
                         <button onClick={() => setStep('details')}
-                          className="px-6 py-4 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition-all">
+                          className="px-6 py-4 rounded-xl border border-[#D8E5F0] text-gray-300 hover:bg-[#F7FAFD] transition-all">
                           ← Back
                         </button>
                         <button onClick={handleAddToCart}
-                          className="flex-1 py-4 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                          className="flex-1 py-4 rounded-xl bg-white text-[#14253F] font-bold hover:bg-white/20 transition-all flex items-center justify-center gap-2">
                           <ShoppingCart className="w-4 h-4" /> Add to Cart
                         </button>
                         <button onClick={handleBuyNow}
-                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 flex items-center justify-center gap-2">
+                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-[#14253F] font-bold hover:scale-[1.02] transition-all shadow-lg shadow-[#DB8293]/25 flex items-center justify-center gap-2">
                           <Lock className="w-4 h-4" /> Buy Now
                         </button>
                       </div>
@@ -351,7 +351,7 @@ export default function Booking() {
               {step === 'confirmation' && (
                 <motion.div key="confirmation" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
                   <Card3D glowColor={cartAdded ? 'rgba(219, 130, 147, 0.2)' : 'rgba(34, 197, 94, 0.2)'}>
-                    <div className="p-8 md:p-12 text-center bg-[#131C2E] rounded-2xl border border-white/5">
+                    <div className="p-8 md:p-12 text-center bg-white rounded-2xl border border-[#D8E5F0]">
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.2 }}
                         className="w-20 h-20 rounded-full bg-[#DB8293]/20 border-2 border-[#DB8293] flex items-center justify-center mx-auto mb-6">
                         {cartAdded ? (
@@ -361,10 +361,10 @@ export default function Booking() {
                         )}
                       </motion.div>
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                        <h2 className="text-3xl font-black text-white mb-2">
+                        <h2 className="text-3xl font-black text-[#14253F] mb-2">
                           {cartAdded ? 'Added to Cart! 🛒' : 'Booking Submitted! ⏳'}
                         </h2>
-                        <p className="text-gray-400 mb-4">
+                        <p className="text-[#687A90] mb-4">
                           {cartAdded
                             ? 'Your room has been added to your cart. You can continue browsing or proceed to checkout.'
                             : 'Your accommodation request has been received.'}
@@ -374,13 +374,13 @@ export default function Booking() {
                           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
                             <button
                               onClick={() => navigate('/checkout')}
-                              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-105 transition-all"
+                              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-[#14253F] font-bold text-lg hover:scale-105 transition-all"
                             >
                               Proceed to Checkout
                             </button>
                             <button
                               onClick={() => navigate('/listings')}
-                              className="px-8 py-4 rounded-2xl border-2 border-white/20 text-white font-bold text-lg hover:bg-white/5 transition-all"
+                              className="px-8 py-4 rounded-2xl border-2 border-white/20 text-[#14253F] font-bold text-lg hover:bg-[#F7FAFD] transition-all"
                             >
                               Continue Browsing
                             </button>
@@ -389,8 +389,8 @@ export default function Booking() {
 
                         {!cartAdded && (
                           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
-                            {user && <Link to="/dashboard" className="px-6 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-all">View My Bookings</Link>}
-                            <Link to="/" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-white font-bold text-lg hover:scale-105 transition-all">Back to Home ⚽</Link>
+                            {user && <Link to="/dashboard" className="px-6 py-3 rounded-xl bg-white text-[#14253F] font-medium hover:bg-white/20 transition-all">View My Bookings</Link>}
+                            <Link to="/" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#DB8293] to-[#C49B55] text-[#14253F] font-bold text-lg hover:scale-105 transition-all">Back to Home ⚽</Link>
                           </div>
                         )}
                       </motion.div>
@@ -405,25 +405,25 @@ export default function Booking() {
           <div className="lg:col-span-1">
             <div className="sticky top-28">
               <Card3D>
-                <div className="p-6 bg-[#131C2E] rounded-2xl border border-white/5">
-                  <h3 className="text-lg font-bold text-white mb-4">Booking Summary</h3>
+                <div className="p-6 bg-white rounded-2xl border border-[#D8E5F0]">
+                  <h3 className="text-lg font-bold text-[#14253F] mb-4">Booking Summary</h3>
                   <div className="flex gap-3 mb-4">
                     <img src={listing.images[0]} alt={listing.title} className="w-20 h-16 rounded-lg object-cover" />
                     <div>
-                      <h4 className="text-white font-medium text-sm">{listing.title}</h4>
-                      <p className="text-gray-400 text-xs flex items-center gap-1"><MapPin className="w-3 h-3 text-[#C49B55]" /> {listing.city}</p>
+                      <h4 className="text-[#14253F] font-medium text-sm">{listing.title}</h4>
+                      <p className="text-[#687A90] text-xs flex items-center gap-1"><MapPin className="w-3 h-3 text-[#C49B55]" /> {listing.city}</p>
                     </div>
                   </div>
-                  <div className="space-y-2 text-sm border-t border-white/10 pt-4">
-                    <div className="flex items-center gap-2 text-gray-400"><Calendar className="w-3.5 h-3.5 text-[#DB8293]" />{formData.checkIn} → {formData.checkOut}</div>
-                    <div className="flex items-center gap-2 text-gray-400"><Users className="w-3.5 h-3.5 text-[#C49B55]" />{formData.guests} guest(s)</div>
+                  <div className="space-y-2 text-sm border-t border-[#D8E5F0] pt-4">
+                    <div className="flex items-center gap-2 text-[#687A90]"><Calendar className="w-3.5 h-3.5 text-[#DB8293]" />{formData.checkIn} → {formData.checkOut}</div>
+                    <div className="flex items-center gap-2 text-[#687A90]"><Users className="w-3.5 h-3.5 text-[#C49B55]" />{formData.guests} guest(s)</div>
                   </div>
-                  <div className="space-y-2 text-sm border-t border-white/10 mt-4 pt-4">
-                    <div className="flex justify-between"><span className="text-gray-400">{format(listing.price)} × {nights} nights</span><span className="text-white">{format(subtotal)}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-400">Service fee</span><span className="text-white">{format(serviceFee)}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-400">Cleaning fee</span><span className="text-white">{format(cleaningFee)}</span></div>
-                    <div className="border-t border-white/10 pt-2 flex justify-between font-bold">
-                      <span className="text-white">Total</span><span className="text-[#DB8293]">{format(total)}</span>
+                  <div className="space-y-2 text-sm border-t border-[#D8E5F0] mt-4 pt-4">
+                    <div className="flex justify-between"><span className="text-[#687A90]">{format(listing.price)} × {nights} nights</span><span className="text-[#14253F]">{format(subtotal)}</span></div>
+                    <div className="flex justify-between"><span className="text-[#687A90]">Service fee</span><span className="text-[#14253F]">{format(serviceFee)}</span></div>
+                    <div className="flex justify-between"><span className="text-[#687A90]">Cleaning fee</span><span className="text-[#14253F]">{format(cleaningFee)}</span></div>
+                    <div className="border-t border-[#D8E5F0] pt-2 flex justify-between font-bold">
+                      <span className="text-[#14253F]">Total</span><span className="text-[#DB8293]">{format(total)}</span>
                     </div>
                   </div>
                   {step === 'payment' && (
