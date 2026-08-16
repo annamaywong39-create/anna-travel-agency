@@ -116,11 +116,11 @@ export default function Admin() {
         '/images/apartment-2.jpg',
         '/images/hotel-luxury.jpg',
         '/images/hotel-room.jpg',
-        '/images/events/bts/bts-arirang-tour.png',
-        '/images/events/bts/bts-giveaway-light.png',
-        '/images/events/bts/bts-giveaway-dark.png',
-        '/images/events/bts/bts-metlife-promo.png',
-        '/images/seatmaps/bts-chicago-2026-08-27.png',
+        '/images/events/bts/bts-arirang-tour.jpg',
+        '/images/events/bts/bts-arirang-tour.jpg',
+        '/images/events/bts/bts-arirang-tour.jpg',
+        '/images/events/bts/bts-arirang-tour.jpg',
+        '/images/events/bts/bts-arirang-tour.jpg',
         '/images/seatmaps/mt-bank-stadium-bts-2026-08-10.png',
       ].map(u => ({ name: u.split('/').pop() || u, url: u }));
       // Try to list site-media bucket as well

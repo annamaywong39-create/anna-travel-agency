@@ -43,7 +43,7 @@ export default function LiveChat() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? "Close chat" : "Open chat"}
-        className="fixed bottom-[90px] left-4 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-[#1267C4] text-white shadow-2xl hover:bg-[#0F5AAC] md:bottom-6 md:left-6"
+        className="fixed bottom-[160px] left-4 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-[#1267C4] text-white shadow-2xl hover:bg-[#0F5AAC] md:bottom-6 md:left-6"
         style={{ pointerEvents: 'auto' }}
       >
         {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}

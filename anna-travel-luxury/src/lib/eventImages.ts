@@ -1,6 +1,6 @@
 const localEventImages = {
-  bts: '/images/events/bts/bts-giveaway-light.png',
-  btsAlt: '/images/events/bts/bts-metlife-promo.png',
+  bts: '/images/events/bts/bts-arirang-tour.jpg',
+  btsAlt: '/images/events/bts/bts-arirang-tour.jpg',
   stadium: '/images/stadium.jpg',
   music: '/images/event-music.jpg',
   sport: '/images/event-sport.jpg',
@@ -11,7 +11,7 @@ const localEventImages = {
 /** Use a local, themed image when a database event has no usable image. */
 export function eventImageFor(event: { title?: string; category?: string; image_url?: string }) {
   const text = `${event.title || ''} ${event.category || ''}`.toLowerCase();
-  if (text.includes('bts')) return '/images/events/bts/bts-arirang-tour.png';
+  if (text.includes('bts')) return '/images/events/bts/bts-arirang-tour.jpg';
   if (event.image_url?.startsWith('/images/')) return event.image_url;
   if (text.includes('f1') || text.includes('grand prix') || text.includes('tennis') || text.includes('open')) return localEventImages.stadium;
   if (text.includes('festival') || text.includes('edc') || text.includes('lollapalooza') || text.includes('music')) return localEventImages.festival;

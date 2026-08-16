@@ -101,7 +101,7 @@ commit;
 
 -- 5) FIX Chicago Aug 28 NULL image / seat_map (reported bug)
 update public.events
-set image_url = coalesce(image_url, '/images/events/bts/bts-arirang-tour.png'),
+set image_url = coalesce(image_url, '/images/events/bts/bts-arirang-tour.jpg'),
     seat_map_url = coalesce(seat_map_url, '/images/seatmaps/bts-chicago-2026-08-27.png')
 where lower(title) like '%chicago%28%' or lower(title) = lower('BTS WORLD TOUR ''ARIRANG'' — Chicago — August 28');
 

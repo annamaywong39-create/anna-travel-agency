@@ -14,7 +14,7 @@ begin
       '2026-09-01T20:00:00-07:00',
       'SoFi Stadium',
       'Inglewood, CA',
-      '/images/events/bts/bts-arirang-tour.png',
+      '/images/events/bts/bts-arirang-tour.jpg',
       '/images/seatmaps/bts-chicago-2026-08-27.png',
       'upcoming',
       'Music'

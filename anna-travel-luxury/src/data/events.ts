@@ -9,8 +9,8 @@ const images = {
   sport: '/images/event-sport.jpg',
   tech: 'https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
   festival: 'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=900',
-  bts: '/images/events/bts/bts-giveaway-light.png',
-  btsAlt: '/images/events/bts/bts-metlife-promo.png',
+  bts: '/images/events/bts/bts-arirang-tour.jpg',
+  btsAlt: '/images/events/bts/bts-arirang-tour.jpg',
   stadium: '/images/stadium.jpg',
   fans: '/images/fans.jpg',
 };

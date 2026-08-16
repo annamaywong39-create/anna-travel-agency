@@ -12,13 +12,13 @@ begin
       '2026-09-01T20:00:00-07:00',
       'SoFi Stadium',
       'Inglewood, CA',
-      '/images/events/bts/bts-arirang-tour.png',
+      '/images/events/bts/bts-arirang-tour.jpg',
       '/images/seatmaps/bts-chicago-2026-08-27.png',
       'upcoming',
       'Music'
     ) returning id into v_event_id;
   else
-    update public.events set date = '2026-09-01T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.png' where id = v_event_id;
+    update public.events set date = '2026-09-01T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.jpg' where id = v_event_id;
   end if;
 
   -- Clear existing tickets for this event to ensure best 100
@@ -70,13 +70,13 @@ begin
       '2026-09-02T20:00:00-07:00',
       'SoFi Stadium',
       'Inglewood, CA',
-      '/images/events/bts/bts-arirang-tour.png',
+      '/images/events/bts/bts-arirang-tour.jpg',
       '/images/seatmaps/bts-chicago-2026-08-27.png',
       'upcoming',
       'Music'
     ) returning id into v_event_id;
   else
-    update public.events set date = '2026-09-02T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.png' where id = v_event_id;
+    update public.events set date = '2026-09-02T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.jpg' where id = v_event_id;
   end if;
 
   -- Clear existing tickets for this event to ensure best 100
@@ -128,13 +128,13 @@ begin
       '2026-09-05T20:00:00-07:00',
       'SoFi Stadium',
       'Inglewood, CA',
-      '/images/events/bts/bts-arirang-tour.png',
+      '/images/events/bts/bts-arirang-tour.jpg',
       '/images/seatmaps/bts-chicago-2026-08-27.png',
       'upcoming',
       'Music'
     ) returning id into v_event_id;
   else
-    update public.events set date = '2026-09-05T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.png' where id = v_event_id;
+    update public.events set date = '2026-09-05T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.jpg' where id = v_event_id;
   end if;
 
   -- Clear existing tickets for this event to ensure best 100
@@ -186,13 +186,13 @@ begin
       '2026-09-06T20:00:00-07:00',
       'SoFi Stadium',
       'Inglewood, CA',
-      '/images/events/bts/bts-arirang-tour.png',
+      '/images/events/bts/bts-arirang-tour.jpg',
       '/images/seatmaps/bts-chicago-2026-08-27.png',
       'upcoming',
       'Music'
     ) returning id into v_event_id;
   else
-    update public.events set date = '2026-09-06T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.png' where id = v_event_id;
+    update public.events set date = '2026-09-06T20:00:00-07:00', venue='SoFi Stadium', city='Inglewood, CA', image_url='/images/events/bts/bts-arirang-tour.jpg' where id = v_event_id;
   end if;
 
   -- Clear existing tickets for this event to ensure best 100
