@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://annatravelagency.com/sitemap.xml
-
-Disallow: /admin/
-Disallow: /dashboard/
