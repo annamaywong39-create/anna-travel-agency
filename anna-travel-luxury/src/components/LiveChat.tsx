@@ -1,135 +1,74 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Bot, User, Minimize2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
 
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-}
+interface Message { id: string; text: string; sender: 'user' | 'bot'; timestamp: Date; }
 
 const BOT_RESPONSES: Record<string, string> = {
-  hello: "Hello! 👋 Welcome to Anna Travel Agency. How can I help you plan an event trip, find a stay, or request a ticket?",
-  hi: "Hi there! 👋 Ready to help you find a great event and a comfortable stay.",
-  booking: "To make a booking, browse our accommodations at /listings or explore tickets at /tickets. We verify availability before sending a PayPal payment request.",
-  price: "Accommodation prices are shown as from-prices until the supplier confirms the dates and room. Ticket prices and any offer are shown before you request payment.",
-  refund: "Please see our Refund Policy for accommodation and ticket terms. If you need help with a specific booking, contact our concierge.",
-  stadium: "Many of our stays are selected around major event venues. Each listing shows its nearest stadium and approximate distance.",
-  payment: "Anna first verifies availability, then sends a secure PayPal payment request. Your booking is not confirmed until payment is received and verified.",
-  contact: "You can reach us at hello@annatravelagency.com or use our Contact page. Our concierge team will help with your request.",
-  cities: "We curate stays and event access in selected destinations across the United States and internationally. Browse the current events and listings for what is available now.", 
-  default: "Thanks for your message! For a specific ticket, stay, or booking request, please contact our concierge team. Is there anything else I can help with?", 
+  hello: "Hello! 👋 Welcome to Anna Travel Agency. How can I help you?",
+  booking: "Browse /listings for stays or /tickets for events. We verify availability before PayPal request.",
+  price: "Prices are from-prices until supplier confirms. Ticket discount shown before checkout.",
+  default: "Thanks for your message! Contact concierge for specific requests.",
 };
 
-function getBotResponse(message: string): string {
-  const lower = message.toLowerCase();
-  if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) return BOT_RESPONSES.hello;
-  if (lower.includes('book') || lower.includes('reserve')) return BOT_RESPONSES.booking;
-  if (lower.includes('price') || lower.includes('cost') || lower.includes('how much')) return BOT_RESPONSES.price;
-  if (lower.includes('refund') || lower.includes('cancel')) return BOT_RESPONSES.refund;
-  if (lower.includes('stadium') || lower.includes('venue') || lower.includes('match')) return BOT_RESPONSES.stadium;
-  if (lower.includes('pay') || lower.includes('card') || lower.includes('payment')) return BOT_RESPONSES.payment;
-  if (lower.includes('contact') || lower.includes('email') || lower.includes('phone')) return BOT_RESPONSES.contact;
-  if (lower.includes('city') || lower.includes('cities') || lower.includes('where')) return BOT_RESPONSES.cities;
+function getBotResponse(m: string) {
+  const l = m.toLowerCase();
+  if (l.includes('hello') || l.includes('hi') || l.includes('hey')) return BOT_RESPONSES.hello;
+  if (l.includes('book') || l.includes('reserve')) return BOT_RESPONSES.booking;
+  if (l.includes('price') || l.includes('cost')) return BOT_RESPONSES.price;
   return BOT_RESPONSES.default;
 }
 
 export default function LiveChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: "Hi! 👋 I'm the Anna Travel Agency assistant. Ask me about event tickets, stays, prices, or booking requests!", 
-      sender: 'bot',
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([{ id: '1', text: "Hi! 👋 I'm Anna assistant. Ask me about tickets, stays, prices!", sender: 'bot', timestamp: new Date() }]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!input.trim()) return;
-    const userMessage: Message = { id: Date.now().toString(), text: input, sender: 'user', timestamp: new Date() };
-    setMessages(prev => [...prev, userMessage]);
+    const userMsg: Message = { id: Date.now().toString(), text: input, sender: 'user', timestamp: new Date() };
+    setMessages(p => [...p, userMsg]);
+    const q = input;
     setInput('');
-    setIsTyping(true);
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-    const botMessage: Message = { id: (Date.now() + 1).toString(), text: getBotResponse(input), sender: 'bot', timestamp: new Date() };
-    setIsTyping(false);
-    setMessages(prev => [...prev, botMessage]);
+    setTimeout(() => {
+      setMessages(p => [...p, { id: (Date.now()+1).toString(), text: getBotResponse(q), sender: 'bot', timestamp: new Date() }]);
+    }, 800);
   };
-
-  const quickQuestions = ["How do I book?", "What are the prices?", "Refund policy?", "Which cities?"];
 
   return (
     <>
-      {/* Chat button - left side, above bottom nav + hold bar (no overlap with login) */}
-      <AnimatePresence initial={false}>
-        {!isOpen && (
-          <motion.button
-            initial={false}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
-            whileHover={{ scale: 1.1 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-[160px] left-4 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-[#1267C4] to-[#5BA7E8] text-white shadow-2xl shadow-[#1267C4]/30 flex items-center justify-center md:bottom-6 md:left-6"
-          >
-            <MessageCircle className="w-6 h-6" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* Chat button - left side, high z-index, always clickable */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? "Close chat" : "Open chat"}
+        className="fixed bottom-[90px] left-4 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-[#1267C4] text-white shadow-2xl hover:bg-[#0F5AAC] md:bottom-6 md:left-6"
+        style={{ pointerEvents: 'auto' }}
+      >
+        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+      </button>
 
-      {/* Chat window - left side, above bottom nav */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className={`fixed z-50 bg-[#0f0f1e] border border-white/10 rounded-2xl shadow-2xl overflow-hidden ${
-              isMinimized
-                ? 'bottom-[160px] left-4 w-72 h-14 md:bottom-6 md:left-6'
-                : 'bottom-[160px] left-4 w-[calc(100%-2rem)] max-w-[360px] h-[420px] max-h-[60vh] md:bottom-6 md:left-6 md:w-96 md:max-h-[80vh]'
-            }`}
-          >
-            <div className="bg-gradient-to-r from-[#1267C4] to-[#5BA7E8] p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center"><Bot className="w-5 h-5 text-white" /></div>
-                {!isMinimized && <div><p className="text-white font-bold">Anna Assistant</p><p className="text-white/80 text-xs">Online • Usually replies instantly</p></div>}
+      {isOpen && (
+        <div className="fixed bottom-[160px] left-4 z-[70] w-[calc(100%-2rem)] max-w-[360px] overflow-hidden rounded-2xl border border-[#D8E5F0] bg-white shadow-2xl md:bottom-24 md:left-6 md:w-96">
+          <div className="bg-[#1267C4] p-4 flex items-center justify-between text-white">
+            <div className="flex items-center gap-2"><Bot className="h-5 w-5" /><span className="font-bold text-sm">Anna Assistant</span></div>
+            <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white"><X className="h-5 w-5" /></button>
+          </div>
+          <div className="h-[300px] overflow-y-auto p-4 space-y-3 bg-[#F7FAFD]">
+            {messages.map(m => (
+              <div key={m.id} className={`flex ${m.sender==='user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${m.sender==='user' ? 'bg-[#1267C4] text-white rounded-br-none' : 'bg-white border border-[#D8E5F0] text-[#14253F] rounded-bl-none'}`}>{m.text}</div>
               </div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => setIsMinimized(!isMinimized)} className="text-white/80 hover:text-white"><Minimize2 className="w-5 h-5" /></button>
-                <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white"><X className="w-5 h-5" /></button>
-              </div>
-            </div>
-            {!isMinimized && (
-              <>
-                <div className="h-[300px] overflow-y-auto p-4 space-y-4">
-                  {messages.map((msg) => (
-                    <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`flex items-end gap-2 max-w-[80%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${msg.sender === 'user' ? 'bg-[#1267C4]' : 'bg-gradient-to-br from-[#1267C4] to-[#5BA7E8]'}`}>{msg.sender === 'user' ? <User className="w-3 h-3 text-white" /> : <Bot className="w-3 h-3 text-white" />}</div>
-                        <div className={`px-4 py-2 rounded-2xl text-sm ${msg.sender === 'user' ? 'bg-[#1267C4] text-white rounded-br-none' : 'bg-white/10 text-gray-200 rounded-bl-none'}`}>{msg.text}</div>
-                      </div>
-                    </motion.div>
-                  ))}
-                  {isTyping && <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1267C4] to-[#5BA7E8] flex items-center justify-center"><Bot className="w-3 h-3 text-white" /></div><div className="px-4 py-3 rounded-2xl bg-white/10 rounded-bl-none"><div className="flex gap-1">{[0,1,2].map(i=><motion.div key={i} animate={{ y: [0,-5,0] }} transition={{ duration: 0.5, repeat: Infinity, delay: i*0.1 }} className="w-2 h-2 rounded-full bg-gray-400" />)}</div></div></div>}
-                  <div ref={messagesEndRef} />
-                </div>
-                {messages.length <= 2 && <div className="px-4 pb-2 flex flex-wrap gap-2">{quickQuestions.map(q=><button key={q} onClick={()=>{ setInput(q); setTimeout(()=>handleSend(),100); }} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs hover:bg-white/10">{q}</button>)}</div>}
-                <div className="p-4 border-t border-white/10"><div className="flex gap-2"><input type="text" value={input} onChange={(e)=>setInput(e.target.value)} onKeyDown={(e)=>e.key==='Enter'&&handleSend()} placeholder="Type a message..." className="flex-1 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#1267C4]/50 text-sm" /><button onClick={handleSend} disabled={!input.trim()} className="px-4 rounded-xl bg-gradient-to-r from-[#1267C4] to-[#5BA7E8] text-white hover:scale-105 transition-all disabled:opacity-50"><Send className="w-4 h-4" /></button></div></div>
-              </>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <div className="border-t border-[#D8E5F0] bg-white p-3 flex gap-2">
+            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleSend()} placeholder="Type a message..." className="flex-1 rounded-xl border border-[#D8E5F0] bg-[#F7FAFD] px-3 py-2 text-sm outline-none focus:border-[#1267C4]" />
+            <button onClick={handleSend} disabled={!input.trim()} className="rounded-xl bg-[#1267C4] px-3 py-2 text-white disabled:opacity-50"><Send className="h-4 w-4" /></button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

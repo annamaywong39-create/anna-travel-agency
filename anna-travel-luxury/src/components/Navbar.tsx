@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import CurrencySelector from './CurrencySelector';
 import CartDropdown from './CartDropdown';
+import ThemeToggle from './ThemeToggle';
 
 const links = [
   { to: '/', label: 'Home' },
@@ -67,6 +68,7 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2.5 md:flex">
+          <ThemeToggle compact />
           <Link to="/tickets" className="rounded-full bg-[#1267C4] px-4 py-2 text-xs font-bold text-white hover:bg-[#0d56a5]">Plan a trip</Link>
           <CurrencySelector />
           <div className="relative"><button onClick={() => setCartOpen((v) => !v)} aria-label="Open cart" className="relative rounded-full border border-[#D8E5F0] p-2.5 text-[#536071] hover:border-[#1267C4] hover:text-[#1267C4]"><ShoppingBag className="h-4 w-4" />{count > 0 && <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#1267C4] text-[10px] font-bold text-white">{count}</span>}</button><CartDropdown isOpen={cartOpen} onClose={() => setCartOpen(false)} /></div>
@@ -108,9 +110,15 @@ export default function Navbar() {
           </>}
         </div>
 
-        <div className="mt-4 flex items-center justify-between rounded-2xl border border-[#D8E5F0] bg-white p-4">
-          <span className="text-sm font-semibold">Currency</span>
-          <CurrencySelector />
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-[#D8E5F0] bg-white p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold">Theme</span>
+            <ThemeToggle />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold">Currency</span>
+            <CurrencySelector />
+          </div>
         </div>
 
         {isAuthReady && !user && <Link to="/admin" className="mt-2 text-center text-xs text-[#8A9AB0] underline">Admin login</Link>}
