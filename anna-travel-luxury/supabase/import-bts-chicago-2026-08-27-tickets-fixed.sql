@@ -1,4 +1,4 @@
--- BTS WORLD TOUR 'ARIRANG' — Chicago, IL
+-- BTS WORLD TOUR ''ARIRANG'' — Chicago, IL
 -- Thursday, August 27, 2026 at 8:00 PM
 -- Soldier Field, Chicago, IL
 -- Safe import: creates the dated event if missing and skips duplicate event/category/row/price rows.

@@ -1,13 +1,13 @@
 
--- BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 1
+-- BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 1
 do $$
 declare v_event_id uuid;
 begin
-  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 1') limit 1;
+  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 1') limit 1;
   if v_event_id is null then
     insert into public.events (title, description, date, venue, city, image_url, seat_map_url, status, category)
     values (
-      'BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 1',
+      'BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 1',
       'Request access for BTS WORLD TOUR ARIRANG at SoFi Stadium. Inventory subject to verification.',
       '2026-09-01T20:00:00-07:00',
       'SoFi Stadium',
@@ -57,15 +57,15 @@ begin
 end $$;
 
 
--- BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 2
+-- BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 2
 do $$
 declare v_event_id uuid;
 begin
-  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 2') limit 1;
+  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 2') limit 1;
   if v_event_id is null then
     insert into public.events (title, description, date, venue, city, image_url, seat_map_url, status, category)
     values (
-      'BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 2',
+      'BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 2',
       'Request access for BTS WORLD TOUR ARIRANG at SoFi Stadium. Inventory subject to verification.',
       '2026-09-02T20:00:00-07:00',
       'SoFi Stadium',
@@ -115,15 +115,15 @@ begin
 end $$;
 
 
--- BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 5
+-- BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 5
 do $$
 declare v_event_id uuid;
 begin
-  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 5') limit 1;
+  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 5') limit 1;
   if v_event_id is null then
     insert into public.events (title, description, date, venue, city, image_url, seat_map_url, status, category)
     values (
-      'BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 5',
+      'BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 5',
       'Request access for BTS WORLD TOUR ARIRANG at SoFi Stadium. Inventory subject to verification.',
       '2026-09-05T20:00:00-07:00',
       'SoFi Stadium',
@@ -173,15 +173,15 @@ begin
 end $$;
 
 
--- BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 6
+-- BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 6
 do $$
 declare v_event_id uuid;
 begin
-  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 6') limit 1;
+  select id into v_event_id from public.events where lower(title) = lower('BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 6') limit 1;
   if v_event_id is null then
     insert into public.events (title, description, date, venue, city, image_url, seat_map_url, status, category)
     values (
-      'BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 6',
+      'BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 6',
       'Request access for BTS WORLD TOUR ARIRANG at SoFi Stadium. Inventory subject to verification.',
       '2026-09-06T20:00:00-07:00',
       'SoFi Stadium',

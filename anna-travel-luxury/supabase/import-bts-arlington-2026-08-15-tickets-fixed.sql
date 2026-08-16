@@ -1,4 +1,4 @@
--- BTS WORLD TOUR 'ARIRANG' — Arlington, TX
+-- BTS WORLD TOUR ''ARIRANG'' — Arlington, TX
 -- Saturday, August 15, 2026 at 8:00 PM
 -- AT&T Stadium, Arlington, TX
 -- Safe import: creates the event if missing and adds ticket rows only when the same event/category/row/price is not already present.

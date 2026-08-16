@@ -1,4 +1,4 @@
--- BTS WORLD TOUR 'ARIRANG' — Los Angeles — September 1, 2026
+-- BTS WORLD TOUR ''ARIRANG'' — Los Angeles — September 1, 2026
 -- SoFi Stadium, Inglewood, CA
 -- Generated from pasted supplier list
 
