@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
@@ -47,14 +48,15 @@ const pageFallback = (
 export default function App() {
   return (
     <HelmetProvider>
-      <AuthProvider>
-        <DataProvider>
-          <CurrencyProvider>
-            <WishlistProvider>
-              <Router>
-                <ScrollToTop />
-                <div className="min-h-screen bg-[#F7FAFD] text-[#14253F] overflow-x-hidden pb-16 md:pb-0">
-                  <Navbar />
+      <ThemeProvider>
+        <AuthProvider>
+          <DataProvider>
+            <CurrencyProvider>
+              <WishlistProvider>
+                <Router>
+                  <ScrollToTop />
+                  <div className="min-h-screen bg-[#F7FAFD] text-[#14253F] overflow-x-hidden pt-[72px] pb-16 md:pb-0 dark:bg-[#080F1E] dark:text-[#E2E8F0]">
+                    <Navbar />
                   <Suspense fallback={pageFallback}>
                     <Routes>
                       <Route path="/" element={<Home />} />
@@ -93,6 +95,7 @@ export default function App() {
           </CurrencyProvider>
         </DataProvider>
       </AuthProvider>
+      </ThemeProvider>
     </HelmetProvider>
   );
 }

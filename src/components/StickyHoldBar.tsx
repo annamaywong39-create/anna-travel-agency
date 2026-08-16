@@ -22,7 +22,7 @@ export default function StickyHoldBar({ heldUntil, ticketName, onExpire }: { hel
   const secs = secondsLeft % 60;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-[#D8E5F0] bg-white/95 backdrop-blur-xl shadow-[0_-8px_30px_rgba(20,37,63,0.12)] md:bottom-4 md:left-1/2 md:right-auto md:w-[560px] md:-translate-x-1/2 md:rounded-2xl md:border">
+    <div className="fixed bottom-[72px] left-0 right-0 z-[60] border-t border-[#D8E5F0] bg-white/95 backdrop-blur-xl shadow-[0_-8px_30px_rgba(20,37,63,0.12)] md:bottom-4 md:left-1/2 md:right-auto md:w-[560px] md:-translate-x-1/2 md:rounded-2xl md:border">
       <div className="relative h-1 w-full overflow-hidden bg-[#E7F1FC] md:rounded-t-2xl">
         <div className="absolute left-0 top-0 h-full bg-[#1267C4] transition-all duration-1000" style={{ width: `${pct}%` }} />
       </div>

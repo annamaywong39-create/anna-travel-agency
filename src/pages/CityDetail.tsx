@@ -42,18 +42,29 @@ export default function CityDetail() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-gray-300 text-lg mb-10 max-w-3xl"
-        >
-          {city.description}
-        </motion.p>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#5B6B82] text-lg mb-8 max-w-3xl">{city.description}</motion.p>
 
-        <h2 className="text-2xl font-bold text-white mb-6">
-          {cityListings.length > 0
-            ? `${cityListings.length} Accommodation${cityListings.length > 1 ? 's' : ''} in ${city.name}`
-            : `No listings yet for ${city.name}`}
+        {/* City guide */}
+        <div className="mb-10 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-[#D8E5F0] bg-white p-5">
+            <h3 className="text-sm font-bold text-[#14253F]">Getting to {city.stadium}</h3>
+            <p className="mt-2 text-[13px] leading-5 text-[#687A90]">Most stays list distance to {city.stadium}. Use rideshare or local transit on event days — traffic near venues is heavy 2 hours before start. Check venue bag policy before you go.</p>
+            <Link to={`/tickets?city=${encodeURIComponent(city.name)}`} className="mt-3 inline-block text-xs font-semibold text-[#1267C4] hover:underline">View events in {city.name} →</Link>
+          </div>
+          <div className="rounded-2xl border border-[#D8E5F0] bg-white p-5">
+            <h3 className="text-sm font-bold text-[#14253F]">Where to stay</h3>
+            <p className="mt-2 text-[13px] leading-5 text-[#687A90]">Within 1-2 miles of {city.stadium} is ideal for walking. Further stays save budget but need transport. All listings show distance and amenities.</p>
+            <Link to={`/listings?city=${id}`} className="mt-3 inline-block text-xs font-semibold text-[#1267C4] hover:underline">Browse {city.name} stays →</Link>
+          </div>
+          <div className="rounded-2xl border border-[#D8E5F0] bg-white p-5">
+            <h3 className="text-sm font-bold text-[#14253F]">Plan ahead</h3>
+            <p className="mt-2 text-[13px] leading-5 text-[#687A90]">August events can be warm — bring water, check clear bag rules, arrive early for entry. Ticket delivery is {city.name.includes('Baltimore') ? 'Mobile transfer, evening before event' : 'Mobile transfer — timing confirmed after purchase'}.</p>
+            <Link to="/contact" className="mt-3 inline-block text-xs font-semibold text-[#1267C4] hover:underline">Ask concierge →</Link>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold text-[#14253F] mb-6">
+          {cityListings.length > 0 ? `${cityListings.length} Accommodation${cityListings.length > 1 ? 's' : ''} in ${city.name}` : `No listings yet for ${city.name}`}
         </h2>
 
         {cityListings.length > 0 ? (
@@ -63,12 +74,10 @@ export default function CityDetail() {
             ))}
           </div>
         ) : (
-          <div className="py-16 text-center">
+          <div className="py-16 text-center rounded-2xl border border-[#D8E5F0] bg-white">
             <div className="text-5xl mb-4">🏗️</div>
-            <p className="text-gray-400 text-lg">Listings for {city.name} are coming soon!</p>
-            <Link to="/contact" className="mt-4 inline-block text-amber-400 hover:underline">
-              Get notified when available →
-            </Link>
+            <p className="text-[#687A90] text-lg">Listings for {city.name} are coming soon!</p>
+            <Link to="/contact" className="mt-4 inline-block text-[#1267C4] hover:underline">Get notified when available →</Link>
           </div>
         )}
       </div>

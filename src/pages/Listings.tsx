@@ -65,13 +65,13 @@ export default function Listings() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-[#D8E5F0] p-8 md:p-12"
+          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-br from-[#F7FAFD] via-[#E7F1FC] to-white border border-[#D8E5F0] p-8 md:p-12 shadow-sm"
         >
           <div className="relative z-10">
             <h1 className="text-4xl md:text-5xl font-black text-[#14253F] mb-3">
               Find Your Perfect Stay
             </h1>
-            <p className="text-[#687A90] text-lg max-w-2xl">
+            <p className="text-[#5B6B82] text-lg max-w-2xl">
               {filteredListings.length} properties available – from luxury hotels to cozy apartments.
             </p>
             
