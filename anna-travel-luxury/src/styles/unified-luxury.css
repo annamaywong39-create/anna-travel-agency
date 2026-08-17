@@ -1,0 +1,39 @@
+/* Unified white-and-blue design layer */
+:root {
+  --ana-bg: #F7FAFD;
+  --ana-card: #FFFFFF;
+  --ana-blue: #1267C4;
+  --ana-ink: #14253F;
+  --ana-soft: #E7F1FC;
+  --ana-border: #D8E5F0;
+  --ana-muted: #687A90;
+}
+
+body { background: var(--ana-bg) !important; color: var(--ana-ink); }
+main:not(.home-luxury):not(.admin-modern) { background: var(--ana-bg) !important; color: var(--ana-ink) !important; }
+main:not(.home-luxury):not(.admin-modern) [class*="bg-[#0A1128]"],
+main:not(.home-luxury):not(.admin-modern) [class*="bg-[#071A36]"],
+main:not(.home-luxury):not(.admin-modern) [class*="bg-[#0a0a1a]"],
+main:not(.home-luxury):not(.admin-modern) [class*="bg-[#0B1220]"],
+main:not(.home-luxury):not(.admin-modern) [class*="bg-[#131C2E]"],
+main:not(.home-luxury):not(.admin-modern) [class*="bg-[#14142a]"] { background: var(--ana-card) !important; border-color: var(--ana-border) !important; box-shadow: 0 12px 36px rgba(20,37,63,.06) !important; }
+main:not(.home-luxury):not(.admin-modern) [class*="text-white"] { color: var(--ana-ink) !important; }
+main:not(.home-luxury):not(.admin-modern) [class*="text-gray-400"], main:not(.home-luxury):not(.admin-modern) [class*="text-[#A7B0C0]"] { color: var(--ana-muted) !important; }
+main:not(.home-luxury):not(.admin-modern) input, main:not(.home-luxury):not(.admin-modern) select, main:not(.home-luxury):not(.admin-modern) textarea { background: #fff !important; border-color: var(--ana-border) !important; color: var(--ana-ink) !important; }
+main:not(.home-luxury):not(.admin-modern) h1, main:not(.home-luxury):not(.admin-modern) h2, main:not(.home-luxury):not(.admin-modern) h3 { font-family: Georgia, 'Times New Roman', serif; color: var(--ana-ink); }
+main:not(.home-luxury):not(.admin-modern) button[class*="bg-gradient"], main:not(.home-luxury):not(.admin-modern) a[class*="bg-gradient"] { color: #fff !important; background: var(--ana-blue) !important; }
+main:not(.home-luxury):not(.admin-modern) [class*="text-[#DB8293]"], main:not(.home-luxury):not(.admin-modern) [class*="text-amber"] { color: var(--ana-blue) !important; }
+main:not(.home-luxury):not(.admin-modern) [class*="bg-amber"] { background: var(--ana-soft) !important; }
+
+/* Admin: white workspace with a navy navigation rail. */
+.admin-modern { background: var(--ana-bg) !important; color: var(--ana-ink) !important; }
+.admin-modern .text-white { color: var(--ana-ink) !important; }
+.admin-modern .text-gray-400, .admin-modern .text-gray-500 { color: var(--ana-muted) !important; }
+.admin-modern [class*="bg-[#151d32]"], .admin-modern [class*="bg-[#0d1425]"], .admin-modern [class*="bg-[#0e1425]"], .admin-modern [class*="bg-[#0b1020]"] { background: #fff !important; border-color: var(--ana-border) !important; box-shadow: 0 12px 36px rgba(20,37,63,.06) !important; }
+.admin-modern input, .admin-modern select, .admin-modern textarea { background: #fff !important; border-color: var(--ana-border) !important; color: var(--ana-ink) !important; }
+.admin-modern aside { background: var(--ana-ink) !important; color: #fff !important; }
+.admin-modern aside .text-gray-400 { color: rgba(255,255,255,.65) !important; }
+.admin-modern .border-white\/10 { border-color: var(--ana-border) !important; }
+
+/* Make every image reserve space and remain safe when a remote URL fails. */
+img { display: block; max-width: 100%; }
