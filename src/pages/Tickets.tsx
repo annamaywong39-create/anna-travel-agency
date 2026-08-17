@@ -123,6 +123,7 @@ export default function Tickets() {
   const [ticketSearch, setTicketSearch] = useState('');
   const [ticketGroupFilter, setTicketGroupFilter] = useState<'all' | 'Premium' | 'Lower bowl' | 'Upper bowl' | 'Other'>('all');
   const [sofiDate, setSofiDate] = useState<'all' | '2026-09-01' | '2026-09-02' | '2026-09-05' | '2026-09-06'>('all');
+  const [mainTab, setMainTab] = useState<'events' | 'tickets'>('tickets');
   const [isHolding, setIsHolding] = useState(false);
   const [holdError, setHoldError] = useState<string | null>(null);
   const [holdInfo, setHoldInfo] = useState<{ holdId: string; heldUntil: string } | null>(null);
@@ -215,6 +216,8 @@ export default function Tickets() {
     const maxDays = dateFilter === 'all' ? Infinity : Number(dateFilter);
     return items.filter((item) => {
       if (item.status === 'finished' || new Date(item.date).getTime() < Date.now()) return false;
+      // Events tab: show all events, Tickets tab: only events with tickets available
+      if (mainTab === 'tickets' && !item.tickets.some(t => t.quantity_available > 0)) return false;
       const q = query.trim().toLowerCase();
       const matchesQuery = !q || `${item.title} ${item.city} ${item.venue}`.toLowerCase().includes(q);
       const matchesCategory = category === 'all' || item.category === category;
@@ -226,7 +229,7 @@ export default function Tickets() {
       if (sofiDate !== 'all') return matchesSofi;
       return matchesQuery && matchesCategory && matchesCountry && matchesDate;
     });
-  }, [items, query, category, country, dateFilter, sofiDate]);
+  }, [items, query, category, country, dateFilter, sofiDate, mainTab]);
 
   const releaseCurrentHold = async () => {
     if (holdInfo?.holdId && isSupabaseConfigured) {
@@ -337,8 +340,17 @@ export default function Tickets() {
           </div>
         </header>
 
-        {/* Top picks — curated 3 */}
-        {!loading && filtered.length > 0 && (
+        {/* Main Event vs Tickets tabs */}
+        <section className="mb-6">
+          <div className="inline-flex rounded-2xl border border-[#D8E5F0] bg-white p-1 shadow-sm">
+            <button onClick={() => setMainTab('events')} className={`rounded-xl px-6 py-2.5 text-sm font-bold transition ${mainTab==='events' ? 'bg-[#14253F] text-white shadow-sm' : 'text-[#687A90] hover:text-[#14253F]'}`}>Events ({items.length})</button>
+            <button onClick={() => setMainTab('tickets')} className={`rounded-xl px-6 py-2.5 text-sm font-bold transition ${mainTab==='tickets' ? 'bg-[#1267C4] text-white shadow-sm' : 'text-[#687A90] hover:text-[#14253F]'}`}>Tickets ({items.reduce((s,i)=>s+i.tickets.filter(t=>t.quantity_available>0).length,0)} options)</button>
+          </div>
+          <p className="mt-3 text-xs text-[#687A90]">{mainTab==='events' ? 'Events tab shows all events we have — title, date, venue, city, image, status. Click View Tickets to see ticket options.' : 'Tickets tab shows events that have tickets + section, row, price, discount, delivery, seatmap, hold timer.'}</p>
+        </section>
+
+        {/* Top picks — curated 3 — only in tickets tab */}
+        {mainTab==='tickets' && !loading && filtered.length > 0 && (
           <section className="mb-8">
             <div className="mb-4 flex items-center gap-2">
               <Star className="h-4 w-4 text-[#F2C94C] fill-[#F2C94C]" />
@@ -365,7 +377,8 @@ export default function Tickets() {
           </section>
         )}
 
-        {/* SoFi Stadium 4-date tabs — best 100 tickets for sales */}
+        {/* SoFi Stadium 4-date tabs — best 100 tickets for sales — only in tickets tab */}
+        {mainTab==='tickets' && (
         <section className="mb-8 rounded-2xl border border-[#D8E5F0] bg-white p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -390,6 +403,7 @@ export default function Tickets() {
           </div>
           {sofiDate!=='all' && <p className="mt-3 text-xs text-[#687A90]">Showing only <strong className="text-[#14253F]">SoFi Stadium — {sofiDate}</strong> • {filtered.filter(i=>i.venue.toLowerCase().includes('sofi')).length} events • Best 25 tickets per date for quick sales (Outer $256–$445, Upper $256–$298, Lower Club $1,6k–$1,9k)</p>}
         </section>
+        )}
 
         <section className="mb-8 rounded-2xl border border-[#D8E5F0] bg-white p-4 shadow-sm" aria-label="Event filters">
           <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_1fr]">

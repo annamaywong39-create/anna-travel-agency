@@ -4,6 +4,7 @@ import { Calendar, MapPin, Search, X, Globe, Grid3X3, List } from 'lucide-react'
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Card3D from '../components/Card3D';
+import BtsPromoBanner from '../components/BtsPromoBanner';
 import { useData, type Event } from '../contexts/DataContext';
 import { eventImageFor } from '../lib/eventImages';
 import { formatVenueDate } from '../lib/eventDate';
@@ -58,7 +59,8 @@ export default function Events() {
   return (
     <main className="pt-24 pb-20 min-h-screen">
       <SEO title="Events" description="Discover and book tickets for exciting events worldwide." path="/events" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <BtsPromoBanner />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
 
         {/* Hero */}
         <motion.div

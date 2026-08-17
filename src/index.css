@@ -14,7 +14,7 @@
 html.dark { color-scheme: dark; }
 
 html { scroll-behavior: smooth; background: #F7FAFD; }
-html.dark { background: #080F1E; }
+html.dark { background: #0F1E3A; }
 
 body {
   margin: 0; min-width: 320px;
@@ -24,7 +24,7 @@ body {
   background: #F7FAFD; color: #14253F;
   transition: background-color 0.35s ease, color 0.35s ease;
 }
-html.dark body { background: #080F1E; color: #E2E8F0; }
+html.dark body { background: #0F1E3A; color: #E2E8F0; }
 
 img { display: block; max-width: 100%; }
 main { min-height: 100dvh; }
@@ -60,7 +60,7 @@ html.dark {
   --tw-bg-opacity: 1;
 }
 
-/* All light backgrounds → dark */
+/* All light backgrounds → navy blue dark */
 html.dark .bg-white,
 html.dark .bg-[#FFFFFF],
 html.dark .bg-[#F7FAFD],
@@ -79,34 +79,34 @@ html.dark .bg-white\/80,
 html.dark .bg-white\/60,
 html.dark .bg-[#F7FAFD]\/90,
 html.dark .bg-[#F7FAFD]\/80 {
-  background-color: #0F1E33 !important;
+  background-color: #14253F !important;
 }
 
 html.dark .bg-[#E7F1FC],
 html.dark .bg-[#e5f0fc],
 html.dark .bg-[#f1f6fb] {
-  background-color: #0A1929 !important;
+  background-color: #0F1E3A !important;
 }
 
 html.dark .bg-[#ddecfb] {
-  background-color: #0A1929 !important;
+  background-color: #0F1E3A !important;
 }
 
 html.dark .bg-[#e8f1f8] {
-  background-color: #0A1929 !important;
+  background-color: #132A4A !important;
 }
 
 /* Header */
 html.dark header.bg-white\/90 {
-  background-color: rgba(10, 25, 41, 0.9) !important;
-  border-color: #1A2E4D !important;
+  background-color: rgba(15, 30, 58, 0.92) !important;
+  border-color: #1E3A5F !important;
 }
 
-/* Text colors */
+/* Text colors - all dark texts → bright white / light gray */
 html.dark .text-[#14253F],
 html.dark .text-[#172033],
 html.dark .text-[#24364d] {
-  color: #E2E8F0 !important;
+  color: #FFFFFF !important;
 }
 
 html.dark .text-[#5B6B82],
@@ -118,11 +118,20 @@ html.dark .text-[#8A9AB0],
 html.dark .text-[#657890],
 html.dark .text-[#9AAABC],
 html.dark .text-[#8b9aae] {
-  color: #94A3B8 !important;
+  color: #CBD5E1 !important;
 }
 
 html.dark .text-[#b08a42] {
-  color: #F2C94C !important;
+  color: #FFD166 !important;
+}
+
+/* Top picks for you - black font to white as requested */
+html.dark .text-sm.font-bold.uppercase.tracking-\[0\.18em\].text-\[\#14253F\] {
+  color: #FFFFFF !important;
+}
+
+html.dark h2.text-sm.font-bold.uppercase {
+  color: #FFFFFF !important;
 }
 
 /* Borders */
@@ -133,45 +142,55 @@ html.dark .border-[#e2eaf2],
 html.dark .border-[#E7F1FC],
 html.dark .border-[#9cb4cd],
 html.dark .border-[#ddd3c3] {
-  border-color: #1A2E4D !important;
+  border-color: #1E3A5F !important;
 }
 
 /* Cards shadow in dark */
 html.dark .shadow-sm,
 html.dark .shadow-xl,
 html.dark .shadow-2xl {
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important;
 }
 
 /* Inputs */
 html.dark input,
 html.dark select,
 html.dark textarea {
-  background-color: #0F1E33 !important;
-  border-color: #1A2E4D !important;
-  color: #E2E8F0 !important;
+  background-color: #1A2E4D !important;
+  border-color: #1E3A5F !important;
+  color: #FFFFFF !important;
 }
 
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-  color: #64748B !important;
+  color: #94A3B8 !important;
 }
 
-/* Footer stays white in light, dark in dark */
+/* Footer */
 html.dark footer.bg-white {
-  background-color: #0F1E33 !important;
+  background-color: #0F1E3A !important;
 }
 html.dark footer .bg-[#F7FAFD] {
-  background-color: #0A1929 !important;
+  background-color: #14253F !important;
 }
 
-/* Promo banner stays dark in both, but ensure contrast */
-html.dark aside.bg-[#14253F] {
+/* Promo banner stays readable */
+html.dark aside.bg-[#14253F],
+html.dark aside.bg-[#0F1E3A] {
   background-color: #0A1931 !important;
 }
 
 /* Mobile bottom nav dark */
 html.dark nav.bg-white\/95 {
-  background-color: rgba(15, 30, 51, 0.95) !important;
-  border-color: #1A2E4D !important;
+  background-color: rgba(20, 37, 63, 0.96) !important;
+  border-color: #1E3A5F !important;
 }
+
+/* Ensure main sections in Tickets/Home are navy readable */
+html.dark section.bg-white {
+  background-color: #14253F !important;
+}
+html.dark .bg-gradient-to-br.from-\[\#F7FAFD\] {
+  background: #14253F !important;
+}
+
