@@ -82,6 +82,8 @@ export default function Booking() {
 
     const roomData = {
       listingId: listing.id,
+      title: listing.title,
+      city: listing.city,
       userId: user?.id || 'guest',
       userEmail: formData.email,
       userName: `${formData.firstName} ${formData.lastName}`,
@@ -111,6 +113,8 @@ export default function Booking() {
 
     const roomData = {
       listingId: listing.id,
+      title: listing.title,
+      city: listing.city,
       userId: user?.id || 'guest',
       userEmail: formData.email,
       userName: `${formData.firstName} ${formData.lastName}`,

