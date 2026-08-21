@@ -323,7 +323,7 @@ export default function Tickets() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F7FAFD] pt-24 pb-20 text-[#14253F]">
+    <main className="min-h-screen bg-[#F7FAFD] pt-2 pb-20 text-[#14253F]">
       <SEO title="Curated Events & Tickets" description="Explore high-demand events and verified ticket access with accommodation options." path="/tickets" />
       <div className="mb-8">
         <BtsPromoBanner />
