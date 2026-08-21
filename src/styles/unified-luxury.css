@@ -1,4 +1,4 @@
-/* Unified white-and-blue design layer - clean, no !important overrides */
+/* Unified white-and-blue design layer - with dark mode support */
 :root {
   --ana-bg: #F7FAFD;
   --ana-card: #FFFFFF;
@@ -9,8 +9,24 @@
   --ana-muted: #687A90;
 }
 
+html.dark {
+  --ana-bg: #0A1931;
+  --ana-card: #132040;
+  --ana-blue: #5BA7E8;
+  --ana-ink: #F1F5F9;
+  --ana-soft: #1A2E4D;
+  --ana-border: #1E3A5F;
+  --ana-muted: #B8C6D9;
+}
+
 /* Base */
 body {
+  background: var(--ana-bg);
+  color: var(--ana-ink);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+html.dark body {
   background: var(--ana-bg);
   color: var(--ana-ink);
 }
@@ -32,7 +48,7 @@ img {
   /* Keep as is - dark cards should keep white text */
 }
 
-/* Ensure Top Picks cards keep white text readable */
+/* Ensure Top Picks cards keep white text readable in both themes */
 .bg-gradient-to-br.from-\[\#14253F\] .text-white,
 .bg-gradient-to-br.from-\[\#14253F\] h3,
 .bg-gradient-to-br.from-\[\#14253F\] p {
@@ -46,3 +62,13 @@ img {
 .bg-gradient-to-br.from-\[\#14253F\] .text-white\/70 {
   color: rgba(255,255,255,0.7) !important;
 }
+
+/* Dark mode: ensure every element transitions */
+html.dark * {
+  scrollbar-color: #1E3A5F #0A1931;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+

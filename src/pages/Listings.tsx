@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, Building2, Home, Key, SlidersHorizontal, Calendar, Grid3X3 } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import ListingCard from '../components/ListingCard';
 import { useData } from '../contexts/DataContext';
 import { HOST_CITIES } from '../data/constants';
+import { useCurrency, getCurrencyForCity, CURRENCIES } from '../contexts/CurrencyContext';
 
 const typeFilters = [
   { value: 'all', label: 'All Types', icon: SlidersHorizontal },
@@ -24,14 +26,25 @@ const ITEMS_PER_PAGE = 12;
 
 export default function Listings() {
   const { listings } = useData();
+  const [searchParams] = useSearchParams();
+  const { formatDual } = useCurrency();
   const [typeFilter, setTypeFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('city') || searchParams.get('search') || '');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentPage, setCurrentPage] = useState(1);
   const [dateRange, setDateRange] = useState({ checkIn: '', checkOut: '' });
+
+  useEffect(() => {
+    const city = searchParams.get('city') || searchParams.get('search');
+    if (city) {
+      setSearchQuery(city);
+      const cityIdParam = searchParams.get('cityId');
+      if (cityIdParam) setCityFilter(cityIdParam);
+    }
+  }, [searchParams]);
 
   const filteredListings = useMemo(() => {
     return listings.filter((l) => {
@@ -74,6 +87,13 @@ export default function Listings() {
             <p className="text-[#5B6B82] text-lg max-w-2xl">
               {filteredListings.length} properties available – from luxury hotels to cozy apartments.
             </p>
+            {searchQuery && (
+              <div className="mt-4 flex flex-wrap gap-2 items-center">
+                <span className="rounded-full bg-[#1267C4] text-white px-4 py-1.5 text-xs font-bold">Filtered for: {searchQuery} — {CURRENCIES[getCurrencyForCity(searchQuery)].flag} {getCurrencyForCity(searchQuery)} • {formatDual(100, searchQuery).rateText}</span>
+                <Link to="/events" className="rounded-full border border-[#D8E5F0] bg-white px-3 py-1.5 text-xs font-semibold">Go to Events</Link>
+                <Link to={`/tickets?search=${encodeURIComponent(searchQuery)}`} className="rounded-full border border-[#D8E5F0] bg-white px-3 py-1.5 text-xs font-semibold">Tickets in {searchQuery}</Link>
+              </div>
+            )}
             
             {/* Quick Search */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-3xl">

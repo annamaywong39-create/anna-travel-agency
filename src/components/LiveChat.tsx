@@ -22,9 +22,27 @@ export default function LiveChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([{ id: '1', text: "Hi! 👋 I'm Anna assistant. Ask me about tickets, stays, prices!", sender: 'bot', timestamp: new Date() }]);
   const [input, setInput] = useState('');
+  const [hidden, setHidden] = useState(false);
+  const [lastY, setLastY] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  // Hide on scroll for mobile so it doesn't hang as distraction, like bottom nav
+  useEffect(() => {
+    if (isOpen) {
+      setHidden(false);
+      return;
+    }
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastY && y > 100) setHidden(true);
+      else setHidden(false);
+      setLastY(y);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [lastY, isOpen]);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -39,18 +57,21 @@ export default function LiveChat() {
 
   return (
     <>
-      {/* Chat button - left side, high z-index, always clickable */}
+      {/* Chat button - docks above bottom nav on mobile, auto-hides on scroll to avoid distraction */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? "Close chat" : "Open chat"}
-        className="fixed bottom-[160px] left-4 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-[#1267C4] text-white shadow-2xl hover:bg-[#0F5AAC] md:bottom-6 md:left-6"
-        style={{ pointerEvents: 'auto' }}
+        className={`fixed right-4 z-[60] flex items-center justify-center rounded-full bg-[#1267C4] text-white shadow-[0_8px_30px_rgba(18,103,196,0.35)] transition-all duration-300 hover:bg-[#0F5AAC] active:scale-95
+          ${isOpen ? 'h-12 w-12 bottom-[88px] md:bottom-6' : 'h-12 w-12 md:h-14 md:w-14'}
+          ${hidden && !isOpen ? 'translate-y-24 opacity-0 md:translate-y-0 md:opacity-100' : 'translate-y-0 opacity-100'}
+          bottom-[88px] md:bottom-6 md:left-6 md:right-auto`}
+        style={{ pointerEvents: hidden && !isOpen ? 'none' : 'auto' }}
       >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        {isOpen ? <X className="h-5 w-5 md:h-6 md:w-6" /> : <MessageCircle className="h-5 w-5 md:h-6 md:w-6" />}
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-[160px] left-4 z-[70] w-[calc(100%-2rem)] max-w-[360px] overflow-hidden rounded-2xl border border-[#D8E5F0] bg-white shadow-2xl md:bottom-24 md:left-6 md:w-96">
+        <div className="fixed bottom-[144px] right-4 left-4 z-[61] w-auto max-w-[360px] ml-auto overflow-hidden rounded-2xl border border-[#D8E5F0] bg-white shadow-2xl md:bottom-24 md:left-6 md:right-auto md:w-96 md:ml-0">
           <div className="bg-[#1267C4] p-4 flex items-center justify-between text-white">
             <div className="flex items-center gap-2"><Bot className="h-5 w-5" /><span className="font-bold text-sm">Anna Assistant</span></div>
             <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white"><X className="h-5 w-5" /></button>

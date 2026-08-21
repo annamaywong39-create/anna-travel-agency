@@ -87,7 +87,7 @@ export interface Event {
   city: string;
   image_url?: string;
   seat_map_url?: string;
-  status: 'upcoming' | 'live' | 'finished';
+  status: 'upcoming' | 'live' | 'finished' | 'sold_out' | 'cancelled';
   category?: string;
   created_at: string;
 }

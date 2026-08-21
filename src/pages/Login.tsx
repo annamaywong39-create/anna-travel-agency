@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,12 +16,14 @@ export default function Login() {
   const [captchaToken, setCaptchaToken] = useState('');
   const { login, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation() as any;
+  const from = location.state?.from || (user?.role === 'admin' ? '/admin' : '/dashboard');
 
   // Navigation is a side effect and should not run during render.
   useEffect(() => {
     if (!user) return;
-    navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
-  }, [user, navigate]);
+    navigate(from, { replace: true });
+  }, [user, navigate, from]);
 
   useEffect(() => {
     if (lockSeconds <= 0) return;
@@ -50,6 +52,7 @@ export default function Login() {
         }
       } else {
         setFailedAttempts(0);
+        // Redirect handled by useEffect using 'from'
       }
     } catch {
       setError('Something went wrong. Please try again.');
@@ -169,11 +172,18 @@ export default function Login() {
           <div className="mt-6 text-center">
             <p className="text-[#687A90] text-sm">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-[#DB8293] hover:text-[#C49B55] font-medium focus:outline-none focus:ring-2 focus:ring-[#DB8293] rounded">
+              <Link to="/signup" state={{ from }} className="text-[#DB8293] hover:text-[#C49B55] font-medium focus:outline-none focus:ring-2 focus:ring-[#DB8293] rounded">
                 Sign up
               </Link>
             </p>
+            {from !== '/dashboard' && from !== '/admin' && <p className="mt-2 text-xs text-[#8A9AB0]">After sign in, you'll return to checkout</p>}
           </div>
+          {from === '/checkout' && (
+            <div className="mt-6 rounded-xl border border-[#E7F1FC] bg-[#F7FAFD] p-3 text-xs text-[#687A90]">
+              <p className="font-semibold text-[#14253F]">Cart saved</p>
+              <p className="mt-1">Your tickets/stays stay in cart. Sign in to continue to secure payment.</p>
+            </div>
+          )}
         </div>
       </motion.div>
     </main>

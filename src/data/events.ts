@@ -136,6 +136,7 @@ const SOFI_BEST_15_SEP6 = [
 ];
 
 const BTS_REMAINING_2026: FeaturedEvent[] = [
+  // Already existing US/CA from Aug
   event('bts-arirang-baltimore-2026-08-10', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-10T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
   event('bts-arirang-baltimore-2026-08-11', "BTS WORLD TOUR 'ARIRANG' — Baltimore", '2026-08-11T20:00:00-04:00', 'M&T Bank Stadium', 'Baltimore, MD', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Baltimore.'),
   event('bts-arirang-arlington-2026-08-15', "BTS WORLD TOUR 'ARIRANG' — Arlington", '2026-08-15T20:00:00-05:00', 'AT&T Stadium', 'Arlington, TX', 'Music', images.btsAlt, 0, 'Request access for the remaining BTS ARIRANG show in Arlington.'),
@@ -148,6 +149,36 @@ const BTS_REMAINING_2026: FeaturedEvent[] = [
   event('bts-arirang-los-angeles-2026-09-02', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-02T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles — Sep 2.'),
   event('bts-arirang-los-angeles-2026-09-05', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-05T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles — Sep 5, best for sales.'),
   event('bts-arirang-los-angeles-2026-09-06', "BTS WORLD TOUR 'ARIRANG' — Los Angeles", '2026-09-06T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.bts, 0, 'Request access for the remaining BTS ARIRANG show in Los Angeles — Sep 6.'),
+  // From now (Aug 21) to January - Latin America
+  event('bts-arirang-bogota-2026-10-02', "BTS WORLD TOUR 'ARIRANG' — Bogotá", '2026-10-02T20:00:00-05:00', 'Estadio Nemésio Camacho El Campín', 'Bogotá, Colombia', 'Music', images.stadium, 0, 'BTS ARIRANG Colombia — local currency COP with USD equivalent. 1 USD = 4,100 COP. Hotels available in Bogotá.'),
+  event('bts-arirang-bogota-2026-10-03', "BTS WORLD TOUR 'ARIRANG' — Bogotá", '2026-10-03T20:00:00-05:00', 'Estadio Nemésio Camacho El Campín', 'Bogotá, Colombia', 'Music', images.fans, 0, 'BTS ARIRANG Bogotá Night 2 — COP + USD dual pricing, conversion rate shown.'),
+  event('bts-arirang-lima-2026-10-07', "BTS WORLD TOUR 'ARIRANG' — Lima", '2026-10-07T20:00:00-05:00', 'Estadio San Marcos', 'Lima, Peru', 'Music', images.stadium, 0, 'BTS ARIRANG Lima — local PEN with USD equivalent. 1 USD = 3.73 PEN. Hotels in Lima.'),
+  event('bts-arirang-lima-2026-10-09', "BTS WORLD TOUR 'ARIRANG' — Lima", '2026-10-09T20:00:00-05:00', 'Estadio San Marcos', 'Lima, Peru', 'Music', images.fans, 0, 'BTS ARIRANG Lima — PEN + USD dual pricing.'),
+  event('bts-arirang-lima-2026-10-10', "BTS WORLD TOUR 'ARIRANG' — Lima", '2026-10-10T20:00:00-05:00', 'Estadio San Marcos', 'Lima, Peru', 'Music', images.bts, 0, 'BTS ARIRANG Lima Night 3 — PEN conversion.'),
+  event('bts-arirang-santiago-2026-10-14', "BTS WORLD TOUR 'ARIRANG' — Santiago", '2026-10-14T20:00:00-04:00', 'Estadio Nacional Julio Martínez Prádanos', 'Santiago, Chile', 'Music', images.stadium, 0, 'BTS ARIRANG Santiago — local CLP with USD equivalent. 1 USD = 920 CLP. Hotels in Santiago.'),
+  event('bts-arirang-santiago-2026-10-16', "BTS WORLD TOUR 'ARIRANG' — Santiago", '2026-10-16T20:00:00-04:00', 'Estadio Nacional Julio Martínez Prádanos', 'Santiago, Chile', 'Music', images.fans, 0, 'BTS ARIRANG Santiago Night 2 — CLP + USD.'),
+  event('bts-arirang-santiago-2026-10-17', "BTS WORLD TOUR 'ARIRANG' — Santiago", '2026-10-17T20:00:00-04:00', 'Estadio Nacional Julio Martínez Prádanos', 'Santiago, Chile', 'Music', images.bts, 0, 'BTS ARIRANG Santiago Night 3.'),
+  event('bts-arirang-buenosaires-2026-10-21', "BTS WORLD TOUR 'ARIRANG' — Buenos Aires", '2026-10-21T20:00:00-03:00', 'Estadio Único de La Plata', 'Buenos Aires, Argentina', 'Music', images.stadium, 0, 'BTS ARIRANG Buenos Aires — local ARS with USD equivalent. 1 USD = 900 ARS. Hotels in Buenos Aires.'),
+  event('bts-arirang-buenosaires-2026-10-23', "BTS WORLD TOUR 'ARIRANG' — Buenos Aires", '2026-10-23T20:00:00-03:00', 'Estadio Único de La Plata', 'Buenos Aires, Argentina', 'Music', images.fans, 0, 'BTS ARIRANG Buenos Aires Night 2 — ARS + USD.'),
+  event('bts-arirang-buenosaires-2026-10-24', "BTS WORLD TOUR 'ARIRANG' — Buenos Aires", '2026-10-24T20:00:00-03:00', 'Estadio Único de La Plata', 'Buenos Aires, Argentina', 'Music', images.bts, 0, 'BTS ARIRANG Buenos Aires Night 3.'),
+  event('bts-arirang-saopaulo-2026-10-28', "BTS WORLD TOUR 'ARIRANG' — São Paulo", '2026-10-28T20:00:00-03:00', 'Estádio MorumBIS', 'São Paulo, Brazil', 'Music', images.stadium, 0, 'BTS ARIRANG São Paulo — local BRL with USD equivalent. 1 USD = 5.2 BRL. Hotels in São Paulo.'),
+  event('bts-arirang-saopaulo-2026-10-30', "BTS WORLD TOUR 'ARIRANG' — São Paulo", '2026-10-30T20:00:00-03:00', 'Estádio MorumBIS', 'São Paulo, Brazil', 'Music', images.fans, 0, 'BTS ARIRANG São Paulo Night 2 — BRL + USD.'),
+  event('bts-arirang-saopaulo-2026-10-31', "BTS WORLD TOUR 'ARIRANG' — São Paulo", '2026-10-31T20:00:00-03:00', 'Estádio MorumBIS', 'São Paulo, Brazil', 'Music', images.bts, 0, 'BTS ARIRANG São Paulo Halloween Night.'),
+  // Asia from Nov to Dec (now to Jan)
+  event('bts-arirang-kaohsiung-2026-11-19', "BTS WORLD TOUR 'ARIRANG' — Kaohsiung", '2026-11-19T19:30:00+08:00', 'Kaohsiung National Stadium', 'Kaohsiung, Taiwan', 'Music', images.bts, 0, 'BTS ARIRANG Kaohsiung — local TWD with USD equivalent. 1 USD = 32 TWD. Hotels in Kaohsiung.'),
+  event('bts-arirang-kaohsiung-2026-11-21', "BTS WORLD TOUR 'ARIRANG' — Kaohsiung", '2026-11-21T19:30:00+08:00', 'Kaohsiung National Stadium', 'Kaohsiung, Taiwan', 'Music', images.stadium, 0, 'BTS ARIRANG Kaohsiung Night 2 — TWD + USD.'),
+  event('bts-arirang-kaohsiung-2026-11-22', "BTS WORLD TOUR 'ARIRANG' — Kaohsiung", '2026-11-22T19:30:00+08:00', 'Kaohsiung National Stadium', 'Kaohsiung, Taiwan', 'Music', images.fans, 0, 'BTS ARIRANG Kaohsiung Night 3.'),
+  event('bts-arirang-bangkok-2026-12-03', "BTS WORLD TOUR 'ARIRANG' — Bangkok", '2026-12-03T19:00:00+07:00', 'Rajamangala National Stadium', 'Bangkok, Thailand', 'Music', images.bts, 0, 'BTS ARIRANG Bangkok — local THB with USD equivalent. 1 USD = 36 THB. Hotels in Bangkok.'),
+  event('bts-arirang-bangkok-2026-12-05', "BTS WORLD TOUR 'ARIRANG' — Bangkok", '2026-12-05T19:00:00+07:00', 'Rajamangala National Stadium', 'Bangkok, Thailand', 'Music', images.stadium, 0, 'BTS ARIRANG Bangkok Night 2 — THB + USD.'),
+  event('bts-arirang-bangkok-2026-12-06', "BTS WORLD TOUR 'ARIRANG' — Bangkok", '2026-12-06T19:00:00+07:00', 'Rajamangala National Stadium', 'Bangkok, Thailand', 'Music', images.fans, 0, 'BTS ARIRANG Bangkok Night 3.'),
+  event('bts-arirang-kualalumpur-2026-12-12', "BTS WORLD TOUR 'ARIRANG' — Kuala Lumpur", '2026-12-12T20:00:00+08:00', 'Bukit Jalil National Stadium', 'Kuala Lumpur, Malaysia', 'Music', images.stadium, 0, 'BTS ARIRANG KL — local MYR with USD equivalent. 1 USD = 4.7 MYR. Hotels in KL.'),
+  event('bts-arirang-kualalumpur-2026-12-13', "BTS WORLD TOUR 'ARIRANG' — Kuala Lumpur", '2026-12-13T20:00:00+08:00', 'Bukit Jalil National Stadium', 'Kuala Lumpur, Malaysia', 'Music', images.fans, 0, 'BTS ARIRANG KL Night 2 — MYR + USD.'),
+  event('bts-arirang-singapore-2026-12-17', "BTS WORLD TOUR 'ARIRANG' — Singapore", '2026-12-17T19:00:00+08:00', 'National Stadium', 'Singapore', 'Music', images.bts, 0, 'BTS ARIRANG Singapore — local SGD with USD equivalent. 1 USD = 1.32 SGD. Hotels in Singapore.'),
+  event('bts-arirang-singapore-2026-12-19', "BTS WORLD TOUR 'ARIRANG' — Singapore", '2026-12-19T19:00:00+08:00', 'National Stadium', 'Singapore', 'Music', images.stadium, 0, 'BTS ARIRANG Singapore Night 2 — SGD + USD.'),
+  event('bts-arirang-singapore-2026-12-20', "BTS WORLD TOUR 'ARIRANG' — Singapore", '2026-12-20T19:00:00+08:00', 'National Stadium', 'Singapore', 'Music', images.fans, 0, 'BTS ARIRANG Singapore Night 3.'),
+  event('bts-arirang-singapore-2026-12-22', "BTS WORLD TOUR 'ARIRANG' — Singapore", '2026-12-22T19:00:00+08:00', 'National Stadium', 'Singapore', 'Music', images.btsAlt, 0, 'BTS ARIRANG Singapore Night 4.'),
+  event('bts-arirang-jakarta-2026-12-26', "BTS WORLD TOUR 'ARIRANG' — Jakarta", '2026-12-26T19:00:00+07:00', 'Gelora Bung Karno Main Stadium', 'Jakarta, Indonesia', 'Music', images.stadium, 0, 'BTS ARIRANG Jakarta — local IDR with USD equivalent. 1 USD = 16,000 IDR. Hotels in Jakarta.'),
+  event('bts-arirang-jakarta-2026-12-27', "BTS WORLD TOUR 'ARIRANG' — Jakarta", '2026-12-27T19:00:00+07:00', 'Gelora Bung Karno Main Stadium', 'Jakarta, Indonesia', 'Music', images.fans, 0, 'BTS ARIRANG Jakarta Night 2 — IDR + USD, final 2026 show before January.'),
 ].map((item) => {
   if (item.id === 'bts-arirang-baltimore-2026-08-10') {
     return { ...item, tickets: btsTickets(item.id, [
@@ -168,11 +199,47 @@ const BTS_REMAINING_2026: FeaturedEvent[] = [
   if (item.id === 'bts-arirang-los-angeles-2026-09-06') {
     return { ...item, tickets: btsTickets(item.id, SOFI_BEST_15_SEP6) };
   }
+  // For new international dates, generate some ticket inventory with USD pricing
+  if (item.id.includes('bogota') || item.id.includes('lima') || item.id.includes('santiago') || item.id.includes('buenosaires') || item.id.includes('saopaulo')) {
+    return { ...item, tickets: btsTickets(item.id, [
+      { section: 'General', row: 'A', price: 120, qty: 4, discount: 65, cat: 'General Admission' },
+      { section: 'Lower 100', row: '10', price: 250, qty: 4, discount: 60, cat: 'Lower Bowl' },
+      { section: 'VIP', row: '1', price: 550, qty: 2, discount: 70, cat: 'VIP Package' },
+    ]) };
+  }
+  if (item.id.includes('kaohsiung') || item.id.includes('bangkok') || item.id.includes('kualalumpur') || item.id.includes('singapore') || item.id.includes('jakarta')) {
+    return { ...item, tickets: btsTickets(item.id, [
+      { section: 'Cat 3', row: '15', price: 150, qty: 4, discount: 60, cat: 'Category 3' },
+      { section: 'Cat 2', row: '8', price: 300, qty: 4, discount: 65, cat: 'Category 2' },
+      { section: 'Cat 1 VIP', row: '2', price: 600, qty: 2, discount: 70, cat: 'Category 1 VIP' },
+    ]) };
+  }
   return { ...item, tickets: [] };
 });
 
 export const FEATURED_US_EVENTS: FeaturedEvent[] = [
   ...BTS_REMAINING_2026,
+  // More demanding events - added as requested, from now to Jan + beyond for ticket inventory
+  // Music - high demand
+  event('taylor-swift-la-2026-08-24', 'Taylor Swift — The Eras Tour — Los Angeles', '2026-08-24T19:30:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.music, 350, 'Taylor Swift Eras Tour LA — most demanding pop tour, verified tickets with dual currency USD + local.'),
+  event('taylor-swift-ny-2026-09-15', 'Taylor Swift — The Eras Tour — New York', '2026-09-15T19:30:00-04:00', 'MetLife Stadium', 'East Rutherford, NJ', 'Music', images.music, 350, 'Taylor Swift NY — high-demand, hotel packages available.'),
+  event('beyonce-la-2026-09-10', 'Beyoncé — Renaissance World Tour — LA', '2026-09-10T20:00:00-07:00', 'SoFi Stadium', 'Inglewood, CA', 'Music', images.fans, 320, 'Beyoncé LA — demanding, dual currency, hotels in Inglewood.'),
+  event('beyonce-houston-2026-09-20', 'Beyoncé — Renaissance Tour — Houston', '2026-09-20T20:00:00-05:00', 'NRG Stadium', 'Houston, TX', 'Music', images.fans, 300, 'Beyoncé Houston homecoming — high demand.'),
+  event('drake-toronto-2026-09-18', 'Drake — For All The Dogs Tour — Toronto', '2026-09-18T20:00:00-04:00', 'Scotiabank Arena', 'Toronto, ON, Canada', 'Music', images.music, 280, 'Drake Toronto — demanding hip-hop, CAD + USD pricing.'),
+  event('bad-bunny-miami-2026-10-05', 'Bad Bunny — Most Wanted Tour — Miami', '2026-10-05T20:00:00-04:00', 'Kaseya Center', 'Miami, FL', 'Music', images.music, 300, 'Bad Bunny Miami — Latin global demand.'),
+  event('coldplay-la-2026-10-12', 'Coldplay — Music of the Spheres — Los Angeles', '2026-10-12T19:30:00-07:00', 'Rose Bowl', 'Pasadena, CA', 'Music', images.fans, 250, 'Coldplay LA — demanding stadium show.'),
+  event('weeknd-vegas-2026-11-15', 'The Weeknd — After Hours Til Dawn — Las Vegas', '2026-11-15T19:30:00-08:00', 'Allegiant Stadium', 'Las Vegas, NV', 'Music', images.music, 275, 'The Weeknd Vegas — high demand.'),
+  event('travis-scott-houston-2026-11-08', 'Travis Scott — Circus Maximus — Houston', '2026-11-08T20:00:00-05:00', 'Minute Maid Park', 'Houston, TX', 'Music', images.fans, 260, 'Travis Scott Houston — demanding.'),
+  event('ed-sheeran-chicago-2026-09-28', 'Ed Sheeran — Mathematics Tour — Chicago', '2026-09-28T19:30:00-05:00', 'Soldier Field', 'Chicago, IL', 'Music', images.music, 220, 'Ed Sheeran Chicago — family demand.'),
+  // Sports - most demanding
+  event('nfl-kickoff-2026-09-10', 'NFL Kickoff 2026 — Chiefs vs Ravens', '2026-09-10T19:20:00-05:00', 'GEHA Field at Arrowhead', 'Kansas City, MO', 'Football', images.sport, 450, 'NFL 2026 Kickoff — most demanding US sport opener.'),
+  event('mlb-world-series-2026-10-27', 'MLB World Series 2026 — Game 1', '2026-10-27T19:00:00-04:00', 'Yankee Stadium', 'New York, NY', 'Baseball', images.sport, 500, 'World Series Game 1 — demanding baseball final.'),
+  event('nba-opening-2026-10-22', 'NBA Opening Night 2026 — Lakers vs Warriors', '2026-10-22T19:30:00-07:00', 'Crypto.com Arena', 'Los Angeles, CA', 'Basketball', images.sport, 400, 'NBA Opening Night — Lakers vs Warriors, high demand.'),
+  event('nfl-thanksgiving-dallas-2026-11-26', 'NFL Thanksgiving — Cowboys vs Commanders', '2026-11-26T16:30:00-06:00', 'AT&T Stadium', 'Arlington, TX', 'Football', images.sport, 380, 'Thanksgiving Cowboys — demanding tradition.'),
+  event('cfp-final-2027-01-12', 'College Football Playoff National Championship 2027', '2027-01-12T19:30:00-05:00', 'Mercedes-Benz Stadium', 'Atlanta, GA', 'Football', images.sport, 600, 'CFP National Championship — Jan 2027, most demanding college football.'),
+  event('nba-allstar-2027-02-15', 'NBA All-Star Game 2027', '2027-02-15T18:00:00-08:00', 'Intuit Dome', 'Inglewood, CA', 'Basketball', images.sport, 550, 'NBA All-Star 2027 — demanding weekend.'),
+  event('super-bowl-lx-2027-02-07', 'Super Bowl LX — 2027', '2027-02-07T18:30:00-08:00', 'SoFi Stadium', 'Inglewood, CA', 'Football', images.stadium, 1200, 'Super Bowl LX 2027 — ultimate demanding US event, hotels + tickets packages.'),
+  // Festivals & Tech
   event('lollapalooza-2026', 'Lollapalooza 2026', '2026-07-30T12:00:00', 'Grant Park', 'Chicago, IL', 'Music', images.music, 179, 'Chicago\'s four-day lakefront music festival.'),
   event('us-open-fan-week-2026', 'US Open Fan Week', '2026-08-23T09:30:00', 'USTA Billie Jean King National Tennis Center', 'Queens, NY', 'Tennis', images.sport, 65, 'The opening week of tennis, fan activities, and qualifying matches.'),
   event('us-open-opening-2026', 'US Open Opening Week', '2026-08-30T12:00:00', 'Arthur Ashe Stadium', 'Queens, NY', 'Tennis', images.sport, 160, 'Opening-round sessions at the season\'s final Grand Slam.'),
@@ -193,4 +260,15 @@ export const FEATURED_US_EVENTS: FeaturedEvent[] = [
   event('pax-unplugged-2026', 'PAX Unplugged 2026', '2026-12-04T10:00:00', 'Pennsylvania Convention Center', 'Philadelphia, PA', 'Gaming', images.tech, 70, 'Tabletop games, panels, tournaments, and community play.'),
   event('ces-opening-2027', 'CES 2027: Opening Day', '2027-01-06T09:00:00', 'Las Vegas Convention Center', 'Las Vegas, NV', 'Technology', images.tech, 160, 'The opening day of the global consumer technology showcase.'),
   event('ces-closing-2027', 'CES 2027: Closing Day', '2027-01-09T09:00:00', 'Las Vegas Convention Center', 'Las Vegas, NV', 'Technology', images.tech, 160, 'Final day access to CES 2027 exhibits and programming.'),
-];
+].map((e) => {
+  // Add generic tickets for new demanding events if not already having tickets
+  if (e.tickets && e.tickets.length > 0) return e;
+  return {
+    ...e,
+    tickets: btsTickets(e.id, [
+      { section: 'General', row: 'A', price: 150, qty: 10, discount: 0, cat: 'General Admission' },
+      { section: 'Lower Bowl', row: '5', price: 300, qty: 6, discount: 0, cat: 'Lower Bowl' },
+      { section: 'VIP', row: '1', price: 650, qty: 2, discount: 0, cat: 'VIP' },
+    ]),
+  };
+});

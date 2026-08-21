@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 export default function BtsPromoBanner() {
   return (
     <aside
-      className="relative z-30 w-full border-y border-[#FFD166]/30 bg-[#0F1E3A] text-white shadow-sm"
+      className="relative z-30 w-full border-b border-[#FFD166]/30 bg-[#0F1E3A] text-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] mt-0"
       aria-label="BTS special offer"
       role="note"
     >
-      <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
+      <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFD166] text-[#0F1E3A] shadow-sm">
             <Ticket className="h-4 w-4" />
@@ -30,3 +30,4 @@ export default function BtsPromoBanner() {
     </aside>
   );
 }
+

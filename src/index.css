@@ -14,7 +14,7 @@
 html.dark { color-scheme: dark; }
 
 html { scroll-behavior: smooth; background: #F7FAFD; }
-html.dark { background: #0F1E3A; }
+html.dark { background: #0A1931; }
 
 body {
   margin: 0; min-width: 320px;
@@ -24,14 +24,14 @@ body {
   background: #F7FAFD; color: #14253F;
   transition: background-color 0.35s ease, color 0.35s ease;
 }
-html.dark body { background: #0F1E3A; color: #E2E8F0; }
+html.dark body { background: #0A1931; color: #E2E8F0; }
 
 img { display: block; max-width: 100%; }
-main { min-height: 100dvh; }
-footer { min-height: 360px; contain: layout paint; contain-intrinsic-size: 360px; }
+main { min-height: 100dvh; transition: background-color 0.35s ease, color 0.35s ease; }
+footer { min-height: 360px; contain: layout paint; contain-intrinsic-size: 360px; transition: background-color 0.35s ease, color 0.35s ease; }
 .event-media, .property-media { aspect-ratio: 16 / 10; overflow: hidden; }
 
-h1, h2, h3 { letter-spacing: -0.035em; }
+h1, h2, h3, h4, h5, h6 { letter-spacing: -0.035em; transition: color 0.3s ease; }
 .font-serif { font-family: Georgia, 'Times New Roman', serif; }
 .home-luxury h1, .home-luxury h2, .home-luxury h3 { font-family: Georgia, 'Times New Roman', serif; }
 
@@ -44,7 +44,7 @@ html.dark ::-webkit-scrollbar-thumb { background: rgba(91,167,232,0.3); }
 html.dark ::-webkit-scrollbar-thumb:hover { background: rgba(91,167,232,0.5); }
 
 ::selection { background: rgba(18,103,196,0.2); color: #14253F; }
-html.dark ::selection { background: rgba(91,167,232,0.3); color: #E2E8F0; }
+html.dark ::selection { background: rgba(91,167,232,0.35); color: #FFFFFF; }
 
 @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
@@ -55,142 +55,629 @@ html.dark ::selection { background: rgba(91,167,232,0.3); color: #E2E8F0; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
-/* ========= COMPREHENSIVE DARK MODE ========= */
+/* =========================================================
+   COMPREHENSIVE DARK MODE - Every element responds
+   Using attribute selectors so arbitrary Tailwind colors are caught
+   ========================================================= */
 html.dark {
   --tw-bg-opacity: 1;
+  --tw-text-opacity: 1;
+  --tw-border-opacity: 1;
 }
 
-/* All light backgrounds → navy blue dark */
-html.dark .bg-white,
-html.dark .bg-[#FFFFFF],
-html.dark .bg-[#F7FAFD],
-html.dark .bg-[#f6f9fd],
-html.dark .bg-[#F7F4EE],
-html.dark .bg-[#f7f4ee],
-html.dark .bg-[#ddecfb],
-html.dark .bg-[#E7F1FC],
-html.dark .bg-[#e5f0fc],
-html.dark .bg-[#e8f1f8],
-html.dark .bg-[#f1f6fb],
-html.dark .bg-[#FBFDFF],
-html.dark .bg-[#fbf9f4],
-html.dark .bg-white\/90,
-html.dark .bg-white\/80,
-html.dark .bg-white\/60,
-html.dark .bg-[#F7FAFD]\/90,
-html.dark .bg-[#F7FAFD]\/80 {
-  background-color: #14253F !important;
+/* ---- Root containers ---- */
+html.dark body,
+html.dark main,
+html.dark #root {
+  background-color: #0A1931 !important;
+  color: #E2E8F0 !important;
 }
 
-html.dark .bg-[#E7F1FC],
-html.dark .bg-[#e5f0fc],
-html.dark .bg-[#f1f6fb] {
-  background-color: #0F1E3A !important;
+/* ---- All light backgrounds -> dark navy ---- */
+html.dark [class*="bg-white"],
+html.dark [class*="bg-[#FFFFFF]"],
+html.dark [class*="bg-[#FFF]"],
+html.dark [class*="bg-[#F7FAFD]"],
+html.dark [class*="bg-[#f7fafd]"],
+html.dark [class*="bg-[#f6f9fd]"],
+html.dark [class*="bg-[#FBFDFF]"],
+html.dark [class*="bg-[#fbfdff]"],
+html.dark [class*="bg-[#fbf9f4]"],
+html.dark [class*="bg-[#F7F4EE]"],
+html.dark [class*="bg-[#f7f4ee]"],
+html.dark [class*="bg-[#FFF0F6]"],
+html.dark [class*="bg-[#fff0f6]"] {
+  background-color: #132040 !important;
 }
 
-html.dark .bg-[#ddecfb] {
-  background-color: #0F1E3A !important;
+html.dark [class*="bg-[#E7F1FC]"],
+html.dark [class*="bg-[#e7f1fc]"],
+html.dark [class*="bg-[#e5f0fc]"],
+html.dark [class*="bg-[#E5F0FC]"],
+html.dark [class*="bg-[#f1f6fb]"],
+html.dark [class*="bg-[#F1F6FB]"],
+html.dark [class*="bg-[#f6f9fd]"],
+html.dark [class*="bg-[#ddecfb]"],
+html.dark [class*="bg-[#DDECFB]"],
+html.dark [class*="bg-[#e8f1f8]"],
+html.dark [class*="bg-[#E8F1F8]"],
+html.dark [class*="bg-[#F7FAFD]/"],
+html.dark [class*="bg-white/"] {
+  background-color: #162E55 !important;
 }
 
-html.dark .bg-[#e8f1f8] {
-  background-color: #132A4A !important;
+/* Soft cards like filters */
+html.dark [class*="bg-[#F7FAFD]"],
+html.dark [class*="bg-[#E7F1FC]"] {
+  background-color: #132040 !important;
 }
 
-/* Header */
-html.dark header.bg-white\/90 {
-  background-color: rgba(15, 30, 58, 0.92) !important;
-  border-color: #1E3A5F !important;
+/* Gray light backgrounds -> darker */
+html.dark [class*="bg-[#E2E8F0]"],
+html.dark [class*="bg-[#e2e8f0]"],
+html.dark [class*="bg-[#CBD5E1]"],
+html.dark [class*="bg-[#cbd5e1]"],
+html.dark [class*="bg-[#F7FAFD]"],
+html.dark [class*="bg-[#F1F5F9]"] {
+  background-color: #1A2E4D !important;
 }
 
-/* Text colors - all dark texts → bright white / light gray */
-html.dark .text-[#14253F],
-html.dark .text-[#172033],
-html.dark .text-[#24364d] {
+html.dark [class*="bg-[#D8E5F0]"],
+html.dark [class*="bg-[#d8e5f0]"] {
+  background-color: #1E3A5F !important;
+}
+
+/* Keep strong blues readable */
+html.dark [class*="bg-[#1267C4]"],
+html.dark [class*="bg-[#1267c4]"] {
+  background-color: #1B6EC8 !important;
   color: #FFFFFF !important;
 }
 
-html.dark .text-[#5B6B82],
-html.dark .text-[#53677f],
-html.dark .text-[#536071],
-html.dark .text-[#718198],
-html.dark .text-[#687A90],
-html.dark .text-[#8A9AB0],
-html.dark .text-[#657890],
-html.dark .text-[#9AAABC],
-html.dark .text-[#8b9aae] {
-  color: #CBD5E1 !important;
+html.dark [class*="bg-[#0F5AAC]"],
+html.dark [class*="bg-[#0d56a5]"] {
+  background-color: #164E8A !important;
 }
 
-html.dark .text-[#b08a42] {
+/* Navy backgrounds stay navy but slightly lighter for contrast */
+html.dark [class*="bg-[#14253F]"],
+html.dark [class*="bg-[#14253f]"],
+html.dark [class*="bg-[#132A46]"],
+html.dark [class*="bg-[#0F1E3A]"],
+html.dark [class*="bg-[#0f1e3a]"],
+html.dark [class*="bg-[#131C2E]"],
+html.dark [class*="bg-[#0A1128]"] {
+  background-color: #0F1E3A !important;
+}
+
+/* Preserve image containers but not override */
+html.dark .event-media,
+html.dark .property-media {
+  background-color: #0F1E3A !important;
+}
+
+/* ---- Text colors - every dark text -> light readable ---- */
+html.dark [class*="text-[#14253F]"],
+html.dark [class*="text-[#14253f]"],
+html.dark [class*="text-[#172033]"],
+html.dark [class*="text-[#24364d]"],
+html.dark [class*="text-[#10202b]"],
+html.dark [class*="text-[#071A2A]"],
+html.dark [class*="text-[#080F1E]"] {
+  color: #F1F5F9 !important;
+}
+
+/* Secondary titles still bright */
+html.dark [class*="text-[#0F1E3A]"],
+html.dark [class*="text-[#0f1e3a]"],
+html.dark [class*="text-[#0B1F3A]"] {
+  color: #E2E8F0 !important;
+}
+
+html.dark [class*="text-[#5B6B82]"],
+html.dark [class*="text-[#536071]"],
+html.dark [class*="text-[#53677f]"],
+html.dark [class*="text-[#4B5563]"],
+html.dark [class*="text-[#687A90]"],
+html.dark [class*="text-[#8A9AB0]"],
+html.dark [class*="text-[#8b9aae]"],
+html.dark [class*="text-[#9AAABC]"],
+html.dark [class*="text-[#9aaabc]"],
+html.dark [class*="text-[#657890]"],
+html.dark [class*="text-[#718198]"],
+html.dark [class*="text-[#94A3B8]"] {
+  color: #B8C6D9 !important;
+}
+
+html.dark [class*="text-[#5B6B82]"].font-bold,
+html.dark [class*="text-[#536071]"].font-bold,
+html.dark [class*="text-[#687A90]"].font-bold {
+  color: #D1DCEA !important;
+}
+
+/* Gold / amber stays gold but brighter */
+html.dark [class*="text-[#b08a42]"],
+html.dark [class*="text-[#B08A42]"],
+html.dark [class*="text-[#c49b55]"],
+html.dark [class*="text-[#C49B55]"] {
   color: #FFD166 !important;
 }
 
-/* Top picks for you - black font to white as requested */
-html.dark .text-sm.font-bold.uppercase.tracking-\[0\.18em\].text-\[\#14253F\] {
+html.dark [class*="text-[#1267C4]"],
+html.dark [class*="text-[#1267c4]"],
+html.dark [class*="text-[#0d56a5]"] {
+  color: #7CC4FF !important;
+}
+
+/* Muted placeholder grays */
+html.dark [class*="text-[#8A9AB0]"],
+html.dark [class*="text-[#9AAABC]"] {
+  color: #94A3B8 !important;
+}
+
+/* Headers - ensure always visible */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #F1F5F9 !important;
+}
+
+html.dark h1[class*="text-[#14253F]"],
+html.dark h2[class*="text-[#14253F]"],
+html.dark h3[class*="text-[#14253F]"] {
   color: #FFFFFF !important;
 }
 
-html.dark h2.text-sm.font-bold.uppercase {
+/* Top picks label that was black in dark - fixed with safe selectors */
+html.dark [class*="tracking-"][class*="text-"],
+html.dark h2[class*="tracking-"] {
   color: #FFFFFF !important;
 }
 
-/* Borders */
-html.dark .border-[#D8E5F0],
-html.dark .border-[#d8e4ef],
-html.dark .border-[#dce7f0],
-html.dark .border-[#e2eaf2],
-html.dark .border-[#E7F1FC],
-html.dark .border-[#9cb4cd],
-html.dark .border-[#ddd3c3] {
+/* ---- Borders ---- */
+html.dark [class*="border-[#D8E5F0]"],
+html.dark [class*="border-[#d8e5f0]"],
+html.dark [class*="border-[#E7F1FC]"],
+html.dark [class*="border-[#e7f1fc]"],
+html.dark [class*="border-[#dce7f0]"],
+html.dark [class*="border-[#DCE7F0]"],
+html.dark [class*="border-[#e2eaf2]"],
+html.dark [class*="border-[#E2EAF2]"],
+html.dark [class*="border-[#ddd3c3]"],
+html.dark [class*="border-[#9cb4cd]"] {
   border-color: #1E3A5F !important;
 }
 
-/* Cards shadow in dark */
-html.dark .shadow-sm,
-html.dark .shadow-xl,
-html.dark .shadow-2xl {
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important;
+html.dark [class*="border-white"] {
+  border-color: #1E3A5F !important;
 }
 
-/* Inputs */
+/* Divider lines */
+html.dark [class*="divide-[#"] {
+  border-color: #1E3A5F !important;
+}
+
+/* ---- Cards & shadows ---- */
+html.dark [class*="shadow-sm"],
+html.dark [class*="shadow"],
+html.dark [class*="shadow-xl"],
+html.dark [class*="shadow-2xl"] {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(30,58,95,0.5) !important;
+}
+
+/* ---- Inputs, selects, textarea ---- */
 html.dark input,
 html.dark select,
 html.dark textarea {
-  background-color: #1A2E4D !important;
+  background-color: #162E55 !important;
   border-color: #1E3A5F !important;
-  color: #FFFFFF !important;
+  color: #E2E8F0 !important;
 }
 
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-  color: #94A3B8 !important;
+  color: #8195B0 !important;
 }
 
-/* Footer */
-html.dark footer.bg-white {
-  background-color: #0F1E3A !important;
-}
-html.dark footer .bg-[#F7FAFD] {
-  background-color: #14253F !important;
+html.dark select option {
+  background-color: #132040;
+  color: #E2E8F0;
 }
 
-/* Promo banner stays readable */
-html.dark aside.bg-[#14253F],
-html.dark aside.bg-[#0F1E3A] {
-  background-color: #0A1931 !important;
-}
-
-/* Mobile bottom nav dark */
-html.dark nav.bg-white\/95 {
-  background-color: rgba(20, 37, 63, 0.96) !important;
+/* ---- Header / Nav ---- */
+html.dark header {
+  background-color: rgba(10, 25, 49, 0.94) !important;
   border-color: #1E3A5F !important;
 }
 
-/* Ensure main sections in Tickets/Home are navy readable */
-html.dark section.bg-white {
-  background-color: #14253F !important;
+html.dark header [class*="bg-white"] {
+  background-color: #132040 !important;
 }
-html.dark .bg-gradient-to-br.from-\[\#F7FAFD\] {
-  background: #14253F !important;
+
+html.dark header [class*="text-[#14253F]"] {
+  color: #F1F5F9 !important;
 }
+
+/* Mobile menu panel dark */
+html.dark [class*="bg-[#F7FAFD]"].fixed {
+  background-color: #0A1931 !important;
+}
+
+/* Bottom nav */
+html.dark nav[class*="bg-white"] {
+  background-color: rgba(16, 36, 68, 0.97) !important;
+  border-color: #1E3A5F !important;
+}
+
+html.dark nav [class*="text-[#8A9AB0]"] {
+  color: #8195B0 !important;
+}
+
+html.dark nav [class*="bg-[#E7F1FC]"] {
+  background-color: #1A2E4D !important;
+}
+
+/* ---- Footer ---- */
+html.dark footer {
+  background-color: #0A1931 !important;
+  color: #CBD5E1 !important;
+}
+
+html.dark footer [class*="bg-[#F7FAFD]"] {
+  background-color: #132040 !important;
+}
+
+html.dark footer [class*="text-[#14253F]"],
+html.dark footer [class*="text-[#536071]"] {
+  color: #E2E8F0 !important;
+}
+
+/* ---- Buttons - keep primary readable ---- */
+html.dark [class*="bg-gradient-to-r"][class*="from-amber"] {
+  /* amber to red gradients stay same but ensure text dark */
+}
+
+html.dark [class*="bg-[#14253F]"][class*="text-white"] {
+  background-color: #1A2E4D !important;
+  color: #FFFFFF !important;
+}
+
+/* Disabled buttons in dark still visible */
+html.dark [class*="disabled:bg-[#CBD5E1]"]:disabled {
+  background-color: #1E3A5F !important;
+  color: #5A7290 !important;
+}
+
+/* Past event banner dark */
+html.dark [class*="bg-slate-700"] {
+  background-color: #1E2E4A !important;
+  color: #CBD5E1 !important;
+}
+
+html.dark [class*="bg-slate-100"] {
+  background-color: #1E2E4A !important;
+}
+
+html.dark [class*="text-slate-"] {
+  color: #B8C6D9 !important;
+}
+
+/* ---- Live chat dark ---- */
+html.dark [class*="bg-[#F7FAFD]"][class*="rounded-2xl"] {
+  background-color: #132040 !important;
+}
+
+html.dark .bg-white.border {
+  background-color: #132040 !important;
+  border-color: #1E3A5F !important;
+}
+
+/* ---- Admin & dark sections ---- */
+html.dark [class*="bg-[#0A1128]"],
+html.dark [class*="bg-[#131C2E]"] {
+  background-color: #0A1931 !important;
+}
+
+/* ---- Links & highlights ---- */
+html.dark a[class*="text-[#1267C4]"],
+html.dark [class*="hover:text-[#1267C4]"]:hover {
+  color: #7CC4FF !important;
+}
+
+/* ---- Modals ---- */
+html.dark [class*="bg-white"][class*="rounded-2xl"] {
+  background-color: #132040 !important;
+}
+
+html.dark [class*="bg-black/"] {
+  background-color: rgba(0,0,0,0.75) !important;
+}
+
+/* ---- Ensure every p, span, div with light bg gets dark treatment ---- */
+html.dark section,
+html.dark article,
+html.dark aside,
+html.dark div[class*="bg-white"],
+html.dark div[class*="bg-[#"] {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+/* Preserve special dark cards (Top Picks gradient should keep white text) */
+html.dark .bg-gradient-to-br.from-\[\#14253F\] {
+  background: linear-gradient(to bottom right, #132040, #123A70, #1267C4) !important;
+}
+
+html.dark .bg-gradient-to-br.from-\[\#14253F\] [class*="text-white"],
+html.dark .bg-gradient-to-br.from-\[\#14253F\] h3,
+html.dark .bg-gradient-to-br.from-\[\#14253F\] p {
+  color: white !important;
+}
+
+html.dark .bg-gradient-to-br.from-\[\#14253F\] [class*="text-[#FFD166]"] {
+  color: #FFD166 !important;
+}
+
+html.dark .bg-gradient-to-br.from-\[\#14253F\] [class*="text-white/70"] {
+  color: rgba(255,255,255,0.75) !important;
+}
+
+/* ---- Scrollbar, selection already done ---- */
+
+/* ---- Fix specific unreadable combinations - safe selectors ---- */
+html.dark [class*="text-"][class*="bg-white"],
+html.dark [class*="text-"][class*="bg-"] {
+  /* generic fix handled above */
+}
+
+/* Fallback readable contrast for light-on-light in dark */
+html.dark .text-\\[\\#14253F\\].bg-white,
+html.dark [class*="bg-white"][class*="text-"] {
+  color: #0A1931 !important;
+  background-color: #E2E8F0 !important;
+}
+
+/* Search input icons */
+html.dark [class*="text-[#687A90]"] svg,
+html.dark .text-amber-400 {
+  color: #FFD166 !important;
+}
+
+html.dark .text-amber-400 {
+  color: #FFD166 !important;
+}
+
+/* Calendar icon */
+html.dark [class*="text-[#1267C4]"] {
+  color: #7CC4FF !important;
+}
+
+/* ---- Dark mode for code blocks, pre, etc (highlight every code) ---- */
+html.dark pre,
+html.dark code {
+  background-color: #0F1E33 !important;
+  color: #E2E8F0 !important;
+  border-color: #1E3A5F !important;
+}
+
+html.dark .bg-gray-500\/20 {
+  background-color: rgba(148,163,184,0.15) !important;
+}
+
+/* =========================================================
+   ADMIN SECTION - Fix font/background conflicts
+   Admin dashboard is intentionally dark even in light mode.
+   Our generic dark-mode overrides were turning its intentional
+   white buttons / translucent inputs into dark-on-dark.
+   These rules restore correct contrast inside admin.
+   ========================================================= */
+
+/* Admin root stays dark but readable */
+html.dark .admin-modern,
+html.dark main[class*="bg-[#071A2A]"],
+html.dark main[class*="bg-[#0A1128]"] {
+  background-color: #071A2A !important;
+  color: #FFFFFF !important;
+}
+
+/* Inside admin: semi-transparent white inputs must stay translucent white, not solid navy */
+html.dark .admin-modern [class*="bg-white/5"],
+html.dark main[class*="bg-[#071A2A]"] [class*="bg-white/5"],
+html.dark main[class*="bg-[#0A1128]"] [class*="bg-white/5"],
+html.dark .admin-modern [class*="bg-white/[0.04]"],
+html.dark .admin-modern [class*="bg-white/[0.03]"] {
+  background-color: rgba(255,255,255,0.05) !important;
+}
+
+html.dark .admin-modern [class*="bg-white/10"],
+html.dark main[class*="bg-[#071A2A]"] [class*="bg-white/10"],
+html.dark main[class*="bg-[#0A1128]"] [class*="bg-white/10"] {
+  background-color: rgba(255,255,255,0.10) !important;
+}
+
+html.dark .admin-modern [class*="hover:bg-white/5"]:hover,
+html.dark .admin-modern [class*="hover:bg-white/10"]:hover {
+  background-color: rgba(255,255,255,0.10) !important;
+}
+
+html.dark .admin-modern [class*="hover:bg-white/10"]:hover {
+  background-color: rgba(255,255,255,0.15) !important;
+}
+
+/* White buttons inside admin (close modal X, etc.) must stay white with dark text */
+html.dark .admin-modern .bg-white,
+html.dark main[class*="bg-[#0A1128]"] .bg-white,
+html.dark main[class*="bg-[#071A2A]"] .bg-white,
+html.dark .admin-modern [class*="bg-white"][class*="rounded-full"] {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+html.dark .admin-modern .bg-white.text-slate-900,
+html.dark .admin-modern .bg-white .text-slate-900,
+html.dark main[class*="bg-[#0A1128]"] .bg-white.text-slate-900 {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Ensure dark text on white bg stays dark, even in dark mode */
+html.dark .admin-modern [class*="text-slate-900"][class*="bg-white"],
+html.dark .admin-modern .text-slate-900 {
+  color: #0F172A !important;
+}
+
+/* Admin cards: keep dark card backgrounds distinct */
+html.dark .admin-modern [class*="bg-[#131C2E]"],
+html.dark main[class*="bg-[#0A1128]"] [class*="bg-[#131C2E]"],
+html.dark .admin-modern [class*="bg-[#0d1425]"] {
+  background-color: #111E32 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Admin headings stay white */
+html.dark .admin-modern h1,
+html.dark .admin-modern h2,
+html.dark .admin-modern h3,
+html.dark .admin-modern h4,
+html.dark main[class*="bg-[#0A1128]"] h1,
+html.dark main[class*="bg-[#0A1128]"] h2,
+html.dark main[class*="bg-[#0A1128]"] h3 {
+  color: #FFFFFF !important;
+}
+
+/* Admin secondary text - keep gray readable on dark, not forced light */
+html.dark .admin-modern .text-gray-400,
+html.dark .admin-modern [class*="text-gray-400"],
+html.dark main[class*="bg-[#0A1128]"] .text-gray-400,
+html.dark main[class*="bg-[#0A1128]"] [class*="text-gray-400"] {
+  color: #94A3B8 !important;
+}
+
+html.dark .admin-modern .text-gray-500,
+html.dark main[class*="bg-[#0A1128]"] .text-gray-500 {
+  color: #6B7F9A !important;
+}
+
+html.dark .admin-modern .text-white,
+html.dark main[class*="bg-[#0A1128]"] .text-white {
+  color: #FFFFFF !important;
+}
+
+/* Admin inputs: ensure they stay dark translucent, not light */
+html.dark .admin-modern input,
+html.dark .admin-modern select,
+html.dark .admin-modern textarea,
+html.dark main[class*="bg-[#0A1128]"] input,
+html.dark main[class*="bg-[#0A1128]"] select,
+html.dark main[class*="bg-[#0A1128]"] textarea {
+  background-color: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .admin-modern input::placeholder,
+html.dark main[class*="bg-[#0A1128]"] input::placeholder {
+  color: #6B7F9A !important;
+}
+
+/* Admin table rows hover */
+html.dark .admin-modern tr[class*="border-white/5"]:hover,
+html.dark main[class*="bg-[#0A1128]"] tr[class*="hover:bg-white/5"]:hover {
+  background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Admin badges like bg-amber-500/20 text-amber-300 should stay as is in dark */
+html.dark .admin-modern [class*="bg-amber-500/"],
+html.dark .admin-modern [class*="bg-blue-500/"],
+html.dark .admin-modern [class*="bg-red-500/"],
+html.dark .admin-modern [class*="bg-green-500/"],
+html.dark .admin-modern [class*="bg-purple-500/"],
+html.dark .admin-modern [class*="bg-emerald-500/"] {
+  /* keep original translucent colored backgrounds */
+}
+
+/* Fix modal backgrounds in admin: they use bg-[#14142a] or bg-[#131C2E] - keep dark */
+html.dark .admin-modern [class*="bg-[#14142a]"],
+html.dark main[class*="bg-[#0A1128]"] [class*="bg-[#14142a]"] {
+  background-color: #14142A !important;
+}
+
+/* =========================================================
+   EYE-SENSITIVE ACCESSIBILITY - Comfort modes
+   ========================================================= */
+
+/* Eye Comfort - warm filter reduces blue light, lowers brightness slightly */
+html.eye-comfort {
+  filter: sepia(0.12) brightness(0.94) saturate(0.92);
+}
+html.eye-comfort body {
+  background-color: #FDF6E3 !important;
+}
+html.eye-comfort.dark body {
+  background-color: #17120A !important;
+}
+html.eye-comfort.dark {
+  filter: sepia(0.18) brightness(0.88) saturate(0.85) hue-rotate(-5deg);
+}
+
+/* High Contrast - stronger text, clearer borders for low vision but light sensitive */
+html.high-contrast body {
+  color: #000000 !important;
+}
+html.high-contrast.dark body {
+  color: #FFFFFF !important;
+}
+html.high-contrast [class*="text-[#687A90]"],
+html.high-contrast [class*="text-[#8A9AB0]"],
+html.high-contrast [class*="text-[#5B6B82]"] {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+html.high-contrast.dark [class*="text-[#687A90]"],
+html.high-contrast.dark [class*="text-[#8A9AB0]"],
+html.high-contrast.dark [class*="text-[#5B6B82]"],
+html.high-contrast.dark [class*="text-[#B8C6D9]"] {
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+html.high-contrast [class*="border-"] {
+  border-width: 1.5px !important;
+  border-color: #000000 !important;
+}
+html.high-contrast.dark [class*="border-"] {
+  border-color: #FFFFFF !important;
+}
+
+/* Reduce Motion - disable all animations/transitions for vestibular / light sensitivity */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+html.reduce-motion .animate-float,
+html.reduce-motion .animate-shimmer {
+  animation: none !important;
+}
+
+/* Font scaling for readability */
+html.font-large { font-size: 112.5%; }
+html.font-xl { font-size: 125%; }
+html.font-large body, html.font-xl body { line-height: 1.7; }
+
+/* Ensure images never flash white in dark */
+html.dark img {
+  filter: brightness(0.92) !important;
+}
+html.eye-comfort img {
+  filter: brightness(0.9) sepia(0.15) !important;
+}
+html.eye-comfort.dark img {
+  filter: brightness(0.85) sepia(0.2) !important;
+}
+
 

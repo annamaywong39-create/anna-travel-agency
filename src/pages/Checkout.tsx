@@ -98,11 +98,6 @@ export default function Checkout() {
       setShowPaygateError(true);
       setCurrentStep(3);
       setPaymentSuccess(true);
-      try {
-        const audio = new Audio('/audio/payment-gateway-warning.mp3');
-        audio.volume = 0.8;
-        audio.play().catch(()=>{});
-      } catch {}
       // Scroll to top for paygate screen
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) { setError(getErrorMessage(err)); setIsProcessing(false); }
@@ -136,8 +131,7 @@ export default function Checkout() {
               <Link to="/contact" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#D8E5F0] bg-white px-6 py-3 text-sm font-semibold text-[#14253F] hover:bg-[#F7FAFD]">Contact Concierge</Link>
               <button onClick={() => { const el = document.querySelector('[aria-label="Open chat"]') as HTMLElement; el?.click(); }} className="rounded-full bg-[#14253F] px-6 py-3 text-sm font-bold text-white hover:bg-black">Chat with Admin</button>
             </div>
-            <audio controls autoPlay src="/audio/payment-gateway-warning.mp3" className="mt-4 w-full" />
-            <p className="mt-4 text-[11px] text-[#8A9AB0]">Your booking code will be sent via email after admin confirms payment method. Audio warning playing.</p>
+            <p className="mt-4 text-[11px] text-[#8A9AB0]">Your booking code will be sent via email after admin confirms payment method. Please save this page and contact support.</p>
             <Link to="/dashboard" onClick={() => clearCart()} className="mt-6 inline-block rounded-full bg-[#1267C4] px-8 py-3.5 font-bold text-white hover:bg-[#0F5AAC]">View My Bookings</Link>
           </motion.div>
         </div>
@@ -167,21 +161,35 @@ export default function Checkout() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <Link to="/tickets" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#1267C4] hover:underline"><ArrowLeft className="h-4 w-4" /> Continue Shopping</Link>
 
-        {/* Stepper */}
-        <div className="mb-8 flex items-center gap-3">
+        {/* Stepper - Smooth 3-step flow */}
+        <div className="mb-8 flex flex-wrap items-center gap-3">
           {[
-            { n: 1, label: 'Review', active: currentStep >= 1 },
-            { n: 2, label: 'Details', active: currentStep >= 2 },
-            { n: 3, label: 'Pay', active: currentStep >= 3 },
+            { n: 1, label: 'Review Cart', active: currentStep >= 1, done: currentStep > 1 || !!user },
+            { n: 2, label: user ? `Account ✓ ${user.firstName}` : 'Sign In', active: currentStep >= 2 || !!user },
+            { n: 3, label: 'Secure Pay', active: currentStep >= 3 },
           ].map((s, idx) => (
             <div key={s.n} className="flex items-center gap-3">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${s.active ? 'bg-[#1267C4] text-white' : 'bg-white border border-[#D8E5F0] text-[#8A9AB0]'}`}>{currentStep > s.n ? '✓' : s.n}</div>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition ${s.active ? 'bg-[#1267C4] text-white' : 'bg-white border border-[#D8E5F0] text-[#8A9AB0]'}`}>{s.done ? '✓' : s.n}</div>
               <span className={`text-sm ${s.active ? 'font-bold text-[#14253F]' : 'text-[#8A9AB0]'}`}>{s.label}</span>
-              {idx < 2 && <div className="h-px w-8 bg-[#D8E5F0] mx-2" />}
+              {idx < 2 && <div className={`h-px w-8 mx-2 transition ${s.done ? 'bg-[#1267C4]' : 'bg-[#D8E5F0]'}`} />}
             </div>
           ))}
           <div className="ml-auto hidden md:flex"><TrustBadges /></div>
         </div>
+
+        {/* New user helper banner */}
+        {!user && (
+          <div className="mb-6 rounded-2xl border border-[#1267C4]/20 bg-[#E7F1FC] p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-[#14253F]">New here? Your cart is saved ✓</p>
+              <p className="text-xs text-[#5B6B82] mt-1">Create an account in 30 seconds, then securely pay via PayPal request after we verify availability.</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Link to="/login" state={{ from: '/checkout' }} className="rounded-full border border-[#D8E5F0] bg-white px-4 py-2 text-sm font-semibold text-[#14253F] hover:bg-[#F7FAFD]">Sign In</Link>
+              <Link to="/signup" state={{ from: '/checkout' }} className="rounded-full bg-[#14253F] px-4 py-2 text-sm font-bold text-white hover:bg-black">Create Account</Link>
+            </div>
+          </div>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr]">
           {/* Left: cart */}
@@ -269,10 +277,20 @@ export default function Checkout() {
                 <div className="flex items-center justify-between"><span className="text-lg font-bold">Total</span><span className="text-2xl font-black text-[#1267C4]">{format(getCartTotal())}</span></div>
 
                 {error && <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-                {!user && <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">Please <Link to="/login" state={{ from: '/checkout' }} className="font-medium text-[#1267C4] underline">sign in</Link> to complete.</div>}
+                {!user && (
+                  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <p className="text-sm font-bold text-[#14253F]">Almost there — sign in to pay securely</p>
+                    <p className="mt-1 text-xs text-[#5B6B82]">Your {cartItems.length} item{cartItems.length>1?'s':''} stay{cartItems.length>1?'':'s'} saved. Takes 20 seconds.</p>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <Link to="/login" state={{ from: '/checkout' }} className="rounded-full border border-[#D8E5F0] bg-white px-4 py-2.5 text-center text-sm font-semibold text-[#14253F] hover:bg-[#F7FAFD]">Sign In</Link>
+                      <Link to="/signup" state={{ from: '/checkout' }} className="rounded-full bg-[#14253F] px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-black">Create Account</Link>
+                    </div>
+                    <p className="mt-2 text-center text-[11px] text-[#8A9AB0]">We verify room/ticket availability first, then send secure PayPal request. No charge today.</p>
+                  </div>
+                )}
 
-                <button onClick={handleCheckout} disabled={isProcessing || !user} className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-bold shadow-sm transition ${isProcessing || !user ? 'bg-[#E2E8F0] text-[#94A3B8] cursor-not-allowed' : 'bg-[#1267C4] text-white hover:bg-[#0F5AAC] hover:shadow'}`}>
-                  {isProcessing ? <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white" /> Processing…</> : !user ? 'Sign In to Checkout' : `Pay ${format(getCartTotal())} • PayPal`}
+                <button onClick={handleCheckout} disabled={isProcessing} className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-bold shadow-sm transition ${isProcessing ? 'bg-[#E2E8F0] text-[#94A3B8] cursor-not-allowed' : user ? 'bg-[#1267C4] text-white hover:bg-[#0F5AAC] hover:shadow' : 'bg-[#14253F] text-white hover:bg-black'}`}>
+                  {isProcessing ? <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white" /> Processing…</> : !user ? 'Continue to Sign In →' : `Pay ${format(getCartTotal())} • Secure Request`}
                 </button>
                 <div className="mt-3"><TrustBadges /></div>
                 <p className="mt-3 text-center text-[11px] text-[#8A9AB0]">🔒 Secure checkout • Verified inventory • Free cancellation info in Refund Policy</p>

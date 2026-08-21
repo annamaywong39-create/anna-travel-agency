@@ -35,6 +35,17 @@ export const HOST_CITIES: HostCity[] = [
   { id: 'toronto', name: 'Toronto', country: 'Canada', countryFlag: '🇨🇦', stadium: 'Rogers Stadium', image: IMAGES.toronto, description: 'Canada’s largest city with Rogers Stadium and waterfront venues.' },
   { id: 'vancouver', name: 'Vancouver', country: 'Canada', countryFlag: '🇨🇦', stadium: 'BC Place', image: IMAGES.vancouver, description: 'Coastal city with BC Place and mountain views.' },
   { id: 'atlanta', name: 'Atlanta', country: 'USA', countryFlag: '🇺🇸', stadium: 'Mercedes-Benz Stadium', image: IMAGES.stadium, description: 'Southern hub with Mercedes-Benz Stadium and vibrant live-event scene.' },
+  // BTS ARIRANG from now to January - added countries
+  { id: 'bogota', name: 'Bogotá', country: 'Colombia', countryFlag: '🇨🇴', stadium: 'Estadio Nemésio Camacho El Campín', image: IMAGES.stadium, description: 'Bogotá — BTS ARIRANG Latin America leg, high-altitude stadium with huge ARMY energy.' },
+  { id: 'lima', name: 'Lima', country: 'Peru', countryFlag: '🇵🇪', stadium: 'Estadio San Marcos', image: IMAGES.fans1, description: 'Lima — BTS ARIRANG Peru dates, university stadium with massive capacity.' },
+  { id: 'santiago', name: 'Santiago', country: 'Chile', countryFlag: '🇨🇱', stadium: 'Estadio Nacional Julio Martínez Prádanos', image: IMAGES.stadium, description: 'Santiago — Chile national stadium, BTS ARIRANG headline shows.' },
+  { id: 'buenosaires', name: 'Buenos Aires', country: 'Argentina', countryFlag: '🇦🇷', stadium: 'Estadio Único de La Plata', image: IMAGES.fans2, description: 'Buenos Aires / La Plata — Argentina’s premier stadium for BTS ARIRANG.' },
+  { id: 'saopaulo', name: 'São Paulo', country: 'Brazil', countryFlag: '🇧🇷', stadium: 'Estádio MorumBIS', image: IMAGES.stadium, description: 'São Paulo — Brazil’s largest city, MorumBIS stadium for BTS ARIRANG finale in LatAm.' },
+  { id: 'kaohsiung', name: 'Kaohsiung', country: 'Taiwan', countryFlag: '🇹🇼', stadium: 'Kaohsiung National Stadium', image: IMAGES.hero, description: 'Kaohsiung — Taiwan National Stadium, BTS ARIRANG Asia leg.' },
+  { id: 'bangkok', name: 'Bangkok', country: 'Thailand', countryFlag: '🇹🇭', stadium: 'Rajamangala National Stadium', image: IMAGES.vancouver, description: 'Bangkok — Rajamangala Stadium, BTS ARIRANG Thailand shows.' },
+  { id: 'kualalumpur', name: 'Kuala Lumpur', country: 'Malaysia', countryFlag: '🇲🇾', stadium: 'Bukit Jalil National Stadium', image: IMAGES.nyc, description: 'Kuala Lumpur — Bukit Jalil, Malaysia’s national stadium for BTS ARIRANG.' },
+  { id: 'singapore', name: 'Singapore', country: 'Singapore', countryFlag: '🇸🇬', stadium: 'National Stadium', image: IMAGES.nyc, description: 'Singapore — National Stadium, BTS ARIRANG Singapore multi-night run.' },
+  { id: 'jakarta', name: 'Jakarta', country: 'Indonesia', countryFlag: '🇮🇩', stadium: 'Gelora Bung Karno Main Stadium', image: IMAGES.hero, description: 'Jakarta — GBK Main Stadium, BTS ARIRANG Indonesia finale before 2027.' },
 ];
 
 export interface Listing {
@@ -174,5 +185,56 @@ export const LISTINGS: Listing[] = [
     id: 'hotel-la-003', title: 'Homewood Suites by Hilton Los Angeles International Airport', type: 'hotel', city: 'Inglewood', cityId: 'la', price: 162, rating: 4.5, reviews: 0,
     images: ['/images/apartment.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Breakfast', 'Kitchenette', 'Pool'], maxGuests: 4, bedrooms: 2,
     description: 'A suite-style option for families and groups travelling to SoFi Stadium.', nearestStadium: 'SoFi Stadium', distanceToStadium: '3.1 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/locations/usa/california/inglewood/sofi-stadium/',
+  },
+  // Hotels for new BTS cities from now to Jan - each with city hotels option
+  {
+    id: 'hotel-bogota-001', title: 'Hilton Bogota', type: 'hotel', city: 'Bogotá', cityId: 'bogota', price: 110, rating: 4.6, reviews: 0,
+    images: ['/images/hotel-luxury.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Breakfast', 'Gym', 'Pool'], maxGuests: 2, bedrooms: 1,
+    description: 'Bogotá hotel near El Campín for BTS ARIRANG. Local currency COP with USD equivalent shown. Conversion rate 1 USD = 4,100 COP.', nearestStadium: 'Estadio El Campín', distanceToStadium: '1.2 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/bogohhi-hilton-bogota/',
+  },
+  {
+    id: 'hotel-lima-001', title: 'Hilton Lima Miraflores', type: 'hotel', city: 'Lima', cityId: 'lima', price: 125, rating: 4.7, reviews: 0,
+    images: ['/images/hotel-room.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Breakfast', 'Ocean View', 'Gym'], maxGuests: 2, bedrooms: 1,
+    description: 'Lima Miraflores hotel for BTS ARIRANG at San Marcos. Local PEN with USD equivalent. 1 USD = 3.73 PEN.', nearestStadium: 'Estadio San Marcos', distanceToStadium: '3.5 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/limmihi-hilton-lima-miraflores/',
+  },
+  {
+    id: 'hotel-santiago-001', title: 'Hilton Garden Inn Santiago Las Condes', type: 'hotel', city: 'Santiago', cityId: 'santiago', price: 95, rating: 4.5, reviews: 0,
+    images: ['/images/city.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Breakfast', 'Gym', 'Bar'], maxGuests: 2, bedrooms: 1,
+    description: 'Santiago hotel near Nacional for BTS ARIRANG. Local CLP with USD equivalent. 1 USD = 920 CLP.', nearestStadium: 'Estadio Nacional', distanceToStadium: '2.0 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/scllcgi-hilton-garden-inn-santiago-las-condes/',
+  },
+  {
+    id: 'hotel-buenosaires-001', title: 'Hilton Buenos Aires', type: 'hotel', city: 'Buenos Aires', cityId: 'buenosaires', price: 140, rating: 4.7, reviews: 0,
+    images: ['/images/hotel-luxury.jpg', '/images/apartment.jpg'], amenities: ['WiFi', 'Pool', 'Spa', 'Restaurant'], maxGuests: 2, bedrooms: 1,
+    description: 'Buenos Aires hotel for BTS ARIRANG La Plata. Local ARS with USD equivalent. 1 USD = 900 ARS.', nearestStadium: 'Estadio Único de La Plata', distanceToStadium: '35 miles from BA center', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/buehihi-hilton-buenos-aires/',
+  },
+  {
+    id: 'hotel-saopaulo-001', title: 'Hilton São Paulo Morumbi', type: 'hotel', city: 'São Paulo', cityId: 'saopaulo', price: 135, rating: 4.6, reviews: 0,
+    images: ['/images/city.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Pool', 'Gym', 'Restaurant'], maxGuests: 2, bedrooms: 1,
+    description: 'São Paulo Morumbi hotel near MorumBIS for BTS ARIRANG. Local BRL with USD equivalent. 1 USD = 5.2 BRL.', nearestStadium: 'Estádio MorumBIS', distanceToStadium: '1.5 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/saomohi-hilton-sao-paulo-morumbi/',
+  },
+  {
+    id: 'hotel-kaohsiung-001', title: 'Kaohsiung Marriott Hotel', type: 'hotel', city: 'Kaohsiung', cityId: 'kaohsiung', price: 115, rating: 4.6, reviews: 0,
+    images: ['/images/hotel-room.jpg', '/images/city.jpg'], amenities: ['WiFi', 'Pool', 'Gym', 'Breakfast'], maxGuests: 2, bedrooms: 1,
+    description: 'Kaohsiung hotel near National Stadium for BTS ARIRANG. Local TWD with USD equivalent. 1 USD = 32 TWD.', nearestStadium: 'Kaohsiung National Stadium', distanceToStadium: '0.9 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.marriott.com/en-us/hotels/khhak-kaohsiung-marriott-hotel/',
+  },
+  {
+    id: 'hotel-bangkok-001', title: 'Hilton Sukhumvit Bangkok', type: 'hotel', city: 'Bangkok', cityId: 'bangkok', price: 85, rating: 4.6, reviews: 0,
+    images: ['/images/hotel-luxury.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Pool', 'Spa', 'Rooftop'], maxGuests: 2, bedrooms: 1,
+    description: 'Bangkok Sukhumvit hotel for BTS ARIRANG Rajamangala. Local THB with USD equivalent. 1 USD = 36 THB.', nearestStadium: 'Rajamangala National Stadium', distanceToStadium: '4.2 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/bkkshhi-hilton-sukhumvit-bangkok/',
+  },
+  {
+    id: 'hotel-kl-001', title: 'Hilton Kuala Lumpur', type: 'hotel', city: 'Kuala Lumpur', cityId: 'kualalumpur', price: 90, rating: 4.6, reviews: 0,
+    images: ['/images/city.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Pool', 'Gym', 'Breakfast'], maxGuests: 2, bedrooms: 1,
+    description: 'Kuala Lumpur hotel near Bukit Jalil for BTS ARIRANG. Local MYR with USD equivalent. 1 USD = 4.7 MYR.', nearestStadium: 'Bukit Jalil National Stadium', distanceToStadium: '2.8 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/kulhihi-hilton-kuala-lumpur/',
+  },
+  {
+    id: 'hotel-singapore-001', title: 'Hilton Singapore Orchard', type: 'hotel', city: 'Singapore', cityId: 'singapore', price: 210, rating: 4.7, reviews: 0,
+    images: ['/images/hotel-room.jpg', '/images/hotel-luxury.jpg'], amenities: ['WiFi', 'Pool', 'Gym', 'Orchard Road'], maxGuests: 2, bedrooms: 1,
+    description: 'Singapore Orchard hotel near National Stadium for BTS ARIRANG. Local SGD with USD equivalent. 1 USD = 1.32 SGD.', nearestStadium: 'National Stadium', distanceToStadium: '1.1 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/sinorhi-hilton-singapore-orchard/',
+  },
+  {
+    id: 'hotel-jakarta-001', title: 'Hilton Garden Inn Jakarta Taman Palem', type: 'hotel', city: 'Jakarta', cityId: 'jakarta', price: 65, rating: 4.5, reviews: 0,
+    images: ['/images/apartment.jpg', '/images/hotel-room.jpg'], amenities: ['WiFi', 'Pool', 'Gym', 'Breakfast'], maxGuests: 2, bedrooms: 1,
+    description: 'Jakarta hotel near GBK for BTS ARIRANG. Local IDR with USD equivalent. 1 USD = 16,000 IDR.', nearestStadium: 'Gelora Bung Karno Main Stadium', distanceToStadium: '1.3 miles', available: true, priceIsFrom: true, imageIsIllustrative: true, sourceUrl: 'https://www.hilton.com/en/hotels/cgkpagi-hilton-garden-inn-jakarta-taman-palem/',
   },
 ];

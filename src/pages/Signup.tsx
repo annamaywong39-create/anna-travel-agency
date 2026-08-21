@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, AlertCircle, Eye, EyeOff, UserPlus, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,10 +20,12 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const { signup, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation() as any;
+  const from = location.state?.from || '/dashboard';
 
   useEffect(() => {
-    if (user) navigate('/dashboard', { replace: true });
-  }, [user, navigate]);
+    if (user) navigate(from, { replace: true });
+  }, [user, navigate, from]);
 
   if (user) return null;
 
@@ -66,7 +68,7 @@ export default function Signup() {
       if (result.success && result.requiresVerification) {
         setMessage('Account created. Please check your email and click the verification link before signing in.');
       } else if (result.success) {
-        navigate('/dashboard', { replace: true });
+        navigate(from, { replace: true });
       } else {
         setError(result.error || 'Signup failed');
       }
@@ -267,10 +269,11 @@ export default function Signup() {
           <div className="mt-6 text-center">
             <p className="text-[#687A90] text-sm">
               Already have an account?{' '}
-              <Link to="/login" className="text-emerald-400 hover:text-emerald-300 font-medium">
+              <Link to="/login" state={{ from }} className="text-emerald-400 hover:text-emerald-300 font-medium">
                 Sign in
               </Link>
             </p>
+            {from !== '/dashboard' && <p className="mt-2 text-xs text-[#8A9AB0]">After sign in, you'll return to checkout</p>}
           </div>
         </div>
       </motion.div>

@@ -35,7 +35,7 @@ export default function Home() {
   return <main className="home-luxury bg-[#f6f9fd] text-[#14253f]">
     <SEO title="Curated event travel and stays" description="Plan event trips with selected stays, ticket requests, and personal concierge support from Anna Travel Agency." />
     <BtsPromoBanner />
-    <section className="relative overflow-visible bg-[#ddecfb]">
+    <section className="relative overflow-visible bg-[#ddecfb] mt-0">
       <img src={current.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" width="1600" height="900" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#e9f4ff] via-[#edf7ff]/90 to-transparent" />
       <div className="relative mx-auto grid min-h-[590px] max-w-7xl items-center gap-10 px-5 pb-36 pt-32 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:px-12">
