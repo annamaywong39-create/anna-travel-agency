@@ -37,10 +37,38 @@ img {
   max-width: 100%;
 }
 
-/* Admin: white workspace with a navy navigation rail - now handled via Tailwind, not !important */
+/* Admin: always dark workspace for readability - no light override */
 .admin-modern {
-  background: var(--ana-bg);
-  color: var(--ana-ink);
+  background: #071A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .admin-modern {
+  background: #071A2A !important;
+  color: #FFFFFF !important;
+}
+
+/* Admin cards inside admin-modern - keep dark with white text */
+.admin-modern .bg-white,
+.admin-modern [class*="bg-[#131C2E]"],
+.admin-modern [class*="bg-[#0d1425]"],
+.admin-modern [class*="bg-[#14142a]"] {
+  background: #111E32 !important;
+  color: #FFFFFF !important;
+}
+
+.admin-modern h1,
+.admin-modern h2,
+.admin-modern h3,
+.admin-modern h4,
+.admin-modern .text-white {
+  color: #FFFFFF !important;
+}
+
+.admin-modern .text-gray-400,
+.admin-modern .text-gray-500,
+.admin-modern .text-gray-300 {
+  color: #94A3B8 !important;
 }
 
 /* Preserve dark gradient cards for Top Picks - do NOT override text-white inside them */

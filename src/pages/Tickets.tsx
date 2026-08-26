@@ -357,36 +357,26 @@ export default function Tickets() {
       {list.map((item) => {
         const available = item.tickets.filter((ticket) => ticket.quantity_available > 0);
         const isWish = hasWishlist(item.id);
-        const localCurr = getCurrencyForCity(item.city);
-        const currInfo = CURRENCIES[localCurr];
         const cheapest = available.length ? available.reduce((min, t) => Math.min(min, t.price), Infinity) : 0;
-        const dual = cheapest ? formatDual(cheapest, item.city) : null;
         return (
           <Card3D key={item.id}>
             <article id={`event-card-${item.id}`} className="relative overflow-hidden rounded-2xl border border-[#D8E5F0] bg-white shadow-sm">
               <button onClick={(e)=>{ e.preventDefault(); toggleWishlist({ id: item.id, type: 'event', title: item.title }); }} aria-label={isWish?'Remove from wishlist':'Save to wishlist'} className={`absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur transition ${isWish ? 'bg-[#E85D9A] border-[#E85D9A] text-white' : 'bg-white/90 border-[#D8E5F0] text-[#8A9AB0] hover:text-[#E85D9A]'}`}><Heart className={`h-4 w-4 ${isWish?'fill-white':''}`} /></button>
               <img src={item.image_url || FALLBACK_IMAGE} alt={item.title} width="900" height="520" decoding="async" className="h-52 w-full object-cover" loading="lazy" />
-              <div className="absolute bottom-2 left-2 rounded-full bg-[#0F1E3A]/85 px-2.5 py-1 text-[10px] font-bold text-white border border-white/20">{currInfo.flag} {localCurr}</div>
               <div className="p-5">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <span className="rounded-full border border-[#D8E5F0] bg-[#E7F1FC] px-3 py-1 text-xs font-semibold text-[#1267C4]">{item.category}</span>
-                  <span className="text-xs text-[#687A90]">{available.length ? `${available.length} sections` : 'Request access'}</span>
+                  <span className="text-xs text-[#687A90]">{available.length} options</span>
                 </div>
                 <h2 className="line-clamp-2 text-xl font-bold text-[#14253F]">{item.title}</h2>
                 <div className="mt-3 space-y-2 text-sm text-[#5B6B82]">
                   <p className="flex items-center gap-2"><Calendar className="h-4 w-4 text-[#1267C4]" />{formatVenueDate(item.date, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</p>
                   <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-[#1267C4]" />{item.venue}, {item.city}</p>
+                  {cheapest > 0 && <p className="font-semibold text-[#14253F]">From ${cheapest.toLocaleString()}</p>}
                 </div>
-                {dual && (
-                  <div className="mt-3 rounded-xl border border-[#D8E5F0] bg-[#F7FAFD] p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A9AB0]">From • Dual currency</p>
-                    <p className="mt-1 text-sm font-bold text-[#14253F]">{dual.usd} → {dual.local}</p>
-                    <p className="mt-1 text-[11px] text-[#687A90]">{dual.rateText}</p>
-                  </div>
-                )}
                 <div className="mt-4 grid grid-cols-2 gap-2">
-                  <button onClick={() => openPurchase(item)} className="rounded-xl bg-[#1267C4] px-3 py-3 text-sm font-bold text-white transition hover:bg-[#0F5AAC]">Buy • {available.length} sections</button>
-                  <Link to={`/listings?city=${encodeURIComponent(item.city)}`} className="flex items-center justify-center gap-1 rounded-xl border border-[#D8E5F0] bg-white px-3 py-2.5 text-xs font-semibold text-[#687A90] hover:border-[#1267C4] hover:text-[#1267C4]">🏨 Hotels in {item.city.split(',')[0]}</Link>
+                  <button onClick={() => openPurchase(item)} className="rounded-xl bg-[#1267C4] px-3 py-3 text-sm font-bold text-white hover:bg-[#0F5AAC]">View Tickets</button>
+                  <Link to={`/listings?city=${encodeURIComponent(item.city)}`} className="flex items-center justify-center rounded-xl border border-[#D8E5F0] bg-white px-3 py-2.5 text-xs font-semibold text-[#687A90] hover:border-[#1267C4]">Hotels</Link>
                 </div>
               </div>
             </article>
@@ -404,7 +394,7 @@ export default function Tickets() {
         <header className="mb-6 max-w-3xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#1267C4]">Tickets only</p>
           <h1 className="text-4xl font-black tracking-tight text-[#14253F] md:text-6xl">Verified tickets.</h1>
-          <p className="mt-4 text-lg leading-relaxed text-[#5B6B82]">This tab shows <strong>only upcoming events with tickets available</strong>. Events tab shows full catalog including history. Select multiple sections at once — checkout is sticky, no scrolling.</p>
+          <p className="mt-4 text-lg leading-relaxed text-[#5B6B82]">This tab shows <strong>only upcoming events with tickets available</strong>. Events tab shows full catalog.</p>
           <div className="mt-5 flex flex-wrap items-center gap-3"><TrustBadges /><RecentBookingsTicker /></div>
           <div className="mt-4 flex gap-2">
             <button onClick={() => navigate('/events')} className="rounded-full border border-[#D8E5F0] bg-white px-4 py-2 text-sm font-semibold text-[#687A90] hover:text-[#1267C4]">Go to Events tab (all events)</button>
@@ -413,11 +403,9 @@ export default function Tickets() {
 
         <section className="mb-6">
           <div className="inline-flex rounded-2xl border border-[#D8E5F0] bg-white p-1 shadow-sm">
-            <Link to="/events" className="rounded-xl px-6 py-2.5 text-sm font-bold text-[#687A90] hover:text-[#14253F]">Events Tab — All ({items.length} total with history)</Link>
-            <span className="rounded-xl bg-[#1267C4] px-6 py-2.5 text-sm font-bold text-white shadow-sm">Ticket Tab — Available Only ({ticketOptionsCount} options • {items.length} events)</span>
+            <Link to="/events" className="rounded-xl px-6 py-2.5 text-sm font-bold text-[#687A90] hover:text-[#14253F]">Events</Link>
+            <span className="rounded-xl bg-[#1267C4] px-6 py-2.5 text-sm font-bold text-white shadow-sm">Tickets</span>
           </div>
-          <p className="mt-3 text-xs text-[#687A90]">Separate tabs as requested: <strong>Events</strong> shows ALL events (future + past with Ended/Sold out banner). <strong>Tickets</strong> shows only upcoming events with verified inventory + multi-section select + sticky checkout. Click Events tab to see full catalog, then you can jump to Ticket tab filtered for that event.</p>
-          {query && <p className="mt-2 text-xs"><span className="rounded-full bg-[#E7F1FC] px-3 py-1 font-semibold text-[#1267C4]">Filtered from Events tab: {query}</span> <button onClick={()=>setQuery('')} className="ml-2 text-[#687A90] underline">Clear</button></p>}
         </section>
 
         {!loading && filtered.length > 0 && (
@@ -479,24 +467,23 @@ export default function Tickets() {
                 <>
                   <div className="mb-4 rounded-xl border border-[#D8E5F0] bg-[#F7FAFD] p-3">
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <input value={ticketSearch} onChange={(event) => setTicketSearch(event.target.value)} placeholder="Search section, row, or package" className="min-w-0 flex-1 rounded-lg border border-[#D8E5F0] bg-white px-3 py-2 text-sm" />
-                      <select value={ticketGroupFilter} onChange={(event) => setTicketGroupFilter(event.target.value as typeof ticketGroupFilter)} className="rounded-lg border border-[#D8E5F0] bg-white px-3 py-2 text-sm"><option value="all">All seating</option><option value="Premium">Premium & VIP</option><option value="Lower bowl">100s–200s</option><option value="Upper bowl">300s–500s</option><option value="Other">Other</option></select>
+                      <input value={ticketSearch} onChange={(event) => setTicketSearch(event.target.value)} placeholder="Search section" className="min-w-0 flex-1 rounded-lg border border-[#D8E5F0] bg-white px-3 py-2 text-sm" />
+                      <select value={ticketGroupFilter} onChange={(event) => setTicketGroupFilter(event.target.value as typeof ticketGroupFilter)} className="rounded-lg border border-[#D8E5F0] bg-white px-3 py-2 text-sm"><option value="all">All</option><option value="Premium">Premium</option><option value="Lower bowl">Lower</option><option value="Upper bowl">Upper</option><option value="Other">Other</option></select>
                     </div>
-                    <p className="mt-2 text-xs text-[#687A90]">{visibleTickets.length} options • Multi-select • Sticky checkout below, no scroll needed</p>
+                    <p className="mt-2 text-xs text-[#687A90]">{visibleTickets.length} options</p>
                   </div>
 
-                  <label className="mb-2 flex items-center justify-between text-sm font-semibold"><span>Choose sections (multiple)</span><span className="text-xs font-normal text-[#687A90]">{Object.keys(multiCart).length} selected</span></label>
+                  <label className="mb-2 flex items-center justify-between text-sm font-semibold"><span>Select tickets</span><span className="text-xs font-normal text-[#687A90]">{Object.keys(multiCart).length} selected</span></label>
                   <div className="space-y-2 max-h-[38vh] overflow-y-auto pr-1">
-                    {visibleTickets.map((ticket) => {
+                    {visibleTickets.slice(0,12).map((ticket) => {
                       const isSelected = !!multiCart[ticket.id] || ticketId === ticket.id;
                       const qty = multiCart[ticket.id] || (ticketId === ticket.id ? quantity : 1);
-                      const isDisc = isBtsBaltimoreEvent(selected) || ticket.discount_percent !== undefined || /bts/i.test(selected.title);
                       return (
                         <div key={ticket.id} className={`flex items-center gap-3 rounded-xl border p-3 ${isSelected ? 'border-[#1267C4] bg-[#E7F1FC]' : 'border-[#D8E5F0] bg-white'}`}>
                           <button type="button" onClick={() => toggleMultiTicket(ticket.id)} className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${isSelected ? 'bg-[#1267C4] border-[#1267C4] text-white' : 'border-[#D8E5F0] bg-white'}`}><Check className="h-3.5 w-3.5" /></button>
-                          <button type="button" onClick={() => toggleMultiTicket(ticket.id)} className="flex-1 text-left"><span className="block text-sm font-semibold">{ticket.name} {ticket.section && `• ${ticket.section}`} {ticket.row && `Row ${ticket.row}`}</span><small className="block text-xs text-[#687A90]">{ticket.quantity_available} avail • {ticket.delivery_method || 'Mobile transfer'}</small></button>
+                          <button type="button" onClick={() => toggleMultiTicket(ticket.id)} className="flex-1 text-left"><span className="block text-sm font-semibold">{ticket.section || ticket.name}</span><small className="block text-xs text-[#687A90]">Row {ticket.row || '—'} • {ticket.quantity_available} left</small></button>
                           <div className="text-right">
-                            <strong className="block text-sm text-[#1267C4]">{isDisc ? <><span className="block text-xs font-normal line-through text-[#8A9AB0]">${ticket.price.toLocaleString()}</span>${discountedTicketPrice(ticket.price, btsDiscountPercent(ticket)).toLocaleString()}</> : `$${ticket.price.toLocaleString()}`}</strong>
+                            <strong className="block text-sm text-[#1267C4]">${ticket.price.toLocaleString()}</strong>
                             {isSelected && <div className="mt-1 flex items-center gap-1"><button onClick={()=>updateMultiQty(ticket.id, qty-1)} className="h-6 w-6 rounded-full border bg-white"><Minus className="h-3 w-3" /></button><span className="w-5 text-center text-xs font-bold">{qty}</span><button onClick={()=>updateMultiQty(ticket.id, qty+1)} className="h-6 w-6 rounded-full border bg-white"><Plus className="h-3 w-3" /></button></div>}
                           </div>
                         </div>

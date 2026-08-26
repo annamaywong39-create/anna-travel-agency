@@ -11,11 +11,11 @@ export default function About() {
       <SEO title="About Us" description="Learn about Anna Travel Agency — your trusted travel and event accommodation partner." path="/about" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Hero */}
+        {/* Hero - white for readability */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden mb-16 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-[#D8E5F0] p-8 md:p-12"
+          className="relative rounded-3xl overflow-hidden mb-16 bg-white border border-[#D8E5F0] p-8 md:p-12 shadow-sm"
         >
           <div className="relative z-10 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm mb-6">
@@ -138,12 +138,12 @@ export default function About() {
           </div>
         </div>
 
-        {/* CTA */}
+        {/* CTA - white background as requested */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center"
+          className="text-center rounded-3xl bg-white border border-[#D8E5F0] p-10 shadow-sm"
         >
           <h2 className="text-3xl font-bold text-[#14253F] mb-4">Ready to Book Your Stay?</h2>
           <p className="text-[#687A90] mb-8">Find the perfect accommodation for your next trip.</p>

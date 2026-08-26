@@ -120,13 +120,6 @@ export default function Navbar() {
         <>
           <div className="fixed inset-0 z-[60] bg-[#14253F]/25 backdrop-blur-sm md:hidden" onClick={() => setOpen(false)} aria-hidden="true" />
           <div className="fixed inset-x-0 top-[72px] bottom-0 z-[65] overflow-y-auto overscroll-contain bg-[#F7FAFD] px-5 pb-28 pt-6 shadow-[0_20px_60px_-20px_rgba(20,37,63,0.35)] md:hidden">
-            <div className="mb-5 flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8A9AB0]">Menu</span>
-              <button onClick={() => setOpen(false)} aria-label="Close menu" className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D8E5F0] bg-white text-[#14253F] shadow-sm hover:border-[#1267C4] hover:text-[#1267C4]">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
             <div className="flex flex-col gap-1.5">
               {links.map((link) => (
                 <Link key={link.to} to={link.to} className={`rounded-2xl px-5 py-4 text-[18px] font-semibold ${location.pathname === link.to ? 'bg-[#E7F1FC] text-[#1267C4]' : 'text-[#14253F] hover:bg-white'}`}>

@@ -8,8 +8,6 @@ import BtsPromoBanner from '../components/BtsPromoBanner';
 import { useData, type Event } from '../contexts/DataContext';
 import { eventImageFor } from '../lib/eventImages';
 import { formatVenueDate } from '../lib/eventDate';
-import { useCurrency, getCurrencyForCity } from '../contexts/CurrencyContext';
-import { CURRENCIES } from '../contexts/CurrencyContext';
 
 function hasEventEnded(event: Pick<Event, 'date' | 'status'>) {
   return event.status === 'finished' || new Date(event.date).getTime() < Date.now();
@@ -21,7 +19,6 @@ function isSoldOut(event: Pick<Event, 'status'>) {
 
 export default function Events() {
   const { fetchEvents } = useData();
-  const { formatDual } = useCurrency();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,9 +100,6 @@ export default function Events() {
       {list.map((event, i) => {
         const ended = hasEventEnded(event);
         const soldOut = isSoldOut(event);
-        const localCurrency = getCurrencyForCity(event.city);
-        const currencyInfo = CURRENCIES[localCurrency];
-        const dualSample = formatDual(100, event.city); // sample $100 conversion for display
         return (
           <motion.div
             key={`${isHistory ? 'past' : 'upcoming'}-${event.id}`}
@@ -137,9 +131,6 @@ export default function Events() {
                     {ended ? 'Event ended' : soldOut ? 'Sold out' : event.status}
                   </span>
                 </div>
-                <div className="absolute bottom-2 left-2 rounded-full bg-[#0F1E3A]/85 px-2.5 py-1 text-[10px] font-bold text-white border border-white/20">
-                  {currencyInfo.flag} {localCurrency} • {currencyInfo.symbol} Pay
-                </div>
                 {ended && <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[0.5px] pointer-events-none" />}
               </div>
               {ended ? (
@@ -162,13 +153,6 @@ export default function Events() {
                     <MapPin className="w-4 h-4 text-amber-400" />
                     <span>{event.venue}, {event.city}</span>
                   </div>
-                </div>
-                {/* Currency & conversion */}
-                <div className="mb-3 rounded-xl border border-[#D8E5F0] bg-[#F7FAFD] p-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A9AB0]">Payment currency</p>
-                  <p className="mt-1 text-sm font-semibold text-[#14253F]">{currencyInfo.flag} {currencyInfo.name} ({localCurrency}) • USD equivalent shown</p>
-                  <p className="mt-1 text-xs text-[#5B6B82]">{dualSample.rateText}</p>
-                  <p className="mt-1 text-xs text-[#687A90]">Example: $100 USD = {formatDual(100, event.city).local}</p>
                 </div>
                 <p className="text-[#687A90] text-sm line-clamp-2 mb-4">{event.description}</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -196,11 +180,11 @@ export default function Events() {
       <BtsPromoBanner />
       <SEO title="Events" description="Discover and book tickets for exciting events worldwide. Past events restored as history." path="/events" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        {/* Hero */}
+        {/* Hero - white background for readability */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden mb-12 bg-gradient-to-r from-[#0a0a1a] via-[#14142a] to-[#0a0a1a] border border-[#D8E5F0] p-8 md:p-12"
+          className="relative rounded-3xl overflow-hidden mb-12 bg-white border border-[#D8E5F0] p-8 md:p-12 shadow-sm"
         >
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm mb-6">
