@@ -70,7 +70,7 @@ export default function Listings() {
   const uniqueCities = [...new Set(HOST_CITIES.map(c => ({ id: c.id, name: c.name })))];
 
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD] text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <SEO title="Accommodations" description="Browse hotels, apartments & shortlets worldwide." path="/listings" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         

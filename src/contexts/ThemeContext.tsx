@@ -41,14 +41,26 @@ function getTimeBasedTheme(): Theme {
   return 'light';
 }
 
+function getSystemTheme(): Theme | null {
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+  } catch {}
+  return null;
+}
+
+function getInitialTheme(): Theme {
+  try {
+    const saved = localStorage.getItem('anna_theme') as Theme | null;
+    if (saved === 'light' || saved === 'dark') return saved;
+    const sys = getSystemTheme();
+    if (sys) return sys;
+  } catch {}
+  return getTimeBasedTheme();
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    try {
-      const saved = localStorage.getItem('anna_theme') as Theme | null;
-      if (saved === 'light' || saved === 'dark') return saved;
-    } catch {}
-    return getTimeBasedTheme();
-  });
+  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
 
   const [autoMode, setAutoMode] = useState<boolean>(() => {
     try {
@@ -80,20 +92,49 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return 'normal';
   });
 
-  // Auto switch based on time
+  // Auto switch based on time + system preference
   useEffect(() => {
     if (!autoMode) return;
-    const iv = setInterval(() => {
+    const applyAuto = () => {
       const timeTheme = getTimeBasedTheme();
+      const sysTheme = getSystemTheme();
+      // Prefer system if set, else time-based — both are automatic
+      const autoTheme = sysTheme || timeTheme;
       setThemeState((cur) => {
-        if (cur !== timeTheme) {
-          try { localStorage.setItem('anna_theme', timeTheme); } catch {}
-          return timeTheme;
+        if (cur !== autoTheme) {
+          try { localStorage.setItem('anna_theme', autoTheme); } catch {}
+          return autoTheme;
         }
         return cur;
       });
-    }, 60 * 1000);
-    return () => clearInterval(iv);
+    };
+    applyAuto();
+    const iv = setInterval(applyAuto, 60 * 1000);
+
+    // Listen to system preference changes
+    let mql: MediaQueryList | null = null;
+    let handler: ((e: MediaQueryListEvent) => void) | null = null;
+    try {
+      mql = window.matchMedia('(prefers-color-scheme: dark)');
+      handler = (e) => {
+        const newTheme = e.matches ? 'dark' : 'light';
+        setThemeState((cur) => {
+          if (cur !== newTheme) {
+            try { localStorage.setItem('anna_theme', newTheme); } catch {}
+            return newTheme;
+          }
+          return cur;
+        });
+      };
+      mql.addEventListener('change', handler);
+    } catch {}
+
+    return () => {
+      clearInterval(iv);
+      if (mql && handler) {
+        try { mql.removeEventListener('change', handler); } catch {}
+      }
+    };
   }, [autoMode]);
 
   useEffect(() => {

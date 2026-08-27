@@ -32,7 +32,7 @@ export default function Contact() {
   };
 
   return (
-    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD]">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD] text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <SEO title="Contact Us" description="Get in touch with Anna Travel Agency. 24/7 support for accommodation and ticket inquiries." path="/contact" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div

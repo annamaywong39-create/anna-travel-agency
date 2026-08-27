@@ -57,7 +57,7 @@ const faqs = [
 
 export default function Refund() {
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD] text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <SEO title="Refund Policy" description="Anna Travel Agency refund and cancellation policy for accommodation and event bookings." path="/refund" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

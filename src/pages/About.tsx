@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 export default function About() {
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD] text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <SEO title="About Us" description="Learn about Anna Travel Agency — your trusted travel and event accommodation partner." path="/about" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         

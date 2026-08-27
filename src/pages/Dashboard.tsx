@@ -46,7 +46,7 @@ export default function Dashboard() {
   const getListingById = (id: string) => listings.find(l => l.id === id);
 
   return (
-    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD]">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD] text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -32,7 +32,7 @@ export default function Home() {
 
   useEffect(() => { const timer = window.setInterval(() => setSlide((value) => (value + 1) % slides.length), 6000); return () => window.clearInterval(timer); }, []);
 
-  return <main className="home-luxury bg-[#f6f9fd] text-[#14253f]">
+  return <main className="home-luxury min-h-screen bg-[#f6f9fd] text-[#14253f] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
     <SEO title="Curated event travel and stays" description="Plan event trips with selected stays, ticket requests, and personal concierge support from Anna Travel Agency." />
     <BtsPromoBanner />
     <section className="relative overflow-visible bg-[#ddecfb] mt-0">

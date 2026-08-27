@@ -50,7 +50,7 @@ const sections = [
 
 export default function Privacy() {
   return (
-    <main className="pt-24 pb-20 min-h-screen">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD] text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <SEO title="Privacy Policy" description="Privacy Policy for Anna Travel Agency — How we collect, use, and protect your personal data." path="/privacy" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

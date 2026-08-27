@@ -387,7 +387,7 @@ export default function Tickets() {
   );
 
   return (
-    <main className="min-h-screen bg-[#F7FAFD] pb-32 text-[#14253F]">
+    <main className="min-h-screen bg-[#F7FAFD] pb-32 text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <BtsPromoBanner />
       <SEO title="Tickets - Available Inventory" description="Ticket tab shows only events with verified ticket inventory — multi-section select." path="/tickets" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-6">

@@ -144,7 +144,7 @@ export default function Booking() {
     }`;
 
   return (
-    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD]">
+    <main className="pt-24 pb-20 min-h-screen bg-[#F7FAFD] text-[#14253F] dark:bg-[#0A1931] dark:text-[#E2E8F0]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link to={`/listing/${id}`} className="inline-flex items-center gap-2 text-[#DB8293] text-sm mb-6 hover:underline">
           <ArrowLeft className="w-4 h-4" /> Back to listing
