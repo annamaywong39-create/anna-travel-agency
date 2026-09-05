@@ -1,0 +1,102 @@
+/* Unified white-and-blue design layer - with dark mode support */
+:root {
+  --ana-bg: #F7FAFD;
+  --ana-card: #FFFFFF;
+  --ana-blue: #1267C4;
+  --ana-ink: #14253F;
+  --ana-soft: #E7F1FC;
+  --ana-border: #D8E5F0;
+  --ana-muted: #687A90;
+}
+
+html.dark {
+  --ana-bg: #0A1931;
+  --ana-card: #132040;
+  --ana-blue: #5BA7E8;
+  --ana-ink: #F1F5F9;
+  --ana-soft: #1A2E4D;
+  --ana-border: #1E3A5F;
+  --ana-muted: #B8C6D9;
+}
+
+/* Base */
+body {
+  background: var(--ana-bg);
+  color: var(--ana-ink);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+html.dark body {
+  background: var(--ana-bg);
+  color: var(--ana-ink);
+}
+
+/* Make every image reserve space and remain safe when a remote URL fails. */
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Admin: always dark workspace for readability - no light override */
+.admin-modern {
+  background: #071A2A !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .admin-modern {
+  background: #071A2A !important;
+  color: #FFFFFF !important;
+}
+
+/* Admin cards inside admin-modern - keep dark with white text */
+.admin-modern .bg-white,
+.admin-modern [class*="bg-[#131C2E]"],
+.admin-modern [class*="bg-[#0d1425]"],
+.admin-modern [class*="bg-[#14142a]"] {
+  background: #111E32 !important;
+  color: #FFFFFF !important;
+}
+
+.admin-modern h1,
+.admin-modern h2,
+.admin-modern h3,
+.admin-modern h4,
+.admin-modern .text-white {
+  color: #FFFFFF !important;
+}
+
+.admin-modern .text-gray-400,
+.admin-modern .text-gray-500,
+.admin-modern .text-gray-300 {
+  color: #94A3B8 !important;
+}
+
+/* Preserve dark gradient cards for Top Picks - do NOT override text-white inside them */
+.bg-gradient-to-br.from-\[\#14253F\] {
+  /* Keep as is - dark cards should keep white text */
+}
+
+/* Ensure Top Picks cards keep white text readable in both themes */
+.bg-gradient-to-br.from-\[\#14253F\] .text-white,
+.bg-gradient-to-br.from-\[\#14253F\] h3,
+.bg-gradient-to-br.from-\[\#14253F\] p {
+  color: white !important;
+}
+
+.bg-gradient-to-br.from-\[\#14253F\] .text-\[\#FFD166\] {
+  color: #FFD166 !important;
+}
+
+.bg-gradient-to-br.from-\[\#14253F\] .text-white\/70 {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* Dark mode: ensure every element transitions */
+html.dark * {
+  scrollbar-color: #1E3A5F #0A1931;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
