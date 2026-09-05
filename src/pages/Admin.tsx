@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Building2, Calendar, Users, Plus, Edit2, Trash2,
@@ -53,9 +53,10 @@ function isDatabaseId(value: string) {
 }
 
 export default function Admin() {
-  const { user } = useAuth();
+  const { user, isAuthReady } = useAuth();
+  const location = useLocation();
   const {
-    listings, orders, bookings, deleteListing, updateBooking, isDemo,
+    listings, orders, bookings, deleteListing, updateBooking,
     fetchAllUsers, updateTicketOrder, deleteTicketOrder, fetchAllTicketOrders, fetchAllOrders, updateOrder, deleteOrder,
     fetchEvents, addEvent, updateEvent, deleteEvent,
     fetchEventTickets, addEventTicket, updateEventTicket, deleteEventTicket
@@ -160,20 +161,25 @@ export default function Admin() {
     window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}${url.hash}`);
   }, [activeTab]);
 
-  if (!user || user.role !== 'admin') {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (isDemo) {
+  // Wait for the auth session to be restored from storage before deciding —
+  // otherwise a refresh on /admin instantly bounces through /login (blank
+  // flash) and loses the active tab in the URL.
+  if (!isAuthReady) {
     return (
-      <main className="min-h-screen bg-[#0A1128] px-4 pb-20 pt-32 text-white">
-        <div className="mx-auto max-w-xl rounded-2xl border border-amber-400/30 bg-amber-950/30 p-8 text-center">
-          <h1 className="text-2xl font-bold">Supabase connection required</h1>
-          <p className="mt-3 leading-7 text-amber-100/80">Admin changes and image uploads are disabled because this deployment is in Demo Mode. Add the Supabase variables to Vercel and redeploy before managing live data.</p>
+      <main className="admin-modern flex min-h-screen items-center justify-center bg-[#071A2A] pt-24 text-white">
+        <div className="text-center">
+          <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+          <p className="text-sm text-white/70">Restoring your session…</p>
         </div>
       </main>
     );
   }
+
+  if (!user || user.role !== 'admin') {
+    // Preserve the exact tab so login returns the admin where they were.
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
 
   const loadUsers = async () => {
     setLoadingUsers(true);
@@ -219,7 +225,6 @@ export default function Admin() {
 
   const handleCsvImport = async (file?: File) => {
     if (!file) return;
-    if (isDemo) { notify('error', 'Supabase is not connected. CSV import is disabled in Demo Mode.'); return; }
     setCsvImportStatus('Reading CSV…');
     try {
       const rows = parseCsv(await file.text()) as Array<Record<string, string>>;
@@ -339,7 +344,6 @@ export default function Admin() {
 
   const handleUploadEventImage = async (file?: File) => {
     if (!file) return;
-    if (isDemo) return notify('error', 'Supabase is not connected. Image uploads are disabled in Demo Mode.');
     setUploadingEventImage(true);
     try {
       const imageUrl = await uploadPublicImage(file, 'events');
@@ -354,7 +358,6 @@ export default function Admin() {
 
   const handleUploadSeatMap = async (file?: File) => {
     if (!file) return;
-    if (isDemo) return notify('error', 'Supabase is not connected. Image uploads are disabled in Demo Mode.');
     setUploadingSeatMap(true);
     try {
       const imageUrl = await uploadPublicImage(file, 'events');
@@ -369,7 +372,6 @@ export default function Admin() {
 
   const handleUploadTicketImage = async (file?: File) => {
     if (!file) return;
-    if (isDemo) return notify('error', 'Supabase is not connected. Image uploads are disabled in Demo Mode.');
     setUploadingTicketImage(true);
     try {
       const imageUrl = await uploadPublicImage(file, 'tickets');
@@ -569,18 +571,12 @@ export default function Admin() {
             <Link to="/dashboard" className="inline-flex items-center gap-2 text-amber-400 text-sm mb-2 hover:underline">
               <ArrowLeft className="w-4 h-4" /> Back to Dashboard
             </Link>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
+                        <h1 className="text-3xl font-black text-white flex items-center gap-3">
               <LayoutDashboard className="w-8 h-8 text-purple-400" />
               Admin Panel
-              {isDemo ? (
-                <span className="ml-3 px-2 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 text-xs font-medium">
-                  Demo Mode — changes disabled
-                </span>
-              ) : (
-                <span className="ml-3 px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
-                  LIVE SUPABASE
-                </span>
-              )}
+              <span className="ml-3 px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
+                LIVE SUPABASE
+              </span>
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-gray-400">Manage live events, ticket inventory, stays, customer requests, and supplier confirmations from one workspace.</p>
           </div>
@@ -1215,7 +1211,7 @@ export default function Admin() {
                     <input name="image_url" value={editEvent?.image_url || ''} onChange={(event) => setEditEvent((current) => ({ ...(current || {}), image_url: event.target.value }))} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
                     <label className="inline-flex cursor-pointer items-center rounded-xl border border-blue-400/30 bg-blue-500/15 px-3 text-xs font-semibold text-blue-200">
                       {uploadingEventImage ? 'Uploading…' : 'Upload'}
-                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingEventImage || isDemo} onChange={(event) => { void handleUploadEventImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingEventImage} onChange={(event) => { void handleUploadEventImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
                     </label>
                   </div>
                   {editEvent?.image_url && <button type="button" onClick={() => setPreviewImage(editEvent.image_url || null)} className="mt-3 block overflow-hidden rounded-xl border border-white/10 text-left"><img src={editEvent.image_url} alt="Event image preview" className="h-32 w-full object-cover" onError={(event) => { event.currentTarget.src = '/images/event-sport.jpg'; }} /><span className="block bg-black/50 px-3 py-1 text-xs text-white">Click to preview event image</span></button>}
@@ -1226,7 +1222,7 @@ export default function Admin() {
                     <input name="seat_map_url" value={editEvent?.seat_map_url || ''} onChange={(event) => setEditEvent((current) => ({ ...(current || {}), seat_map_url: event.target.value }))} placeholder="Optional seating map image URL" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
                     <label className="inline-flex cursor-pointer items-center rounded-xl border border-purple-400/30 bg-purple-500/15 px-3 text-xs font-semibold text-purple-200">
                       {uploadingSeatMap ? 'Uploading…' : 'Upload'}
-                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingSeatMap || isDemo} onChange={(event) => { void handleUploadSeatMap(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingSeatMap} onChange={(event) => { void handleUploadSeatMap(event.target.files?.[0]); event.currentTarget.value = ''; }} />
                     </label>
                   </div>
                   {editEvent?.seat_map_url && <button type="button" onClick={() => setPreviewImage(editEvent.seat_map_url || null)} className="mt-3 block overflow-hidden rounded-xl border border-white/10 text-left"><img src={editEvent.seat_map_url} alt="Stadium seating map preview" className="h-32 w-full object-contain bg-slate-900" onError={(event) => { event.currentTarget.src = '/images/seatmaps/mt-bank-stadium-bts-2026-08-10.png'; }} /><span className="block bg-black/50 px-3 py-1 text-xs text-white">Click to preview seating map</span></button>}
@@ -1278,7 +1274,7 @@ export default function Admin() {
                     <input name="image_url" value={editTicket?.image_url || ''} onChange={(event) => setEditTicket((current) => ({ ...(current || {}), image_url: event.target.value }))} placeholder="Optional authorized image URL" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
                     <label className="inline-flex cursor-pointer items-center rounded-xl border border-purple-400/30 bg-purple-500/15 px-3 text-xs font-semibold text-purple-200">
                       {uploadingTicketImage ? 'Uploading…' : 'Upload'}
-                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingTicketImage || isDemo} onChange={(event) => { void handleUploadTicketImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingTicketImage} onChange={(event) => { void handleUploadTicketImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
                     </label>
                   </div>
                   {editTicket?.image_url && <button type="button" onClick={() => setPreviewImage(editTicket.image_url || null)} className="mt-3 block overflow-hidden rounded-xl border border-white/10 text-left"><img src={editTicket.image_url} alt="Ticket image preview" className="h-32 w-full object-cover" onError={(event) => { event.currentTarget.src = '/images/stadium.jpg'; }} /><span className="block bg-black/50 px-3 py-1 text-xs text-white">Click to preview ticket image</span></button>}

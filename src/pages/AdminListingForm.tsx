@@ -23,7 +23,7 @@ export default function AdminListingForm() {
   const { id } = useParams();
   const isEditing = id && id !== 'new';
   const { user } = useAuth();
-  const { listings, addListing, updateListing, isDemo } = useData();
+  const { listings, addListing, updateListing } = useData();
   const navigate = useNavigate();
 
   const existingListing = isEditing ? listings.find(l => l.id === id) : null;
@@ -81,10 +81,6 @@ export default function AdminListingForm() {
 
   const handleUploadImage = async (file?: File) => {
     if (!file) return;
-    if (isDemo) {
-      setFormError('Supabase is not connected. Image uploads are disabled in Demo Mode.');
-      return;
-    }
     setFormError('');
     setUploadingImage(true);
     try {
@@ -107,10 +103,6 @@ export default function AdminListingForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isDemo) {
-      setFormError('Supabase is not connected. Admin changes are disabled in Demo Mode.');
-      return;
-    }
     setFormError('');
     const cleanImages = formData.images.filter(img => img.trim() !== '');
     const cleanData = { ...formData, images: cleanImages.length > 0 ? cleanImages : ['/images/hotel-luxury.jpg'] };
@@ -135,8 +127,7 @@ export default function AdminListingForm() {
           <Card3D>
             <form onSubmit={handleSubmit} className="p-6 md:p-8 bg-[#131C2E] rounded-2xl border border-white/5 space-y-6">
               {formError && <div role="alert" className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-200">{formError}</div>}
-              {isDemo && <div className="rounded-xl border border-amber-400/30 bg-amber-950/30 px-4 py-3 text-sm text-amber-200">Demo Mode is active. Connect Supabase before saving listings or uploading images.</div>}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label htmlFor="title" className="text-sm text-gray-400 mb-1 block">Title *</label>
                   <input
@@ -253,7 +244,7 @@ export default function AdminListingForm() {
                   <p className="text-xs text-gray-500">Upload an image to Supabase Storage, or add an authorized image URL.</p>
                   <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-[#DB8293]/30 bg-[#DB8293]/15 px-4 py-2 text-sm font-semibold text-[#DB8293] hover:bg-[#DB8293]/25">
                     {uploadingImage ? 'Uploading…' : 'Upload image'}
-                    <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingImage || isDemo} onChange={(event) => { void handleUploadImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
+                    <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploadingImage} onChange={(event) => { void handleUploadImage(event.target.files?.[0]); event.currentTarget.value = ''; }} />
                   </label>
                 </div>
                 <div className="flex gap-2">

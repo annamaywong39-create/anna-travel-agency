@@ -23,7 +23,7 @@ export default function AdminEvents() {
     addEventTicket,
     updateEventTicket,
     deleteEventTicket,
-    isDemo,
+    
   } = useData();
 
   const [events, setEvents] = useState<Event[]>([]);
@@ -34,15 +34,11 @@ export default function AdminEvents() {
   const [editEvent, setEditEvent] = useState<Partial<Event> | null>(null);
 
   useEffect(() => {
-    if (user && user.role === 'admin' && !isDemo) void loadEvents();
-  }, [user, isDemo]);
+    if (user && user.role === 'admin') void loadEvents();
+  }, [user]);
 
   if (!user || user.role !== 'admin') {
     return <Navigate to="/login" replace />;
-  }
-
-  if (isDemo) {
-    return <main className="min-h-screen bg-[#0A1128] px-4 pb-20 pt-32 text-center text-white"><div className="mx-auto max-w-xl rounded-2xl border border-amber-400/30 bg-amber-950/30 p-8"><h1 className="text-2xl font-bold">Supabase connection required</h1><p className="mt-3 leading-7 text-amber-100/80">Event and ticket changes are disabled in Demo Mode. Connect Supabase in Vercel before managing live data.</p></div></main>;
   }
 
   const loadEvents = async () => {

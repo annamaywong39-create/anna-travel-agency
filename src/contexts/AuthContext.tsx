@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 type UserRole = 'user' | 'admin';
 
@@ -32,8 +32,7 @@ function readableAuthError(error: unknown) {
   if (typeof error === 'string' && error.trim()) return error;
   if (error && typeof error === 'object') {
     const candidate = error as { message?: unknown; error_description?: unknown; details?: unknown; hint?: unknown };
-    const message = [candidate.message, candidate.error_description, candidate.details, candidate.hint]
-      .find((value) => typeof value === 'string' && value.trim());
+    const message = [candidate.message, candidate.error_description, candidate.details, candidate.hint].find((value) => typeof value === 'string' && value.trim());
     if (typeof message === 'string') return message;
   }
   return 'Registration could not be completed. Please check your details and try again.';
@@ -54,7 +53,6 @@ function fromAuthUser(authUser: { id: string; email?: string | null; created_at?
 }
 
 async function loadProfile(authUser: { id: string; email?: string | null; created_at?: string; user_metadata?: Record<string, unknown> }) {
-  if (!isSupabaseConfigured) return null;
   const { data } = await supabase.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
   return fromAuthUser(authUser, data);
 }
@@ -64,16 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      // Demo mode: restore user from localStorage if exists
-      try {
-        const demoUser = localStorage.getItem('anna_demo_user');
-        if (demoUser) setUser(JSON.parse(demoUser));
-      } catch {}
-      setIsAuthReady(true);
-      return;
-    }
-
     let mounted = true;
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return;
@@ -87,7 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
         return;
       }
-      // Avoid awaiting Supabase calls inside the auth callback.
       void loadProfile(session.user).then((profile) => mounted && setUser(profile));
     });
 
@@ -98,38 +85,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string, captchaToken?: string) => {
-    if (!isSupabaseConfigured) {
-      // Demo login - any email/password works
-      const demoUser: AuthUser = {
-        id: 'demo-user-' + Date.now(),
-        email: email.trim().toLowerCase(),
-        firstName: email.split('@')[0] || 'Demo',
-        lastName: 'User',
-        role: email.toLowerCase().includes('admin') ? 'admin' : 'user',
-        createdAt: new Date().toISOString(),
-      };
-      try { localStorage.setItem('anna_demo_user', JSON.stringify(demoUser)); } catch {}
-      setUser(demoUser);
-      return { success: true };
-    }
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password, options: captchaToken ? { captchaToken } : undefined });
     return error ? { success: false, error: error.message } : { success: true };
   };
 
   const signup = async (data: { email: string; password: string; firstName: string; lastName: string }, captchaToken?: string) => {
-    if (!isSupabaseConfigured) {
-      const demoUser: AuthUser = {
-        id: 'demo-user-' + Date.now(),
-        email: data.email.trim().toLowerCase(),
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
-        role: data.email.toLowerCase().includes('admin') ? 'admin' : 'user',
-        createdAt: new Date().toISOString(),
-      };
-      try { localStorage.setItem('anna_demo_user', JSON.stringify(demoUser)); } catch {}
-      setUser(demoUser);
-      return { success: true };
-    }
     const { data: result, error } = await supabase.auth.signUp({
       email: data.email.trim().toLowerCase(),
       password: data.password,
@@ -143,31 +103,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const requestPasswordReset = async (email: string, captchaToken?: string) => {
-    if (!isSupabaseConfigured) {
-      // Demo mode: simulate success
-      return { success: true };
-    }
     const redirectTo = `${window.location.origin}/reset-password`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo, ...(captchaToken ? { captchaToken } : {}) });
     return error ? { success: false, error: error.message } : { success: true };
   };
 
   const updatePassword = async (password: string) => {
-    if (!isSupabaseConfigured) {
-      return { success: true };
-    }
     const { error } = await supabase.auth.updateUser({ password });
     return error ? { success: false, error: error.message } : { success: true };
   };
 
   const logout = async () => {
-    if (isSupabaseConfigured) await supabase.auth.signOut();
-    try { localStorage.removeItem('anna_demo_user'); } catch {}
+    await supabase.auth.signOut();
     setUser(null);
   };
 
   const updateProfile = async (data: { firstName?: string; lastName?: string; phone?: string; country?: string }) => {
-    if (!user || !isSupabaseConfigured) return;
+    if (!user) return;
     const patch = {
       ...(data.firstName !== undefined ? { first_name: data.firstName } : {}),
       ...(data.lastName !== undefined ? { last_name: data.lastName } : {}),

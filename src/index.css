@@ -56,6 +56,59 @@ html.dark ::selection { background: rgba(91,167,232,0.35); color: #FFFFFF; }
 }
 
 /* =========================================================
+   LIGHT THEME - Every colored section -> white/milk
+   User wants white/milk during light, color only in dark
+   Exclude admin which is always dark
+   ========================================================= */
+html:not(.dark) {
+  background: #FFFFFF;
+}
+html:not(.dark) body {
+  background: #FFFFFF !important;
+  color: #14253F !important;
+}
+html:not(.dark) main:not(.admin-modern):not([class*="bg-[#071A2A]"]):not([class*="bg-[#0A1128]"]) {
+  background: #FFFFFF !important;
+}
+
+/* All blue-ish sections -> white or milk in light, but not admin */
+html:not(.dark) :not(.admin-modern) [class*="bg-[#ddecfb]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#DDECFB]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#e8f1f8]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#E8F1F8]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#E7F1FC]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#e7f1fc]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#e5f0fc]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#E5F0FC]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#f1f6fb]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#F1F6FB]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#f6f9fd]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#F6F9FD]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#fbfdff]"],
+html:not(.dark) :not(.admin-modern) [class*="bg-[#FBFDFF]"] {
+  background-color: #FFFFFF !important;
+}
+
+/* Milk variant for alternating sections - not admin */
+html:not(.dark) section:nth-of-type(even):not(.admin-modern) {
+  background-color: #F9FBFD !important;
+}
+html:not(.dark) .home-luxury section {
+  background-color: #FFFFFF !important;
+}
+html:not(.dark) .home-luxury section:nth-of-type(even) {
+  background-color: #F7FAFD !important;
+}
+
+/* Ensure cards stay white in light, not admin */
+html:not(.dark) :not(.admin-modern) [class*="bg-white"] {
+  background-color: #FFFFFF !important;
+}
+html:not(.dark) :not(.admin-modern) [class*="bg-[#F7FAFD]"] {
+  background-color: #F7FAFD !important;
+}
+
+/* =========================================================
    COMPREHENSIVE DARK MODE - Every element responds
    Using attribute selectors so arbitrary Tailwind colors are caught
    ========================================================= */

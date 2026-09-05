@@ -3,7 +3,10 @@ import { supabase } from './supabase';
 const MEDIA_BUCKET = 'site-media';
 
 export async function uploadPublicImage(file: File, folder: 'listings' | 'events' | 'tickets') {
-  if (!file.type.startsWith('image/')) throw new Error('Please choose an image file.');
+  // Keep in sync with the site-media bucket's allowed_mime_types (see supabase SQL).
+  // SVG is deliberately rejected — it can embed scripts (stored XSS).
+  const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!ALLOWED.includes(file.type)) throw new Error('Please choose a JPEG, PNG, or WebP image.');
   if (file.size > 8 * 1024 * 1024) throw new Error('Image must be smaller than 8 MB.');
 
   const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';

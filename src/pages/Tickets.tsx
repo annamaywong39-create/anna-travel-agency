@@ -140,13 +140,6 @@ export default function Tickets() {
     const load = async () => {
       setLoading(true);
       try {
-        if (!isSupabaseConfigured) {
-          if (!cancelled) {
-            const all = fallbackEvents().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            setItems(all);
-          }
-          return;
-        }
         const [{ data: matches, error: matchError }, { data: events, error: eventError }] = await Promise.all([
           supabase.from('matches').select('*').gte('match_date', new Date().toISOString()).order('match_date', { ascending: true }),
           supabase.from('events').select('*').gte('date', new Date().toISOString()).order('date', { ascending: true }),

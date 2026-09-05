@@ -20,7 +20,7 @@ const statusConfig = {
 };
 
 export default function Dashboard() {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, isAuthReady, logout, updateProfile } = useAuth();
   const { getUserBookings, cancelBooking, listings } = useData();
   const { format } = useCurrency();
   const [activeTab, setActiveTab] = useState<Tab>('bookings');
@@ -31,6 +31,18 @@ export default function Dashboard() {
     phone: user?.phone || '',
     country: user?.country || '',
   });
+
+  // Wait for session restore — same refresh-race fix as Admin.
+  if (!isAuthReady) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#F7FAFD] pt-[72px] text-[#14253F]">
+        <div className="text-center">
+          <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-[#D8E5F0] border-t-[#14253F]" />
+          <p className="text-sm text-[#687A90]">Restoring your session…</p>
+        </div>
+      </main>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" state={{ from: '/dashboard' }} replace />;
