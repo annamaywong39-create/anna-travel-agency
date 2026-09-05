@@ -67,44 +67,44 @@ html:not(.dark) body {
   background: #FFFFFF !important;
   color: #14253F !important;
 }
-html:not(.dark) main:not(.admin-modern):not([class*="bg-[#071A2A]"]):not([class*="bg-[#0A1128]"]) {
+html:not(.dark) main:not(.admin-modern):not([class*="bg-"]) {
   background: #FFFFFF !important;
 }
 
 /* All blue-ish sections -> white or milk in light, but not admin */
-html:not(.dark) :not(.admin-modern) [class*="bg-[#ddecfb]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#DDECFB]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#e8f1f8]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#E8F1F8]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#E7F1FC]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#e7f1fc]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#e5f0fc]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#E5F0FC]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#f1f6fb]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#F1F6FB]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#f6f9fd]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#F6F9FD]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#fbfdff]"],
-html:not(.dark) :not(.admin-modern) [class*="bg-[#FBFDFF]"] {
+html:not(.dark) :not(.admin-modern) [class~="bg-[#ddecfb]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#DDECFB]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#e8f1f8]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#E8F1F8]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#E7F1FC]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#e7f1fc]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#e5f0fc]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#E5F0FC]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#f1f6fb]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#F1F6FB]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#f6f9fd]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#F6F9FD]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#fbfdff]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#FBFDFF]"] {
   background-color: #FFFFFF !important;
 }
 
 /* Milk variant for alternating sections - not admin */
-html:not(.dark) section:nth-of-type(even):not(.admin-modern) {
+html:not(.dark) section:nth-of-type(even):not(.admin-modern):not([class*="bg-"]):not(:has([class*="text-white"])) {
   background-color: #F9FBFD !important;
 }
-html:not(.dark) .home-luxury section {
+html:not(.dark) .home-luxury section:not([class*="bg-"]):not(:has([class*="text-white"])) {
   background-color: #FFFFFF !important;
 }
-html:not(.dark) .home-luxury section:nth-of-type(even) {
+html:not(.dark) .home-luxury section:nth-of-type(even):not([class*="bg-"]):not(:has([class*="text-white"])) {
   background-color: #F7FAFD !important;
 }
 
 /* Ensure cards stay white in light, not admin */
-html:not(.dark) :not(.admin-modern) [class*="bg-white"] {
+html:not(.dark) :not(.admin-modern) [class~="bg-white"] {
   background-color: #FFFFFF !important;
 }
-html:not(.dark) :not(.admin-modern) [class*="bg-[#F7FAFD]"] {
+html:not(.dark) :not(.admin-modern) [class~="bg-[#F7FAFD]"] {
   background-color: #F7FAFD !important;
 }
 
@@ -127,79 +127,80 @@ html.dark #root {
 }
 
 /* ---- All light backgrounds -> dark navy ---- */
-html.dark [class*="bg-white"],
-html.dark [class*="bg-[#FFFFFF]"],
-html.dark [class*="bg-[#FFF]"],
-html.dark [class*="bg-[#F7FAFD]"],
-html.dark [class*="bg-[#f7fafd]"],
-html.dark [class*="bg-[#f6f9fd]"],
-html.dark [class*="bg-[#FBFDFF]"],
-html.dark [class*="bg-[#fbfdff]"],
-html.dark [class*="bg-[#fbf9f4]"],
-html.dark [class*="bg-[#F7F4EE]"],
-html.dark [class*="bg-[#f7f4ee]"],
-html.dark [class*="bg-[#FFF0F6]"],
-html.dark [class*="bg-[#fff0f6]"] {
+html.dark [class~="bg-white"],
+html.dark [class~="bg-[#FFFFFF]"],
+html.dark [class~="bg-[#FFF]"],
+html.dark [class~="bg-[#F7FAFD]"],
+html.dark [class~="bg-[#f7fafd]"],
+html.dark [class~="bg-[#f6f9fd]"],
+html.dark [class~="bg-[#FBFDFF]"],
+html.dark [class~="bg-[#fbfdff]"],
+html.dark [class~="bg-[#fbf9f4]"],
+html.dark [class~="bg-[#F7F4EE]"],
+html.dark [class~="bg-[#f7f4ee]"],
+html.dark [class~="bg-[#FFF0F6]"],
+html.dark [class~="bg-[#fff0f6]"] {
   background-color: #132040 !important;
 }
 
-html.dark [class*="bg-[#E7F1FC]"],
-html.dark [class*="bg-[#e7f1fc]"],
-html.dark [class*="bg-[#e5f0fc]"],
-html.dark [class*="bg-[#E5F0FC]"],
-html.dark [class*="bg-[#f1f6fb]"],
-html.dark [class*="bg-[#F1F6FB]"],
-html.dark [class*="bg-[#f6f9fd]"],
-html.dark [class*="bg-[#ddecfb]"],
-html.dark [class*="bg-[#DDECFB]"],
-html.dark [class*="bg-[#e8f1f8]"],
-html.dark [class*="bg-[#E8F1F8]"],
-html.dark [class*="bg-[#F7FAFD]/"],
-html.dark [class*="bg-white/"] {
+html.dark [class~="bg-[#E7F1FC]"],
+html.dark [class~="bg-[#e7f1fc]"],
+html.dark [class~="bg-[#e5f0fc]"],
+html.dark [class~="bg-[#E5F0FC]"],
+html.dark [class~="bg-[#f1f6fb]"],
+html.dark [class~="bg-[#F1F6FB]"],
+html.dark [class~="bg-[#f6f9fd]"],
+html.dark [class~="bg-[#ddecfb]"],
+html.dark [class~="bg-[#DDECFB]"],
+html.dark [class~="bg-[#e8f1f8]"],
+html.dark [class~="bg-[#E8F1F8]"],
+html.dark [class~="bg-[#F7FAFD]/"],
+html.dark [class~="bg-white/60"], html.dark [class~="bg-white/90"], html.dark [class~="bg-white/95"] {
   background-color: #162E55 !important;
 }
 
 /* Soft cards like filters */
-html.dark [class*="bg-[#F7FAFD]"],
-html.dark [class*="bg-[#E7F1FC]"] {
+html.dark [class~="bg-[#F7FAFD]"],
+html.dark [class~="bg-[#E7F1FC]"] {
   background-color: #132040 !important;
 }
 
 /* Gray light backgrounds -> darker */
-html.dark [class*="bg-[#E2E8F0]"],
-html.dark [class*="bg-[#e2e8f0]"],
-html.dark [class*="bg-[#CBD5E1]"],
-html.dark [class*="bg-[#cbd5e1]"],
-html.dark [class*="bg-[#F7FAFD]"],
-html.dark [class*="bg-[#F1F5F9]"] {
+html.dark [class~="bg-[#E2E8F0]"],
+html.dark [class~="bg-[#e2e8f0]"],
+html.dark [class~="bg-[#CBD5E1]"],
+html.dark [class~="bg-[#cbd5e1]"],
+html.dark [class~="bg-[#F7FAFD]"],
+html.dark [class~="bg-[#F1F5F9]"] {
   background-color: #1A2E4D !important;
 }
 
-html.dark [class*="bg-[#D8E5F0]"],
-html.dark [class*="bg-[#d8e5f0]"] {
+html.dark [class~="bg-[#D8E5F0]"],
+html.dark [class~="bg-[#d8e5f0]"] {
   background-color: #1E3A5F !important;
 }
 
 /* Keep strong blues readable */
-html.dark [class*="bg-[#1267C4]"],
-html.dark [class*="bg-[#1267c4]"] {
+html.dark [class~="bg-[#1267C4]"],
+html.dark [class~="bg-[#1267c4]"] {
   background-color: #1B6EC8 !important;
   color: #FFFFFF !important;
 }
 
-html.dark [class*="bg-[#0F5AAC]"],
-html.dark [class*="bg-[#0d56a5]"] {
+html.dark [class~="bg-[#0F5AAC]"],
+html.dark [class~="bg-[#0d56a5]"] {
   background-color: #164E8A !important;
 }
 
 /* Navy backgrounds stay navy but slightly lighter for contrast */
-html.dark [class*="bg-[#14253F]"],
-html.dark [class*="bg-[#14253f]"],
-html.dark [class*="bg-[#132A46]"],
-html.dark [class*="bg-[#0F1E3A]"],
-html.dark [class*="bg-[#0f1e3a]"],
-html.dark [class*="bg-[#131C2E]"],
-html.dark [class*="bg-[#0A1128]"] {
+html.dark [class~="bg-[#14253F]"],
+html.dark [class~="bg-[#14253F]/95"],
+html.dark [class~="bg-[#14253f]"],
+html.dark [class~="bg-[#132A46]"],
+html.dark [class~="bg-[#0F1E3A]"],
+html.dark [class~="bg-[#0f1e3a]"],
+html.dark [class~="bg-[#131C2E]"],
+html.dark [class~="bg-[#0A1128]"] {
   background-color: #0F1E3A !important;
 }
 
@@ -210,61 +211,61 @@ html.dark .property-media {
 }
 
 /* ---- Text colors - every dark text -> light readable ---- */
-html.dark [class*="text-[#14253F]"],
-html.dark [class*="text-[#14253f]"],
-html.dark [class*="text-[#172033]"],
-html.dark [class*="text-[#24364d]"],
-html.dark [class*="text-[#10202b]"],
-html.dark [class*="text-[#071A2A]"],
-html.dark [class*="text-[#080F1E]"] {
+html.dark [class~="text-[#14253F]"],
+html.dark [class~="text-[#14253f]"],
+html.dark [class~="text-[#172033]"],
+html.dark [class~="text-[#24364d]"],
+html.dark [class~="text-[#10202b]"],
+html.dark [class~="text-[#071A2A]"],
+html.dark [class~="text-[#080F1E]"] {
   color: #F1F5F9 !important;
 }
 
 /* Secondary titles still bright */
-html.dark [class*="text-[#0F1E3A]"],
-html.dark [class*="text-[#0f1e3a]"],
-html.dark [class*="text-[#0B1F3A]"] {
+html.dark [class~="text-[#0F1E3A]"],
+html.dark [class~="text-[#0f1e3a]"],
+html.dark [class~="text-[#0B1F3A]"] {
   color: #E2E8F0 !important;
 }
 
-html.dark [class*="text-[#5B6B82]"],
-html.dark [class*="text-[#536071]"],
-html.dark [class*="text-[#53677f]"],
-html.dark [class*="text-[#4B5563]"],
-html.dark [class*="text-[#687A90]"],
-html.dark [class*="text-[#8A9AB0]"],
-html.dark [class*="text-[#8b9aae]"],
-html.dark [class*="text-[#9AAABC]"],
-html.dark [class*="text-[#9aaabc]"],
-html.dark [class*="text-[#657890]"],
-html.dark [class*="text-[#718198]"],
-html.dark [class*="text-[#94A3B8]"] {
+html.dark [class~="text-[#5B6B82]"],
+html.dark [class~="text-[#536071]"],
+html.dark [class~="text-[#53677f]"],
+html.dark [class~="text-[#4B5563]"],
+html.dark [class~="text-[#687A90]"],
+html.dark [class~="text-[#8A9AB0]"],
+html.dark [class~="text-[#8b9aae]"],
+html.dark [class~="text-[#9AAABC]"],
+html.dark [class~="text-[#9aaabc]"],
+html.dark [class~="text-[#657890]"],
+html.dark [class~="text-[#718198]"],
+html.dark [class~="text-[#94A3B8]"] {
   color: #B8C6D9 !important;
 }
 
-html.dark [class*="text-[#5B6B82]"].font-bold,
-html.dark [class*="text-[#536071]"].font-bold,
-html.dark [class*="text-[#687A90]"].font-bold {
+html.dark [class~="text-[#5B6B82]"].font-bold,
+html.dark [class~="text-[#536071]"].font-bold,
+html.dark [class~="text-[#687A90]"].font-bold {
   color: #D1DCEA !important;
 }
 
 /* Gold / amber stays gold but brighter */
-html.dark [class*="text-[#b08a42]"],
-html.dark [class*="text-[#B08A42]"],
-html.dark [class*="text-[#c49b55]"],
-html.dark [class*="text-[#C49B55]"] {
+html.dark [class~="text-[#b08a42]"],
+html.dark [class~="text-[#B08A42]"],
+html.dark [class~="text-[#c49b55]"],
+html.dark [class~="text-[#C49B55]"] {
   color: #FFD166 !important;
 }
 
-html.dark [class*="text-[#1267C4]"],
-html.dark [class*="text-[#1267c4]"],
-html.dark [class*="text-[#0d56a5]"] {
+html.dark [class~="text-[#1267C4]"],
+html.dark [class~="text-[#1267c4]"],
+html.dark [class~="text-[#0d56a5]"] {
   color: #7CC4FF !important;
 }
 
 /* Muted placeholder grays */
-html.dark [class*="text-[#8A9AB0]"],
-html.dark [class*="text-[#9AAABC]"] {
+html.dark [class~="text-[#8A9AB0]"],
+html.dark [class~="text-[#9AAABC]"] {
   color: #94A3B8 !important;
 }
 
@@ -278,46 +279,46 @@ html.dark h6 {
   color: #F1F5F9 !important;
 }
 
-html.dark h1[class*="text-[#14253F]"],
-html.dark h2[class*="text-[#14253F]"],
-html.dark h3[class*="text-[#14253F]"] {
+html.dark h1[class~="text-[#14253F]"],
+html.dark h2[class~="text-[#14253F]"],
+html.dark h3[class~="text-[#14253F]"] {
   color: #FFFFFF !important;
 }
 
 /* Top picks label that was black in dark - fixed with safe selectors */
-html.dark [class*="tracking-"][class*="text-"],
-html.dark h2[class*="tracking-"] {
+html.dark [class~="tracking-"][class~="text-"],
+html.dark h2[class~="tracking-"] {
   color: #FFFFFF !important;
 }
 
 /* ---- Borders ---- */
-html.dark [class*="border-[#D8E5F0]"],
-html.dark [class*="border-[#d8e5f0]"],
-html.dark [class*="border-[#E7F1FC]"],
-html.dark [class*="border-[#e7f1fc]"],
-html.dark [class*="border-[#dce7f0]"],
-html.dark [class*="border-[#DCE7F0]"],
-html.dark [class*="border-[#e2eaf2]"],
-html.dark [class*="border-[#E2EAF2]"],
-html.dark [class*="border-[#ddd3c3]"],
-html.dark [class*="border-[#9cb4cd]"] {
+html.dark [class~="border-[#D8E5F0]"],
+html.dark [class~="border-[#d8e5f0]"],
+html.dark [class~="border-[#E7F1FC]"],
+html.dark [class~="border-[#e7f1fc]"],
+html.dark [class~="border-[#dce7f0]"],
+html.dark [class~="border-[#DCE7F0]"],
+html.dark [class~="border-[#e2eaf2]"],
+html.dark [class~="border-[#E2EAF2]"],
+html.dark [class~="border-[#ddd3c3]"],
+html.dark [class~="border-[#9cb4cd]"] {
   border-color: #1E3A5F !important;
 }
 
-html.dark [class*="border-white"] {
+html.dark [class~="border-white"] {
   border-color: #1E3A5F !important;
 }
 
 /* Divider lines */
-html.dark [class*="divide-[#"] {
+html.dark [class~="divide-[#"] {
   border-color: #1E3A5F !important;
 }
 
 /* ---- Cards & shadows ---- */
-html.dark [class*="shadow-sm"],
-html.dark [class*="shadow"],
-html.dark [class*="shadow-xl"],
-html.dark [class*="shadow-2xl"] {
+html.dark [class~="shadow-sm"],
+html.dark [class~="shadow"],
+html.dark [class~="shadow-xl"],
+html.dark [class~="shadow-2xl"] {
   box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(30,58,95,0.5) !important;
 }
 
@@ -346,30 +347,30 @@ html.dark header {
   border-color: #1E3A5F !important;
 }
 
-html.dark header [class*="bg-white"] {
+html.dark header [class~="bg-white"] {
   background-color: #132040 !important;
 }
 
-html.dark header [class*="text-[#14253F]"] {
+html.dark header [class~="text-[#14253F]"] {
   color: #F1F5F9 !important;
 }
 
 /* Mobile menu panel dark */
-html.dark [class*="bg-[#F7FAFD]"].fixed {
+html.dark [class~="bg-[#F7FAFD]"].fixed {
   background-color: #0A1931 !important;
 }
 
 /* Bottom nav */
-html.dark nav[class*="bg-white"] {
+html.dark nav[class~="bg-white"] {
   background-color: rgba(16, 36, 68, 0.97) !important;
   border-color: #1E3A5F !important;
 }
 
-html.dark nav [class*="text-[#8A9AB0]"] {
+html.dark nav [class~="text-[#8A9AB0]"] {
   color: #8195B0 !important;
 }
 
-html.dark nav [class*="bg-[#E7F1FC]"] {
+html.dark nav [class~="bg-[#E7F1FC]"] {
   background-color: #1A2E4D !important;
 }
 
@@ -379,47 +380,47 @@ html.dark footer {
   color: #CBD5E1 !important;
 }
 
-html.dark footer [class*="bg-[#F7FAFD]"] {
+html.dark footer [class~="bg-[#F7FAFD]"] {
   background-color: #132040 !important;
 }
 
-html.dark footer [class*="text-[#14253F]"],
-html.dark footer [class*="text-[#536071]"] {
+html.dark footer [class~="text-[#14253F]"],
+html.dark footer [class~="text-[#536071]"] {
   color: #E2E8F0 !important;
 }
 
 /* ---- Buttons - keep primary readable ---- */
-html.dark [class*="bg-gradient-to-r"][class*="from-amber"] {
+html.dark [class~="bg-gradient-to-r"][class~="from-amber"] {
   /* amber to red gradients stay same but ensure text dark */
 }
 
-html.dark [class*="bg-[#14253F]"][class*="text-white"] {
+html.dark [class~="bg-[#14253F]"][class~="text-white"] {
   background-color: #1A2E4D !important;
   color: #FFFFFF !important;
 }
 
 /* Disabled buttons in dark still visible */
-html.dark [class*="disabled:bg-[#CBD5E1]"]:disabled {
+html.dark [class~="disabled:bg-[#CBD5E1]"]:disabled {
   background-color: #1E3A5F !important;
   color: #5A7290 !important;
 }
 
 /* Past event banner dark */
-html.dark [class*="bg-slate-700"] {
+html.dark [class~="bg-slate-700"] {
   background-color: #1E2E4A !important;
   color: #CBD5E1 !important;
 }
 
-html.dark [class*="bg-slate-100"] {
+html.dark [class~="bg-slate-100"] {
   background-color: #1E2E4A !important;
 }
 
-html.dark [class*="text-slate-"] {
+html.dark [class~="text-slate-"] {
   color: #B8C6D9 !important;
 }
 
 /* ---- Live chat dark ---- */
-html.dark [class*="bg-[#F7FAFD]"][class*="rounded-2xl"] {
+html.dark [class~="bg-[#F7FAFD]"][class~="rounded-2xl"] {
   background-color: #132040 !important;
 }
 
@@ -429,23 +430,23 @@ html.dark .bg-white.border {
 }
 
 /* ---- Admin & dark sections ---- */
-html.dark [class*="bg-[#0A1128]"],
-html.dark [class*="bg-[#131C2E]"] {
+html.dark [class~="bg-[#0A1128]"],
+html.dark [class~="bg-[#131C2E]"] {
   background-color: #0A1931 !important;
 }
 
 /* ---- Links & highlights ---- */
-html.dark a[class*="text-[#1267C4]"],
-html.dark [class*="hover:text-[#1267C4]"]:hover {
+html.dark a[class~="text-[#1267C4]"],
+html.dark [class~="hover:text-[#1267C4]"]:hover {
   color: #7CC4FF !important;
 }
 
 /* ---- Modals ---- */
-html.dark [class*="bg-white"][class*="rounded-2xl"] {
+html.dark [class~="bg-white"][class~="rounded-2xl"] {
   background-color: #132040 !important;
 }
 
-html.dark [class*="bg-black/"] {
+html.dark [class~="bg-black/40"], html.dark [class~="bg-black/50"], html.dark [class~="bg-black/70"] {
   background-color: rgba(0,0,0,0.75) !important;
 }
 
@@ -453,8 +454,8 @@ html.dark [class*="bg-black/"] {
 html.dark section,
 html.dark article,
 html.dark aside,
-html.dark div[class*="bg-white"],
-html.dark div[class*="bg-[#"] {
+html.dark div[class~="bg-white"],
+html.dark div[class~="bg-[#"] {
   transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
 }
 
@@ -463,37 +464,37 @@ html.dark .bg-gradient-to-br.from-\[\#14253F\] {
   background: linear-gradient(to bottom right, #132040, #123A70, #1267C4) !important;
 }
 
-html.dark .bg-gradient-to-br.from-\[\#14253F\] [class*="text-white"],
+html.dark .bg-gradient-to-br.from-\[\#14253F\] [class~="text-white"],
 html.dark .bg-gradient-to-br.from-\[\#14253F\] h3,
 html.dark .bg-gradient-to-br.from-\[\#14253F\] p {
   color: white !important;
 }
 
-html.dark .bg-gradient-to-br.from-\[\#14253F\] [class*="text-[#FFD166]"] {
+html.dark .bg-gradient-to-br.from-\[\#14253F\] [class~="text-[#FFD166]"] {
   color: #FFD166 !important;
 }
 
-html.dark .bg-gradient-to-br.from-\[\#14253F\] [class*="text-white/70"] {
+html.dark .bg-gradient-to-br.from-\[\#14253F\] [class~="text-white/70"] {
   color: rgba(255,255,255,0.75) !important;
 }
 
 /* ---- Scrollbar, selection already done ---- */
 
 /* ---- Fix specific unreadable combinations - safe selectors ---- */
-html.dark [class*="text-"][class*="bg-white"],
-html.dark [class*="text-"][class*="bg-"] {
+html.dark [class~="text-"][class~="bg-white"],
+html.dark [class~="text-"][class~="bg-"] {
   /* generic fix handled above */
 }
 
 /* Fallback readable contrast for light-on-light in dark */
 html.dark .text-\\[\\#14253F\\].bg-white,
-html.dark [class*="bg-white"][class*="text-"] {
+html.dark [class~="bg-white"][class~="text-"] {
   color: #0A1931 !important;
   background-color: #E2E8F0 !important;
 }
 
 /* Search input icons */
-html.dark [class*="text-[#687A90]"] svg,
+html.dark [class~="text-[#687A90]"] svg,
 html.dark .text-amber-400 {
   color: #FFD166 !important;
 }
@@ -503,7 +504,7 @@ html.dark .text-amber-400 {
 }
 
 /* Calendar icon */
-html.dark [class*="text-[#1267C4]"] {
+html.dark [class~="text-[#1267C4]"] {
   color: #7CC4FF !important;
 }
 
@@ -529,62 +530,62 @@ html.dark .bg-gray-500\/20 {
 
 /* Admin root stays dark but readable */
 html.dark .admin-modern,
-html.dark main[class*="bg-[#071A2A]"],
-html.dark main[class*="bg-[#0A1128]"] {
+html.dark main[class~="bg-[#071A2A]"],
+html.dark main[class~="bg-[#0A1128]"] {
   background-color: #071A2A !important;
   color: #FFFFFF !important;
 }
 
 /* Inside admin: semi-transparent white inputs must stay translucent white, not solid navy */
-html.dark .admin-modern [class*="bg-white/5"],
-html.dark main[class*="bg-[#071A2A]"] [class*="bg-white/5"],
-html.dark main[class*="bg-[#0A1128]"] [class*="bg-white/5"],
-html.dark .admin-modern [class*="bg-white/[0.04]"],
-html.dark .admin-modern [class*="bg-white/[0.03]"] {
+html.dark .admin-modern [class~="bg-white/5"],
+html.dark main[class~="bg-[#071A2A]"] [class~="bg-white/5"],
+html.dark main[class~="bg-[#0A1128]"] [class~="bg-white/5"],
+html.dark .admin-modern [class~="bg-white/[0.04]"],
+html.dark .admin-modern [class~="bg-white/[0.03]"] {
   background-color: rgba(255,255,255,0.05) !important;
 }
 
-html.dark .admin-modern [class*="bg-white/10"],
-html.dark main[class*="bg-[#071A2A]"] [class*="bg-white/10"],
-html.dark main[class*="bg-[#0A1128]"] [class*="bg-white/10"] {
+html.dark .admin-modern [class~="bg-white/10"],
+html.dark main[class~="bg-[#071A2A]"] [class~="bg-white/10"],
+html.dark main[class~="bg-[#0A1128]"] [class~="bg-white/10"] {
   background-color: rgba(255,255,255,0.10) !important;
 }
 
-html.dark .admin-modern [class*="hover:bg-white/5"]:hover,
-html.dark .admin-modern [class*="hover:bg-white/10"]:hover {
+html.dark .admin-modern [class~="hover:bg-white/5"]:hover,
+html.dark .admin-modern [class~="hover:bg-white/10"]:hover {
   background-color: rgba(255,255,255,0.10) !important;
 }
 
-html.dark .admin-modern [class*="hover:bg-white/10"]:hover {
+html.dark .admin-modern [class~="hover:bg-white/10"]:hover {
   background-color: rgba(255,255,255,0.15) !important;
 }
 
 /* White buttons inside admin (close modal X, etc.) must stay white with dark text */
 html.dark .admin-modern .bg-white,
-html.dark main[class*="bg-[#0A1128]"] .bg-white,
-html.dark main[class*="bg-[#071A2A]"] .bg-white,
-html.dark .admin-modern [class*="bg-white"][class*="rounded-full"] {
+html.dark main[class~="bg-[#0A1128]"] .bg-white,
+html.dark main[class~="bg-[#071A2A]"] .bg-white,
+html.dark .admin-modern [class~="bg-white"][class~="rounded-full"] {
   background-color: #FFFFFF !important;
   color: #0F172A !important;
 }
 
 html.dark .admin-modern .bg-white.text-slate-900,
 html.dark .admin-modern .bg-white .text-slate-900,
-html.dark main[class*="bg-[#0A1128]"] .bg-white.text-slate-900 {
+html.dark main[class~="bg-[#0A1128]"] .bg-white.text-slate-900 {
   background-color: #FFFFFF !important;
   color: #0F172A !important;
 }
 
 /* Ensure dark text on white bg stays dark, even in dark mode */
-html.dark .admin-modern [class*="text-slate-900"][class*="bg-white"],
+html.dark .admin-modern [class~="text-slate-900"][class~="bg-white"],
 html.dark .admin-modern .text-slate-900 {
   color: #0F172A !important;
 }
 
 /* Admin cards: keep dark card backgrounds distinct */
-html.dark .admin-modern [class*="bg-[#131C2E]"],
-html.dark main[class*="bg-[#0A1128]"] [class*="bg-[#131C2E]"],
-html.dark .admin-modern [class*="bg-[#0d1425]"] {
+html.dark .admin-modern [class~="bg-[#131C2E]"],
+html.dark main[class~="bg-[#0A1128]"] [class~="bg-[#131C2E]"],
+html.dark .admin-modern [class~="bg-[#0d1425]"] {
   background-color: #111E32 !important;
   border-color: rgba(255,255,255,0.08) !important;
 }
@@ -594,27 +595,27 @@ html.dark .admin-modern h1,
 html.dark .admin-modern h2,
 html.dark .admin-modern h3,
 html.dark .admin-modern h4,
-html.dark main[class*="bg-[#0A1128]"] h1,
-html.dark main[class*="bg-[#0A1128]"] h2,
-html.dark main[class*="bg-[#0A1128]"] h3 {
+html.dark main[class~="bg-[#0A1128]"] h1,
+html.dark main[class~="bg-[#0A1128]"] h2,
+html.dark main[class~="bg-[#0A1128]"] h3 {
   color: #FFFFFF !important;
 }
 
 /* Admin secondary text - keep gray readable on dark, not forced light */
 html.dark .admin-modern .text-gray-400,
-html.dark .admin-modern [class*="text-gray-400"],
-html.dark main[class*="bg-[#0A1128]"] .text-gray-400,
-html.dark main[class*="bg-[#0A1128]"] [class*="text-gray-400"] {
+html.dark .admin-modern [class~="text-gray-400"],
+html.dark main[class~="bg-[#0A1128]"] .text-gray-400,
+html.dark main[class~="bg-[#0A1128]"] [class~="text-gray-400"] {
   color: #94A3B8 !important;
 }
 
 html.dark .admin-modern .text-gray-500,
-html.dark main[class*="bg-[#0A1128]"] .text-gray-500 {
+html.dark main[class~="bg-[#0A1128]"] .text-gray-500 {
   color: #6B7F9A !important;
 }
 
 html.dark .admin-modern .text-white,
-html.dark main[class*="bg-[#0A1128]"] .text-white {
+html.dark main[class~="bg-[#0A1128]"] .text-white {
   color: #FFFFFF !important;
 }
 
@@ -622,38 +623,38 @@ html.dark main[class*="bg-[#0A1128]"] .text-white {
 html.dark .admin-modern input,
 html.dark .admin-modern select,
 html.dark .admin-modern textarea,
-html.dark main[class*="bg-[#0A1128]"] input,
-html.dark main[class*="bg-[#0A1128]"] select,
-html.dark main[class*="bg-[#0A1128]"] textarea {
+html.dark main[class~="bg-[#0A1128]"] input,
+html.dark main[class~="bg-[#0A1128]"] select,
+html.dark main[class~="bg-[#0A1128]"] textarea {
   background-color: rgba(255,255,255,0.05) !important;
   border-color: rgba(255,255,255,0.10) !important;
   color: #FFFFFF !important;
 }
 
 html.dark .admin-modern input::placeholder,
-html.dark main[class*="bg-[#0A1128]"] input::placeholder {
+html.dark main[class~="bg-[#0A1128]"] input::placeholder {
   color: #6B7F9A !important;
 }
 
 /* Admin table rows hover */
-html.dark .admin-modern tr[class*="border-white/5"]:hover,
-html.dark main[class*="bg-[#0A1128]"] tr[class*="hover:bg-white/5"]:hover {
+html.dark .admin-modern tr[class~="border-white/5"]:hover,
+html.dark main[class~="bg-[#0A1128]"] tr[class~="hover:bg-white/5"]:hover {
   background-color: rgba(255,255,255,0.05) !important;
 }
 
 /* Admin badges like bg-amber-500/20 text-amber-300 should stay as is in dark */
-html.dark .admin-modern [class*="bg-amber-500/"],
-html.dark .admin-modern [class*="bg-blue-500/"],
-html.dark .admin-modern [class*="bg-red-500/"],
-html.dark .admin-modern [class*="bg-green-500/"],
-html.dark .admin-modern [class*="bg-purple-500/"],
-html.dark .admin-modern [class*="bg-emerald-500/"] {
+html.dark .admin-modern [class~="bg-amber-500/"],
+html.dark .admin-modern [class~="bg-blue-500/"],
+html.dark .admin-modern [class~="bg-red-500/"],
+html.dark .admin-modern [class~="bg-green-500/"],
+html.dark .admin-modern [class~="bg-purple-500/"],
+html.dark .admin-modern [class~="bg-emerald-500/"] {
   /* keep original translucent colored backgrounds */
 }
 
 /* Fix modal backgrounds in admin: they use bg-[#14142a] or bg-[#131C2E] - keep dark */
-html.dark .admin-modern [class*="bg-[#14142a]"],
-html.dark main[class*="bg-[#0A1128]"] [class*="bg-[#14142a]"] {
+html.dark .admin-modern [class~="bg-[#14142a]"],
+html.dark main[class~="bg-[#0A1128]"] [class~="bg-[#14142a]"] {
   background-color: #14142A !important;
 }
 
@@ -682,24 +683,24 @@ html.high-contrast body {
 html.high-contrast.dark body {
   color: #FFFFFF !important;
 }
-html.high-contrast [class*="text-[#687A90]"],
-html.high-contrast [class*="text-[#8A9AB0]"],
-html.high-contrast [class*="text-[#5B6B82]"] {
+html.high-contrast [class~="text-[#687A90]"],
+html.high-contrast [class~="text-[#8A9AB0]"],
+html.high-contrast [class~="text-[#5B6B82]"] {
   color: #000000 !important;
   font-weight: 600 !important;
 }
-html.high-contrast.dark [class*="text-[#687A90]"],
-html.high-contrast.dark [class*="text-[#8A9AB0]"],
-html.high-contrast.dark [class*="text-[#5B6B82]"],
-html.high-contrast.dark [class*="text-[#B8C6D9]"] {
+html.high-contrast.dark [class~="text-[#687A90]"],
+html.high-contrast.dark [class~="text-[#8A9AB0]"],
+html.high-contrast.dark [class~="text-[#5B6B82]"],
+html.high-contrast.dark [class~="text-[#B8C6D9]"] {
   color: #FFFFFF !important;
   font-weight: 600 !important;
 }
-html.high-contrast [class*="border-"] {
+html.high-contrast [class~="border-"] {
   border-width: 1.5px !important;
   border-color: #000000 !important;
 }
-html.high-contrast.dark [class*="border-"] {
+html.high-contrast.dark [class~="border-"] {
   border-color: #FFFFFF !important;
 }
 
@@ -734,3 +735,59 @@ html.eye-comfort.dark img {
 }
 
 
+
+/* =========================================================
+   LIGHT CONTRAST SAFETY LAYER (added 2026-09-05)
+   Light theme surfaces are white/milk; these token-exact overrides
+   keep every text/token pair at WCAG AA (>= 4.5:1). Dark surfaces
+   (navy heroes, gradient cards, admin) keep their original accents.
+   ========================================================= */
+html:not(.dark) :not(.admin-modern) [class~="text-[#687A90]"],
+html:not(.dark) :not(.admin-modern) [class~="text-[#687a90]"] { color: #5B6B82 !important; }
+
+html:not(.dark) :not(.admin-modern) [class~="text-[#718198]"] { color: #51617A !important; }
+
+html:not(.dark) :not(.admin-modern) [class~="text-[#8A9AB0]"],
+html:not(.dark) :not(.admin-modern) [class~="text-[#8b9ab0"],
+html:not(.dark) :not(.admin-modern) [class~="text-[#8B9AAE]"],
+html:not(.dark) :not(.admin-modern) [class~="text-[#8b9aae]"] { color: #5E7085 !important; }
+
+html:not(.dark) :not(.admin-modern) [class~="text-[#9AAABC]"],
+html:not(.dark) :not(.admin-modern) [class~="text-[#9aaabc"] { color: #64748B !important; }
+
+html:not(.dark) :not(.admin-modern) [class~="text-[#B08A42]"],
+html:not(.dark) :not(.admin-modern) [class~="text-[#b08a42]"] { color: #8A6522 !important; }
+
+html:not(.dark) :not(.admin-modern) [class~="text-[#DB8293]"],
+html:not(.dark) :not(.admin-modern) [class~="text-[#db8293]"] { color: #A93F5B !important; }
+
+/* Solid blue CTAs always carry white text (light mode) */
+html:not(.dark) :not(.admin-modern) [class~="bg-[#1267C4]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#1267c4]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#0F5AAC]"],
+html:not(.dark) :not(.admin-modern) [class~="bg-[#0d56a5]"] { color: #FFFFFF !important; }
+
+/* Restore original accents inside always-dark surfaces (light mode) */
+html:not(.dark) :is([class~="bg-[#14253F]"], [class~="bg-[#14253F]/95"], [class~="bg-[#14253f]"],
+                    [class~="bg-[#0A1931]"], [class~="bg-[#0a1931]"], [class~="bg-[#0F1E3A]"],
+                    [class~="bg-[#0f1e3a]"], [class~="bg-[#071A2A]"], [class~="bg-[#0A1128]"],
+                    [class~="bg-[#14142a]"], [class~="bg-[#0d1425]"],
+                    .bg-gradient-to-br.from-\[\#14253F\], .bg-gradient-to-r.from-\[\#0a0a1a\],
+                    .bg-gradient-to-br.from-\[\#0a0a1a\])
+  :is([class~="text-[#687A90]"], [class~="text-[#687a90]"]) { color: #687A90 !important; }
+
+html:not(.dark) :is([class~="bg-[#14253F]"], [class~="bg-[#14253F]/95"], [class~="bg-[#14253f]"],
+                    [class~="bg-[#0A1931]"], [class~="bg-[#0a1931]"], [class~="bg-[#0F1E3A]"],
+                    [class~="bg-[#0f1e3a]"], [class~="bg-[#071A2A]"], [class~="bg-[#0A1128]"],
+                    [class~="bg-[#14142a]"], [class~="bg-[#0d1425]"],
+                    .bg-gradient-to-br.from-\[\#14253F\], .bg-gradient-to-r.from-\[\#0a0a1a\],
+                    .bg-gradient-to-br.from-\[\#0a0a1a\])
+  :is([class~="text-[#8A9AB0]"], [class~="text-[#8b9ab0]"], [class~="text-[#9AAABC]"]) { color: #8A9AB0 !important; }
+
+html:not(.dark) :is([class~="bg-[#14253F]"], [class~="bg-[#14253F]/95"], [class~="bg-[#14253f]"],
+                    [class~="bg-[#0A1931]"], [class~="bg-[#0a1931]"], [class~="bg-[#0F1E3A]"],
+                    [class~="bg-[#0f1e3a]"], [class~="bg-[#071A2A]"], [class~="bg-[#0A1128]"],
+                    [class~="bg-[#14142a]"], [class~="bg-[#0d1425]"],
+                    .bg-gradient-to-br.from-\[\#14253F\], .bg-gradient-to-r.from-\[\#0a0a1a\],
+                    .bg-gradient-to-br.from-\[\#0a0a1a\])
+  :is([class~="text-[#B08A42]"], [class~="text-[#b08a42]"]) { color: #B08A42 !important; }
